@@ -1,0 +1,147 @@
+.grade-table-section {
+  animation: fadeIn 0.4s ease-out 0.1s both;
+}
+
+.grade-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input__icon {
+  position: absolute;
+  left: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.search-input__field {
+  width: 240px;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-input__field:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-muted);
+}
+
+.search-input__field::placeholder {
+  color: var(--color-text-muted);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.grade-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grade-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.grade-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9375rem;
+}
+
+.grade-table tbody tr {
+  transition: background-color 0.15s;
+}
+
+.grade-table tbody tr:hover {
+  background: var(--color-bg-hover);
+}
+
+.grade-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.grade-table__actions-col {
+  width: 120px;
+  text-align: right;
+}
+
+.grade-table__no-subjects {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.grade-id {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.grade-name {
+  font-weight: 500;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.375rem;
+}
+
+.table-loading,
+.table-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  gap: 1rem;
+}
+
+.table-empty svg {
+  width: 3rem;
+  height: 3rem;
+  opacity: 0.5;
+}
+
+.table-empty p {
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 640px) {
+  .grade-table__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .search-input__field {
+    width: 100%;
+  }
+}

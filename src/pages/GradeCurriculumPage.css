@@ -1,0 +1,20 @@
+.grade-curriculum-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.grade-curriculum-page__back svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.grade-curriculum-page__back:hover {
+  color: var(--color-primary);
+}

@@ -1,0 +1,24 @@
+.teacher-report-students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.teacher-report-students-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.teacher-report-students-list__name {
+  font-weight: 500;
+}
+
+.teacher-report-students-list__meta {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}

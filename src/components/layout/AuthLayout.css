@@ -1,0 +1,17 @@
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(circle at top right, var(--color-primary-muted), transparent 45%),
+    var(--color-bg);
+  position: relative;
+}
+
+.auth-layout__theme {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
