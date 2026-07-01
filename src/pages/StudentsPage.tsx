@@ -8,36 +8,50 @@ import { StudentForm } from '../components/StudentForm';
 import { StudentTable } from '../components/StudentTable';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
+import { usePagedList } from '../hooks/usePagedList';
 import type { Grade } from '../types/grade';
 import type { Student } from '../types/student';
 
 export function StudentsPage() {
   const { showToast } = useToast();
-  const [students, setStudents] = useState<Student[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
-  const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [detailsPrefillId, setDetailsPrefillId] = useState<number | null>(null);
   const [prefillResult, setPrefillResult] = useState<Student | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
 
-  const fetchStudents = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await studentApi.getAll();
-      setStudents(response.data);
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load students');
-    } finally {
-      setLoading(false);
+  const fetchPage = useCallback(async (query: Parameters<typeof studentApi.getPaged>[0]) => {
+    const response = await studentApi.getPaged(query);
+    return response.data;
+  }, []);
+
+  const {
+    items: students,
+    loading,
+    error,
+    pageNumber,
+    pageSize,
+    search: searchQuery,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch: setSearchQuery,
+    refresh: fetchStudents,
+  } = usePagedList({ fetchPage });
+
+  useEffect(() => {
+    if (error) {
+      showToast('error', error);
     }
-  }, [showToast]);
+  }, [error, showToast]);
 
   const fetchGrades = useCallback(async () => {
     try {
@@ -49,9 +63,8 @@ export function StudentsPage() {
   }, [showToast]);
 
   useEffect(() => {
-    fetchStudents();
     fetchGrades();
-  }, [fetchStudents, fetchGrades]);
+  }, [fetchGrades]);
 
   const closeFormModal = () => {
     setShowFormModal(false);
@@ -184,6 +197,14 @@ export function StudentsPage() {
         onDelete={setDeletingStudent}
         onViewDetails={handleViewDetails}
         onRefresh={fetchStudents}
+        totalCount={totalCount}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        onPageChange={setPageNumber}
+        onPageSizeChange={setPageSize}
       />
 
       <FormModal

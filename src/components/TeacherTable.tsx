@@ -1,7 +1,9 @@
 import type { Teacher } from '../types/teacher';
+import type { TablePaginationProps } from '../types/pagination';
+import { PaginationControls } from './ui/PaginationControls';
 import './GradeTable.css';
 
-interface TeacherTableProps {
+interface TeacherTableProps extends Partial<TablePaginationProps> {
   teachers: Teacher[];
   loading: boolean;
   searchQuery: string;
@@ -21,22 +23,22 @@ export function TeacherTable({
   onDelete,
   onViewDetails,
   onRefresh,
+  totalCount = 0,
+  pageNumber = 1,
+  pageSize = 10,
+  totalPages = 0,
+  hasPreviousPage = false,
+  hasNextPage = false,
+  onPageChange,
+  onPageSizeChange,
 }: TeacherTableProps) {
-  const filteredTeachers = teachers.filter(
-    (teacher) =>
-      teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      teacher.phoneNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      teacher.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      teacher.id.toString().includes(searchQuery),
-  );
-
   return (
     <section className="card grade-table-section">
       <div className="card__header">
         <div>
           <h2 className="card__title">All Teachers</h2>
           <p className="card__subtitle">
-            {teachers.length} teacher{teachers.length !== 1 ? 's' : ''} total
+            {totalCount} teacher{totalCount !== 1 ? 's' : ''} total
           </p>
         </div>
         <div className="grade-table__actions">
@@ -79,7 +81,7 @@ export function TeacherTable({
             <div className="spinner" />
             <p>Loading teachers...</p>
           </div>
-        ) : filteredTeachers.length === 0 ? (
+        ) : teachers.length === 0 ? (
           <div className="table-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
@@ -106,7 +108,7 @@ export function TeacherTable({
               </tr>
             </thead>
             <tbody>
-              {filteredTeachers.map((teacher) => (
+              {teachers.map((teacher) => (
                 <tr key={teacher.id}>
                   <td>
                     <span className="grade-id">#{teacher.id}</span>
@@ -166,6 +168,20 @@ export function TeacherTable({
           </table>
         )}
       </div>
+
+      {onPageChange && onPageSizeChange && (
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          loading={loading}
+        />
+      )}
     </section>
   );
 }

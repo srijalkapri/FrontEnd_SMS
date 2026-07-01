@@ -1,8 +1,10 @@
 import type { GradeSubject } from '../types/gradeSubject';
+import type { TablePaginationProps } from '../types/pagination';
 import { getSubjectTypeLabel } from '../utils/subjectType';
+import { PaginationControls } from './ui/PaginationControls';
 import './GradeSubjectTable.css';
 
-interface GradeSubjectTableProps {
+interface GradeSubjectTableProps extends Partial<TablePaginationProps> {
   items: GradeSubject[];
   loading: boolean;
   searchQuery: string;
@@ -20,27 +22,22 @@ export function GradeSubjectTable({
   onEdit,
   onDelete,
   onRefresh,
+  totalCount = 0,
+  pageNumber = 1,
+  pageSize = 10,
+  totalPages = 0,
+  hasPreviousPage = false,
+  hasNextPage = false,
+  onPageChange,
+  onPageSizeChange,
 }: GradeSubjectTableProps) {
-  const filteredItems = items.filter((item) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      item.gradeName.toLowerCase().includes(query) ||
-      item.subjectName.toLowerCase().includes(query) ||
-      item.id.toString().includes(searchQuery) ||
-      item.gradeId.toString().includes(searchQuery) ||
-      item.subjectId.toString().includes(searchQuery) ||
-      getSubjectTypeLabel(item.isOptional).toLowerCase().includes(query) ||
-      item.teachers.some((t) => t.name.toLowerCase().includes(query))
-    );
-  });
-
   return (
     <section className="card grade-subject-table-section">
       <div className="card__header">
         <div>
           <h2 className="card__title">All Grade Subjects</h2>
           <p className="card__subtitle">
-            {items.length} mapping{items.length !== 1 ? 's' : ''} total
+            {totalCount} mapping{totalCount !== 1 ? 's' : ''} total
           </p>
         </div>
         <div className="grade-subject-table__actions">
@@ -83,7 +80,7 @@ export function GradeSubjectTable({
             <div className="spinner" />
             <p>Loading grade subjects...</p>
           </div>
-        ) : filteredItems.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className="table-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
@@ -111,7 +108,7 @@ export function GradeSubjectTable({
               </tr>
             </thead>
             <tbody>
-              {filteredItems.map((item) => (
+              {items.map((item) => (
                 <tr key={item.id}>
                   <td>
                     <span className="grade-id">#{item.id}</span>
@@ -176,6 +173,20 @@ export function GradeSubjectTable({
           </table>
         )}
       </div>
+
+      {onPageChange && onPageSizeChange && (
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          loading={loading}
+        />
+      )}
     </section>
   );
 }

@@ -4,12 +4,25 @@ import type {
   TeacherDetails,
   UpdateTeacherRequest,
 } from '../types/teacher';
+import type { PaginationQuery, PagedResult } from '../types/pagination';
+import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
 
 const BASE_URL = '/api/Teacher';
 
 export const teacherApi = {
   getAll: () => request<Teacher[]>(`${BASE_URL}/GetAllTeachers`),
+
+  getPaged: (params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<Teacher>>(`${BASE_URL}/GetTeachersPaged?${qs}`);
+  },
 
   getById: (id: number) =>
     request<Teacher>(`${BASE_URL}/GetTeacherById?id=${id}`),

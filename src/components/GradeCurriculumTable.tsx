@@ -1,11 +1,13 @@
 import type { GradeSubject } from '../types/gradeSubject';
+import type { TablePaginationProps } from '../types/pagination';
 import { getSubjectTypeLabel } from '../utils/subjectType';
+import { PaginationControls } from './ui/PaginationControls';
 import './GradeCurriculumTable.css';
 import './GradeSubjectTable.css';
 import './GradeTable.css';
 import './SearchGradeSubject.css';
 
-interface GradeCurriculumTableProps {
+interface GradeCurriculumTableProps extends Partial<TablePaginationProps> {
   subjects: GradeSubject[];
   loading: boolean;
   searchQuery: string;
@@ -19,25 +21,22 @@ export function GradeCurriculumTable({
   searchQuery,
   onSearchChange,
   onRefresh,
+  totalCount = 0,
+  pageNumber = 1,
+  pageSize = 10,
+  totalPages = 0,
+  hasPreviousPage = false,
+  hasNextPage = false,
+  onPageChange,
+  onPageSizeChange,
 }: GradeCurriculumTableProps) {
-  const query = searchQuery.toLowerCase();
-
-  const filteredSubjects = subjects.filter(
-    (item) =>
-      item.subjectName.toLowerCase().includes(query) ||
-      item.id.toString().includes(searchQuery) ||
-      item.subjectId.toString().includes(searchQuery) ||
-      getSubjectTypeLabel(item.isOptional).toLowerCase().includes(query) ||
-      item.teachers.some((teacher) => teacher.name.toLowerCase().includes(query)),
-  );
-
   return (
     <section className="card grade-curriculum-table-section">
       <div className="card__header">
         <div>
           <h2 className="card__title">Mapped Subjects</h2>
           <p className="card__subtitle">
-            {subjects.length} subject{subjects.length !== 1 ? 's' : ''} in this grade
+            {totalCount} subject{totalCount !== 1 ? 's' : ''} in this grade
           </p>
         </div>
         <div className="grade-curriculum-table__actions">
@@ -80,7 +79,7 @@ export function GradeCurriculumTable({
             <div className="spinner" />
             <p>Loading subjects...</p>
           </div>
-        ) : filteredSubjects.length === 0 ? (
+        ) : subjects.length === 0 ? (
           <div className="table-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
@@ -106,7 +105,7 @@ export function GradeCurriculumTable({
               </tr>
             </thead>
             <tbody>
-              {filteredSubjects.map((item) => (
+              {subjects.map((item) => (
                 <tr key={item.id}>
                   <td>
                     <span className="grade-id">#{item.id}</span>
@@ -141,6 +140,20 @@ export function GradeCurriculumTable({
           </table>
         )}
       </div>
+
+      {onPageChange && onPageSizeChange && (
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          loading={loading}
+        />
+      )}
     </section>
   );
 }

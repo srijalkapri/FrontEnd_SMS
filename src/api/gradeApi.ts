@@ -1,10 +1,23 @@
 import type { CreateGradeRequest, Grade, UpdateGradeRequest } from '../types/grade';
+import type { PaginationQuery, PagedResult } from '../types/pagination';
+import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
 
 const BASE_URL = '/api/Grade';
 
 export const gradeApi = {
   getAll: () => request<Grade[]>(`${BASE_URL}/GetAllGrades`),
+
+  getPaged: (params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<Grade>>(`${BASE_URL}/GetGradesPaged?${qs}`);
+  },
 
   getById: (id: number) =>
     request<Grade>(`${BASE_URL}/GetGradeById?id=${id}`),

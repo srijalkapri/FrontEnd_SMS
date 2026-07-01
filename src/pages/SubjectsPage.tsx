@@ -7,36 +7,65 @@ import { SubjectForm } from '../components/SubjectForm';
 import { SubjectTable } from '../components/SubjectTable';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
+import { usePagedList } from '../hooks/usePagedList';
 import type { Subject } from '../types/subject';
 
 export function SubjectsPage() {
   const { showToast } = useToast();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [deletingSubject, setDeletingSubject] = useState<Subject | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [lookupSubjects, setLookupSubjects] = useState<Subject[]>([]);
   const [showFormModal, setShowFormModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
 
-  const fetchSubjects = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await subjectApi.getAll();
-      setSubjects(response.data);
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load subjects');
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
+  const fetchPage = useCallback(
+    async (query: Parameters<typeof subjectApi.getPaged>[0]) => {
+      const response = await subjectApi.getPaged(query);
+      return response.data;
+    },
+    [],
+  );
+
+  const {
+    items: subjects,
+    loading,
+    error,
+    pageNumber,
+    pageSize,
+    search: searchQuery,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch: setSearchQuery,
+    refresh: fetchSubjects,
+  } = usePagedList({ fetchPage });
 
   useEffect(() => {
-    fetchSubjects();
-  }, [fetchSubjects]);
+    if (error) {
+      showToast('error', error);
+    }
+  }, [error, showToast]);
+
+  const fetchLookupSubjects = useCallback(async () => {
+    try {
+      const response = await subjectApi.getAll();
+      setLookupSubjects(response.data);
+    } catch {
+      setLookupSubjects([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showSearchModal) {
+      void fetchLookupSubjects();
+    }
+  }, [showSearchModal, fetchLookupSubjects]);
 
   const closeFormModal = () => {
     setShowFormModal(false);
@@ -132,6 +161,14 @@ export function SubjectsPage() {
         onEdit={openEditModal}
         onDelete={setDeletingSubject}
         onRefresh={fetchSubjects}
+        totalCount={totalCount}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        onPageChange={setPageNumber}
+        onPageSizeChange={setPageSize}
       />
 
       <FormModal
@@ -159,7 +196,7 @@ export function SubjectsPage() {
         subtitle="Select a subject to look up"
         onClose={() => setShowSearchModal(false)}
       >
-        <SearchSubject embedded subjects={subjects} onSearch={handleSearch} loading={searchLoading} />
+        <SearchSubject embedded subjects={lookupSubjects} onSearch={handleSearch} loading={searchLoading} />
       </FormModal>
 
       <ConfirmDeleteModal

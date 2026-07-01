@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { GradeCurriculumTable } from '../components/GradeCurriculumTable';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -8,11 +7,24 @@ import './GradeCurriculumPage.css';
 export function GradeCurriculumPage() {
   const { gradeId: gradeIdParam } = useParams<{ gradeId: string }>();
   const gradeId = parseInt(gradeIdParam ?? '', 10);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const { grade, subjects, loading, notFound, refresh } = useGradeCurriculumDetail(
-    Number.isNaN(gradeId) ? 0 : gradeId,
-  );
+  const {
+    grade,
+    subjects,
+    loading,
+    notFound,
+    refresh,
+    pageNumber,
+    pageSize,
+    search,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch,
+  } = useGradeCurriculumDetail(Number.isNaN(gradeId) ? 0 : gradeId);
 
   if (Number.isNaN(gradeId) || gradeId <= 0) {
     return <Navigate to="/grades" replace />;
@@ -53,9 +65,17 @@ export function GradeCurriculumPage() {
       <GradeCurriculumTable
         subjects={subjects}
         loading={loading}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        searchQuery={search}
+        onSearchChange={setSearch}
         onRefresh={refresh}
+        totalCount={totalCount}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        onPageChange={setPageNumber}
+        onPageSizeChange={setPageSize}
       />
     </div>
   );

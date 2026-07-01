@@ -2,45 +2,93 @@ import { useCallback, useEffect, useState } from 'react';
 import { gradeApi } from '../api/gradeApi';
 import { gradeSubjectApi } from '../api/gradeSubjectApi';
 import { useToast } from '../context/ToastContext';
+import { usePagedList } from '../hooks/usePagedList';
 import type { Grade } from '../types/grade';
-import type { GradeSubject } from '../types/gradeSubject';
 
 export function useGradeCurriculumDetail(gradeId: number) {
   const { showToast } = useToast();
   const [grade, setGrade] = useState<Grade | null>(null);
-  const [subjects, setSubjects] = useState<GradeSubject[]>([]);
-  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setNotFound(false);
+  const fetchPage = useCallback(
+    async (query: Parameters<typeof gradeSubjectApi.getByGradeIdPaged>[1]) => {
+      const response = await gradeSubjectApi.getByGradeIdPaged(gradeId, query);
+      return response.data;
+    },
+    [gradeId],
+  );
 
-    try {
-      const [gradeResponse, mappingsResponse] = await Promise.all([
-        gradeApi.getById(gradeId),
-        gradeSubjectApi.getAll(),
-      ]);
+  const {
+    items: subjects,
+    loading,
+    error,
+    pageNumber,
+    pageSize,
+    search,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch,
+    refresh,
+  } = usePagedList({
+    fetchPage,
+    enabled: gradeId > 0,
+  });
 
-      setGrade(gradeResponse.data);
-      setSubjects(
-        mappingsResponse.data
-          .filter((mapping) => mapping.gradeId === gradeId)
-          .sort((a, b) => a.subjectName.localeCompare(b.subjectName)),
-      );
-    } catch (err) {
-      setGrade(null);
-      setSubjects([]);
-      setNotFound(true);
-      showToast('error', err instanceof Error ? err.message : 'Grade not found');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!gradeId || gradeId <= 0) {
+      return;
     }
+
+    let cancelled = false;
+
+    async function loadGrade() {
+      setNotFound(false);
+      try {
+        const response = await gradeApi.getById(gradeId);
+        if (!cancelled) {
+          setGrade(response.data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setGrade(null);
+          setNotFound(true);
+          showToast('error', err instanceof Error ? err.message : 'Grade not found');
+        }
+      }
+    }
+
+    void loadGrade();
+
+    return () => {
+      cancelled = true;
+    };
   }, [gradeId, showToast]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (error) {
+      showToast('error', error);
+    }
+  }, [error, showToast]);
 
-  return { grade, subjects, loading, notFound, refresh };
+  return {
+    grade,
+    subjects,
+    loading,
+    notFound,
+    refresh,
+    pageNumber,
+    pageSize,
+    search,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch,
+  };
 }

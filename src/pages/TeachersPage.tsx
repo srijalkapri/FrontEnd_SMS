@@ -7,39 +7,49 @@ import { TeacherForm } from '../components/TeacherForm';
 import { TeacherTable } from '../components/TeacherTable';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
+import { usePagedList } from '../hooks/usePagedList';
 import type { Teacher, TeacherDetails } from '../types/teacher';
 
 export function TeachersPage() {
   const { showToast } = useToast();
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [deletingTeacher, setDeletingTeacher] = useState<Teacher | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [detailsPrefillId, setDetailsPrefillId] = useState<number | null>(null);
   const [prefillDetails, setPrefillDetails] = useState<TeacherDetails | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
 
-  const fetchTeachers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await teacherApi.getAll();
-      setTeachers(response.data);
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load teachers');
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
+  const fetchPage = useCallback(async (query: Parameters<typeof teacherApi.getPaged>[0]) => {
+    const response = await teacherApi.getPaged(query);
+    return response.data;
+  }, []);
+
+  const {
+    items: teachers,
+    loading,
+    error,
+    pageNumber,
+    pageSize,
+    search: searchQuery,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch: setSearchQuery,
+    refresh: fetchTeachers,
+  } = usePagedList({ fetchPage });
 
   useEffect(() => {
-    fetchTeachers();
-  }, [fetchTeachers]);
+    if (error) {
+      showToast('error', error);
+    }
+  }, [error, showToast]);
 
   const closeFormModal = () => {
     setShowFormModal(false);
@@ -185,6 +195,14 @@ export function TeachersPage() {
         onDelete={setDeletingTeacher}
         onViewDetails={handleViewDetails}
         onRefresh={fetchTeachers}
+        totalCount={totalCount}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        onPageChange={setPageNumber}
+        onPageSizeChange={setPageSize}
       />
 
       <FormModal

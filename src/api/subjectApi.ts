@@ -1,10 +1,23 @@
 import type { CreateSubjectRequest, Subject, UpdateSubjectRequest } from '../types/subject';
+import type { PaginationQuery, PagedResult } from '../types/pagination';
+import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
 
 const BASE_URL = '/api/Subject';
 
 export const subjectApi = {
   getAll: () => request<Subject[]>(`${BASE_URL}/GetAllSubjects`),
+
+  getPaged: (params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<Subject>>(`${BASE_URL}/GetSubjectsPaged?${qs}`);
+  },
 
   getById: (id: number) =>
     request<Subject>(`${BASE_URL}/GetSubjectById?id=${id}`),

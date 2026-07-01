@@ -11,6 +11,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { SearchGradeSubject } from '../components/SearchGradeSubject';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
+import { usePagedList } from '../hooks/usePagedList';
 import type { Grade } from '../types/grade';
 import type { GradeSubject } from '../types/gradeSubject';
 import type { GradeSubjectTeacher } from '../types/gradeSubjectTeacher';
@@ -19,55 +20,73 @@ import type { Teacher } from '../types/teacher';
 
 export function GradeSubjectsPage() {
   const { showToast } = useToast();
-  const [items, setItems] = useState<GradeSubject[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [assignments, setAssignments] = useState<GradeSubjectTeacher[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allMappings, setAllMappings] = useState<GradeSubject[]>([]);
   const [formLoading, setFormLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<GradeSubject | null>(null);
   const [deletingItem, setDeletingItem] = useState<GradeSubject | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showFormModal, setShowFormModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
 
-  const fetchItems = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await gradeSubjectApi.getAll();
-      setItems(response.data);
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load grade subjects');
-    } finally {
-      setLoading(false);
+  const fetchPage = useCallback(
+    async (query: Parameters<typeof gradeSubjectApi.getPaged>[0]) => {
+      const response = await gradeSubjectApi.getPaged(query);
+      return response.data;
+    },
+    [],
+  );
+
+  const {
+    items,
+    loading,
+    error,
+    pageNumber,
+    pageSize,
+    search: searchQuery,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch: setSearchQuery,
+    refresh: fetchItems,
+  } = usePagedList({ fetchPage });
+
+  useEffect(() => {
+    if (error) {
+      showToast('error', error);
     }
-  }, [showToast]);
+  }, [error, showToast]);
 
   const fetchLookups = useCallback(async () => {
     try {
-      const [gradesResponse, subjectsResponse, teachersResponse, assignmentsResponse] =
+      const [gradesResponse, subjectsResponse, teachersResponse, assignmentsResponse, mappingsResponse] =
         await Promise.all([
           gradeApi.getAll(),
           subjectApi.getAll(),
           teacherApi.getAll(),
           gradeSubjectTeacherApi.getAll(),
+          gradeSubjectApi.getAll(),
         ]);
       setGrades(gradesResponse.data);
       setSubjects(subjectsResponse.data);
       setTeachers(teachersResponse.data);
       setAssignments(assignmentsResponse.data);
+      setAllMappings(mappingsResponse.data);
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to load form options');
     }
   }, [showToast]);
 
   useEffect(() => {
-    fetchItems();
-    fetchLookups();
-  }, [fetchItems, fetchLookups]);
+    void fetchLookups();
+  }, [fetchLookups]);
 
   const closeFormModal = () => {
     setShowFormModal(false);
@@ -192,6 +211,14 @@ export function GradeSubjectsPage() {
         onEdit={openEditModal}
         onDelete={setDeletingItem}
         onRefresh={fetchItems}
+        totalCount={totalCount}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        onPageChange={setPageNumber}
+        onPageSizeChange={setPageSize}
       />
 
       <FormModal
@@ -210,7 +237,7 @@ export function GradeSubjectsPage() {
           grades={grades}
           subjects={subjects}
           teachers={teachers}
-          existingMappings={items}
+          existingMappings={allMappings}
           onSubmit={handleCreateOrUpdate}
           onCancelEdit={closeFormModal}
           loading={formLoading}

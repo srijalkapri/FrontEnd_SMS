@@ -70,8 +70,8 @@ export function draftToBulkItem(draft: ExamSessionDraft) {
   };
 }
 
-export function countConfiguredSessions(sessions: ExamSession[]): number {
-  return sessions.filter(
+export function countConfiguredSessions(sessions: ExamSession[] | undefined | null): number {
+  return (sessions ?? []).filter(
     (session) => session.examDate && session.invigilatorTeacherId,
   ).length;
 }

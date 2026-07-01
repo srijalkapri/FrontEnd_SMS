@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { examApi } from '../api/examApi';
 import { gradeApi } from '../api/gradeApi';
@@ -6,7 +6,9 @@ import { ConfirmDeleteModal } from '../components/ConfirmDeleteModal';
 import { ExamScheduleForm } from '../components/ExamScheduleForm';
 import { PageHeader } from '../components/layout/PageHeader';
 import { FormModal } from '../components/ui/FormModal';
+import { PaginationControls } from '../components/ui/PaginationControls';
 import { useToast } from '../context/ToastContext';
+import { usePagedList } from '../hooks/usePagedList';
 import type { ExamSchedule } from '../types/exam';
 import type { Grade } from '../types/grade';
 import { countConfiguredSessions, formatExamDate } from '../utils/examFormat';
@@ -18,52 +20,66 @@ import './ExamSchedulesPage.css';
 export function ExamSchedulesPage() {
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const [schedules, setSchedules] = useState<ExamSchedule[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
-  const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [gradeFilter, setGradeFilter] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
   const [showFormModal, setShowFormModal] = useState(false);
   const [deletingSchedule, setDeletingSchedule] = useState<ExamSchedule | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const parsedGradeId = gradeFilter ? parseInt(gradeFilter, 10) : NaN;
+
+  const fetchPage = useCallback(
+    async (query: Parameters<typeof examApi.getSchedulesPaged>[0]) => {
+      if (!isNaN(parsedGradeId) && parsedGradeId > 0) {
+        const response = await examApi.getSchedulesByGradePaged(parsedGradeId, query);
+        return response.data;
+      }
+      const response = await examApi.getSchedulesPaged(query);
+      return response.data;
+    },
+    [parsedGradeId],
+  );
+
+  const {
+    items: schedules,
+    loading,
+    error,
+    pageNumber,
+    pageSize,
+    search: searchQuery,
+    totalCount,
+    totalPages,
+    hasPreviousPage,
+    hasNextPage,
+    setPageNumber,
+    setPageSize,
+    setSearch: setSearchQuery,
+    refresh: fetchData,
+  } = usePagedList({ fetchPage });
+
+  useEffect(() => {
+    if (error) {
+      showToast('error', error);
+    }
+  }, [error, showToast]);
+
+  useEffect(() => {
+    setPageNumber(1);
+  }, [gradeFilter, setPageNumber]);
+
+  const fetchGrades = useCallback(async () => {
     try {
-      const [schedulesResponse, gradesResponse] = await Promise.all([
-        examApi.getAllSchedules(),
-        gradeApi.getAll(),
-      ]);
-      setSchedules(schedulesResponse.data);
+      const gradesResponse = await gradeApi.getAll();
       setGrades(gradesResponse.data);
     } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load exam schedules');
-    } finally {
-      setLoading(false);
+      showToast('error', err instanceof Error ? err.message : 'Failed to load grades');
     }
   }, [showToast]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const filteredSchedules = useMemo(() => {
-    const parsedGradeId = gradeFilter ? parseInt(gradeFilter, 10) : NaN;
-    const query = searchQuery.trim().toLowerCase();
-
-    return schedules.filter((schedule) => {
-      const matchesGrade = isNaN(parsedGradeId) || schedule.gradeId === parsedGradeId;
-      const matchesSearch =
-        !query ||
-        schedule.title.toLowerCase().includes(query) ||
-        schedule.gradeName.toLowerCase().includes(query) ||
-        schedule.academicYear.toLowerCase().includes(query) ||
-        schedule.id.toString().includes(query);
-
-      return matchesGrade && matchesSearch;
-    });
-  }, [schedules, gradeFilter, searchQuery]);
+    void fetchGrades();
+  }, [fetchGrades]);
 
   const handleCreate = async (
     gradeId: number,
@@ -129,7 +145,7 @@ export function ExamSchedulesPage() {
           <div>
             <h2 className="card__title">All schedules</h2>
             <p className="card__subtitle">
-              {filteredSchedules.length} schedule{filteredSchedules.length !== 1 ? 's' : ''}
+              {totalCount} schedule{totalCount !== 1 ? 's' : ''} total
             </p>
           </div>
         </div>
@@ -169,11 +185,11 @@ export function ExamSchedulesPage() {
           </div>
         </div>
 
-        {loading ? (
+        {loading && (schedules?.length ?? 0) === 0 ? (
           <div className="exam-empty">
             <span className="spinner" />
           </div>
-        ) : filteredSchedules.length === 0 ? (
+        ) : (schedules?.length ?? 0) === 0 ? (
           <div className="exam-empty">
             <p className="exam-empty__title">No exam schedules found</p>
             <p>Create a schedule to assign exam dates and invigilators per subject.</p>
@@ -197,9 +213,10 @@ export function ExamSchedulesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSchedules.map((schedule) => {
+                {schedules.map((schedule) => {
                   const configured = countConfiguredSessions(schedule.sessions);
                   const published = isExamSchedulePublished(schedule.status);
+                  const sessionCount = schedule.sessions?.length ?? 0;
 
                   return (
                     <tr key={schedule.id}>
@@ -217,7 +234,7 @@ export function ExamSchedulesPage() {
                         </span>
                       </td>
                       <td>
-                        {configured}/{schedule.sessions.length} set
+                        {configured}/{sessionCount} set
                       </td>
                       <td>{formatExamDate(schedule.createdAt)}</td>
                       <td>
@@ -248,6 +265,18 @@ export function ExamSchedulesPage() {
             </table>
           </div>
         )}
+
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={setPageNumber}
+          onPageSizeChange={setPageSize}
+          loading={loading}
+        />
       </section>
 
       <FormModal

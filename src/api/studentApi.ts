@@ -1,11 +1,36 @@
 import type { PromotionRequest, PromotionResult } from '../types/promotion';
 import type { CreateStudentRequest, Student, UpdateStudentRequest } from '../types/student';
+import type { PaginationQuery, PagedResult } from '../types/pagination';
+import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
 
 const BASE_URL = '/api/Student';
 
 export const studentApi = {
   getAll: () => request<Student[]>(`${BASE_URL}/GetAllStudents`),
+
+  getPaged: (params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<Student>>(`${BASE_URL}/GetStudentsPaged?${qs}`);
+  },
+
+  getByGradePaged: (gradeId: number, params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      gradeId,
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<Student>>(`${BASE_URL}/GetStudentsByGradePaged?${qs}`);
+  },
 
   getByGrade: (gradeId: number) =>
     request<Student[]>(`${BASE_URL}/GetStudentsByGrade?gradeId=${gradeId}`),

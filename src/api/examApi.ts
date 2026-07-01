@@ -6,12 +6,37 @@ import type {
   UpdateExamScheduleRequest,
   UpdateExamSessionRequest,
 } from '../types/exam';
+import type { PaginationQuery, PagedResult } from '../types/pagination';
+import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
 
 const BASE_URL = '/api/Exam';
 
 export const examApi = {
   getAllSchedules: () => request<ExamSchedule[]>(`${BASE_URL}/GetAllSchedules`),
+
+  getSchedulesPaged: (params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<ExamSchedule>>(`${BASE_URL}/GetSchedulesPaged?${qs}`);
+  },
+
+  getSchedulesByGradePaged: (gradeId: number, params: PaginationQuery) => {
+    const qs = buildPaginationQueryString({
+      gradeId,
+      PageNumber: params.pageNumber,
+      PageSize: params.pageSize,
+      Search: params.search,
+      SortBy: params.sortBy,
+      SortDirection: params.sortDirection,
+    });
+    return request<PagedResult<ExamSchedule>>(`${BASE_URL}/GetSchedulesByGradePaged?${qs}`);
+  },
 
   getScheduleById: (id: number) =>
     request<ExamSchedule>(`${BASE_URL}/GetScheduleById?id=${id}`),

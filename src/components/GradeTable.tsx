@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import type { GradeCatalogEntry } from '../types/gradeCurriculum';
+import type { TablePaginationProps } from '../types/pagination';
 import { getClassTeacherName } from '../utils/classTeacher';
+import { PaginationControls } from './ui/PaginationControls';
 import './GradeTable.css';
 import './SearchGradeSubject.css';
-interface GradeTableProps {
+
+interface GradeTableProps extends Partial<TablePaginationProps> {
   grades: GradeCatalogEntry[];
   loading: boolean;
   searchQuery: string;
@@ -21,27 +24,22 @@ export function GradeTable({
   onEdit,
   onDelete,
   onRefresh,
+  totalCount = 0,
+  pageNumber = 1,
+  pageSize = 10,
+  totalPages = 0,
+  hasPreviousPage = false,
+  hasNextPage = false,
+  onPageChange,
+  onPageSizeChange,
 }: GradeTableProps) {
-  const query = searchQuery.toLowerCase();
-
-  const filteredGrades = grades.filter((grade) => {
-    const classTeacherName = getClassTeacherName(grade.classTeacher);
-
-    return (
-      grade.className.toLowerCase().includes(query) ||
-      grade.id.toString().includes(searchQuery) ||
-      (classTeacherName?.toLowerCase().includes(query) ?? false) ||
-      grade.subjects.some((subject) => subject.subjectName.toLowerCase().includes(query))
-    );
-  });
-
   return (
     <section className="card grade-table-section">
       <div className="card__header">
         <div>
           <h2 className="card__title">All Grades</h2>
           <p className="card__subtitle">
-            {grades.length} grade{grades.length !== 1 ? 's' : ''} total
+            {totalCount} grade{totalCount !== 1 ? 's' : ''} total
           </p>
         </div>
         <div className="grade-table__actions">
@@ -84,7 +82,7 @@ export function GradeTable({
             <div className="spinner" />
             <p>Loading grades...</p>
           </div>
-        ) : filteredGrades.length === 0 ? (
+        ) : grades.length === 0 ? (
           <div className="table-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
@@ -107,71 +105,83 @@ export function GradeTable({
               </tr>
             </thead>
             <tbody>
-              {filteredGrades.map((grade) => {
+              {grades.map((grade) => {
                 const classTeacherName = getClassTeacherName(grade.classTeacher);
 
                 return (
-                <tr key={grade.id}>
-                  <td>
-                    <span className="grade-id">#{grade.id}</span>
-                  </td>
-                  <td>
-                    <span className="grade-name">{grade.className}</span>
-                  </td>
-                  <td>
-                    {classTeacherName ? (
-                      <span className="teacher-tag teacher-tag--compulsory">{classTeacherName}</span>
-                    ) : (
-                      <span className="grade-table__no-subjects">Not assigned</span>
-                    )}
-                  </td>
-                  <td>
-                    {grade.subjects.length > 0 ? (
-                      <Link
-                        to={`/grades/${grade.id}/subjects`}
-                        className="btn btn--secondary btn--compact"
-                      >
-                        View Subjects ({grade.subjects.length})
-                      </Link>
-                    ) : (
-                      <span className="grade-table__no-subjects">
-                        None mapped
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="row-actions">
-                      <button
-                        className="btn btn--icon btn--edit"
-                        onClick={() => onEdit(grade)}
-                        title="Edit grade"
-                      >
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                      </button>
-                      <button
-                        className="btn btn--icon btn--delete"
-                        onClick={() => onDelete(grade)}
-                        title="Delete grade"
-                      >
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                          <path
-                            fillRule="evenodd"
-                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  <tr key={grade.id}>
+                    <td>
+                      <span className="grade-id">#{grade.id}</span>
+                    </td>
+                    <td>
+                      <span className="grade-name">{grade.className}</span>
+                    </td>
+                    <td>
+                      {classTeacherName ? (
+                        <span className="teacher-tag teacher-tag--compulsory">{classTeacherName}</span>
+                      ) : (
+                        <span className="grade-table__no-subjects">Not assigned</span>
+                      )}
+                    </td>
+                    <td>
+                      {grade.subjects.length > 0 ? (
+                        <Link
+                          to={`/grades/${grade.id}/subjects`}
+                          className="btn btn--secondary btn--compact"
+                        >
+                          View Subjects ({grade.subjects.length})
+                        </Link>
+                      ) : (
+                        <span className="grade-table__no-subjects">None mapped</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <button
+                          className="btn btn--icon btn--edit"
+                          onClick={() => onEdit(grade)}
+                          title="Edit grade"
+                        >
+                          <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
+                        <button
+                          className="btn btn--icon btn--delete"
+                          onClick={() => onDelete(grade)}
+                          title="Delete grade"
+                        >
+                          <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                              fillRule="evenodd"
+                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 );
               })}
             </tbody>
           </table>
         )}
       </div>
+
+      {onPageChange && onPageSizeChange && (
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          loading={loading}
+        />
+      )}
     </section>
   );
 }

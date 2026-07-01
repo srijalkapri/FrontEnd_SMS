@@ -1,7 +1,9 @@
 import type { Subject } from '../types/subject';
+import type { TablePaginationProps } from '../types/pagination';
+import { PaginationControls } from './ui/PaginationControls';
 import './GradeTable.css';
 
-interface SubjectTableProps {
+interface SubjectTableProps extends Partial<TablePaginationProps> {
   subjects: Subject[];
   loading: boolean;
   searchQuery: string;
@@ -19,20 +21,22 @@ export function SubjectTable({
   onEdit,
   onDelete,
   onRefresh,
+  totalCount = 0,
+  pageNumber = 1,
+  pageSize = 10,
+  totalPages = 0,
+  hasPreviousPage = false,
+  hasNextPage = false,
+  onPageChange,
+  onPageSizeChange,
 }: SubjectTableProps) {
-  const filteredSubjects = subjects.filter(
-    (subject) =>
-      subject.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      subject.id.toString().includes(searchQuery),
-  );
-
   return (
     <section className="card grade-table-section">
       <div className="card__header">
         <div>
           <h2 className="card__title">All Subjects</h2>
           <p className="card__subtitle">
-            {subjects.length} subject{subjects.length !== 1 ? 's' : ''} total
+            {totalCount} subject{totalCount !== 1 ? 's' : ''} total
           </p>
         </div>
         <div className="grade-table__actions">
@@ -75,7 +79,7 @@ export function SubjectTable({
             <div className="spinner" />
             <p>Loading subjects...</p>
           </div>
-        ) : filteredSubjects.length === 0 ? (
+        ) : subjects.length === 0 ? (
           <div className="table-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
@@ -100,7 +104,7 @@ export function SubjectTable({
               </tr>
             </thead>
             <tbody>
-              {filteredSubjects.map((subject) => (
+              {subjects.map((subject) => (
                 <tr key={subject.id}>
                   <td>
                     <span className="grade-id">#{subject.id}</span>
@@ -140,6 +144,20 @@ export function SubjectTable({
           </table>
         )}
       </div>
+
+      {onPageChange && onPageSizeChange && (
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          loading={loading}
+        />
+      )}
     </section>
   );
 }

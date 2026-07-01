@@ -1,7 +1,9 @@
 import type { Student } from '../types/student';
+import type { TablePaginationProps } from '../types/pagination';
+import { PaginationControls } from './ui/PaginationControls';
 import './GradeTable.css';
 
-interface StudentTableProps {
+interface StudentTableProps extends Partial<TablePaginationProps> {
   students: Student[];
   loading: boolean;
   searchQuery: string;
@@ -21,31 +23,22 @@ export function StudentTable({
   onDelete,
   onViewDetails,
   onRefresh,
+  totalCount = 0,
+  pageNumber = 1,
+  pageSize = 10,
+  totalPages = 0,
+  hasPreviousPage = false,
+  hasNextPage = false,
+  onPageChange,
+  onPageSizeChange,
 }: StudentTableProps) {
-  const filteredStudents = students.filter((student) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      student.name.toLowerCase().includes(query) ||
-      student.phoneNo.toLowerCase().includes(query) ||
-      student.email.toLowerCase().includes(query) ||
-      student.gradeName.toLowerCase().includes(query) ||
-      student.id.toString().includes(searchQuery) ||
-      student.gradeId.toString().includes(searchQuery) ||
-      student.subjects.some(
-        (subject) =>
-          subject.subjectName.toLowerCase().includes(query) ||
-          subject.teachers.some((teacher) => teacher.name.toLowerCase().includes(query)),
-      )
-    );
-  });
-
   return (
     <section className="card grade-table-section">
       <div className="card__header">
         <div>
           <h2 className="card__title">All Students</h2>
           <p className="card__subtitle">
-            {students.length} student{students.length !== 1 ? 's' : ''} total
+            {totalCount} student{totalCount !== 1 ? 's' : ''} total
           </p>
         </div>
         <div className="grade-table__actions">
@@ -88,7 +81,7 @@ export function StudentTable({
             <div className="spinner" />
             <p>Loading students...</p>
           </div>
-        ) : filteredStudents.length === 0 ? (
+        ) : students.length === 0 ? (
           <div className="table-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
@@ -117,7 +110,7 @@ export function StudentTable({
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.map((student) => (
+              {students.map((student) => (
                 <tr key={student.id}>
                   <td>
                     <span className="grade-id">#{student.id}</span>
@@ -181,6 +174,20 @@ export function StudentTable({
           </table>
         )}
       </div>
+
+      {onPageChange && onPageSizeChange && (
+        <PaginationControls
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          loading={loading}
+        />
+      )}
     </section>
   );
 }
