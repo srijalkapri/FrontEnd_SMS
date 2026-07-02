@@ -12,6 +12,7 @@ interface StudentTableProps extends Partial<TablePaginationProps> {
   onDelete: (student: Student) => void;
   onViewDetails: (student: Student) => void;
   onRefresh: () => void;
+  getSubjectCount?: (student: Student) => number;
 }
 
 export function StudentTable({
@@ -31,6 +32,7 @@ export function StudentTable({
   hasNextPage = false,
   onPageChange,
   onPageSizeChange,
+  getSubjectCount = (student) => student.subjects.length,
 }: StudentTableProps) {
   return (
     <section className="card grade-table-section">
@@ -126,7 +128,7 @@ export function StudentTable({
                   </td>
                   <td>{student.gradeName}</td>
                   <td>
-                    <span className="grade-id">{student.subjects.length}</span>
+                    <span className="grade-id">{getSubjectCount(student)}</span>
                   </td>
                   <td>
                     <div className="row-actions">

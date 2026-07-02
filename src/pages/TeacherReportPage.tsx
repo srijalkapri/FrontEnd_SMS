@@ -20,6 +20,7 @@ import {
   type TeacherReportFilters,
   type TeacherReportRow,
 } from '../utils/teacherReportFilters';
+import { downloadTeacherReportCsv } from '../utils/teacherReportExport';
 import '../components/SearchGrade.css';
 import '../components/SearchGradeSubject.css';
 import './StudentReportPage.css';
@@ -188,6 +189,15 @@ export function TeacherReportPage() {
     setDetailRow(null);
     setDetailTeacher(null);
     setDetailLoadingRowId(null);
+  };
+
+  const handleDownload = () => {
+    if (!hasGenerated || results.length === 0) {
+      return;
+    }
+
+    downloadTeacherReportCsv(results);
+    showToast('success', 'Report downloaded.');
   };
 
   const isBusy = loading || reportLoading;
@@ -371,7 +381,7 @@ export function TeacherReportPage() {
 
       {hasGenerated && (
         <section className="card">
-          <div className="card__header">
+          <div className="card__header student-report-results__header">
             <div>
               <h2 className="card__title">Report Results</h2>
               <p className="card__subtitle">
@@ -380,6 +390,16 @@ export function TeacherReportPage() {
                   : `${results.length} assignment${results.length === 1 ? '' : 's'} found.`}
               </p>
             </div>
+            {results.length > 0 && (
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={handleDownload}
+                disabled={reportLoading}
+              >
+                Download Report
+              </button>
+            )}
           </div>
 
           {results.length > 0 && (

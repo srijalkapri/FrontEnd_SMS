@@ -76,7 +76,7 @@
   color: #d97706;
 }
 
-:root[data-theme='dark'] .teacher-tag--optional {
+:root[data-mode='dark'] .teacher-tag--optional {
   color: #fbbf24;
 }
 

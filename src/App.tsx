@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { AuthProvider } from './context/AuthContext';
+import { AppearancePage } from './pages/AppearancePage';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import { ExamScheduleDetailPage } from './pages/ExamScheduleDetailPage';
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/exams/:id" element={<ExamScheduleDetailPage />} />
                 <Route path="/reports/students" element={<StudentReportPage />} />
                 <Route path="/reports/teachers" element={<TeacherReportPage />} />
+                <Route path="/settings/appearance" element={<AppearancePage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Route>

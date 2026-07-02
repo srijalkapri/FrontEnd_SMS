@@ -1,3 +1,19 @@
+.student-report-results__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.student-report-results__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .student-report-filters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

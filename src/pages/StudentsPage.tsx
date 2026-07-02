@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { gradeApi } from '../api/gradeApi';
+import { gradeSubjectApi } from '../api/gradeSubjectApi';
 import { studentApi } from '../api/studentApi';
 import { ConfirmDeleteModal } from '../components/ConfirmDeleteModal';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -10,11 +11,17 @@ import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
 import { usePagedList } from '../hooks/usePagedList';
 import type { Grade } from '../types/grade';
+import type { GradeSubject } from '../types/gradeSubject';
 import type { Student } from '../types/student';
+import {
+  buildGradeSubjectCounts,
+  getStudentSubjectCount,
+} from '../utils/studentSubjectCount';
 
 export function StudentsPage() {
   const { showToast } = useToast();
   const [grades, setGrades] = useState<Grade[]>([]);
+  const [gradeSubjects, setGradeSubjects] = useState<GradeSubject[]>([]);
   const [formLoading, setFormLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -55,12 +62,26 @@ export function StudentsPage() {
 
   const fetchGrades = useCallback(async () => {
     try {
-      const response = await gradeApi.getAll();
-      setGrades(response.data);
+      const [gradesResponse, gradeSubjectsResponse] = await Promise.all([
+        gradeApi.getAll(),
+        gradeSubjectApi.getAll(),
+      ]);
+      setGrades(gradesResponse.data);
+      setGradeSubjects(gradeSubjectsResponse.data);
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to load grades');
     }
   }, [showToast]);
+
+  const gradeSubjectCounts = useMemo(
+    () => buildGradeSubjectCounts(gradeSubjects),
+    [gradeSubjects],
+  );
+
+  const resolveSubjectCount = useCallback(
+    (student: Student) => getStudentSubjectCount(student, gradeSubjectCounts),
+    [gradeSubjectCounts],
+  );
 
   useEffect(() => {
     fetchGrades();
@@ -205,6 +226,7 @@ export function StudentsPage() {
         hasNextPage={hasNextPage}
         onPageChange={setPageNumber}
         onPageSizeChange={setPageSize}
+        getSubjectCount={resolveSubjectCount}
       />
 
       <FormModal

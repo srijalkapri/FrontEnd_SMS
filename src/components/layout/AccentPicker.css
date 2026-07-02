@@ -1,0 +1,79 @@
+.accent-picker {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.accent-picker--grid {
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+}
+
+.accent-option {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  text-align: left;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.accent-option:hover {
+  border-color: var(--color-border-focus);
+  transform: translateY(-1px);
+}
+
+.accent-option--selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.accent-option__preview {
+  position: relative;
+  height: 3.5rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--preview-dark);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-mode='light'] .accent-option__preview {
+  background: var(--preview-light);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.accent-option__preview-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 35%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-mode='light'] .accent-option__preview-bar {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.accent-option__preview-dot {
+  position: absolute;
+  right: 0.625rem;
+  bottom: 0.625rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 999px;
+  background: var(--accent-color);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-color) 45%, transparent);
+}
+
+.accent-option__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.accent-option--selected .accent-option__label {
+  color: var(--color-primary);
+}

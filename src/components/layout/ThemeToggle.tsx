@@ -2,16 +2,16 @@ import { useTheme } from '../../context/ThemeContext';
 import './ThemeToggle.css';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { mode, toggleMode } = useTheme();
 
   return (
     <button
       type="button"
       className="theme-toggle"
-      onClick={toggleTheme}
-      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={toggleMode}
+      aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      {theme === 'dark' ? (
+      {mode === 'dark' ? (
         <>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
             <path

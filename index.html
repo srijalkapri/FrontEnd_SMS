@@ -7,11 +7,14 @@
     <title>School Management</title>
     <script>
       (function () {
-        var t = localStorage.getItem('theme');
-        if (t !== 'light' && t !== 'dark') {
-          t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        var mode = localStorage.getItem('theme-mode') || localStorage.getItem('theme');
+        if (mode !== 'light' && mode !== 'dark') {
+          mode = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
-        document.documentElement.setAttribute('data-theme', t);
+        var accent = localStorage.getItem('theme-accent') || 'indigo';
+        document.documentElement.setAttribute('data-mode', mode);
+        document.documentElement.setAttribute('data-theme', mode);
+        document.documentElement.setAttribute('data-accent', accent);
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

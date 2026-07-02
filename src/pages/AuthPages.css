@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-gradient));
   border-radius: var(--radius-lg);
   color: white;
   box-shadow: 0 8px 24px var(--color-primary-glow);

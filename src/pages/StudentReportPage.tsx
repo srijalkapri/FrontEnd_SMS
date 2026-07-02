@@ -15,6 +15,7 @@ import {
   type StudentReportFilters,
 } from '../utils/studentReportFilters';
 import type { SubjectTypeFilter } from '../utils/subjectType';
+import { downloadStudentReportCsv } from '../utils/studentReportExport';
 import '../components/SearchGrade.css';
 import '../components/SearchGradeSubject.css';
 import './StudentReportPage.css';
@@ -169,6 +170,15 @@ export function StudentReportPage() {
     setShowDetailModal(false);
     setDetailStudent(null);
     setDetailLoadingId(null);
+  };
+
+  const handleDownload = () => {
+    if (!hasGenerated || results.length === 0) {
+      return;
+    }
+
+    downloadStudentReportCsv(results);
+    showToast('success', 'Report downloaded.');
   };
 
   const isBusy = loading || reportLoading;
@@ -332,7 +342,7 @@ export function StudentReportPage() {
 
       {hasGenerated && (
         <section className="card">
-          <div className="card__header">
+          <div className="card__header student-report-results__header">
             <div>
               <h2 className="card__title">Report Results</h2>
               <p className="card__subtitle">
@@ -341,6 +351,16 @@ export function StudentReportPage() {
                   : `${results.length} student${results.length === 1 ? '' : 's'} found.`}
               </p>
             </div>
+            {results.length > 0 && (
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={handleDownload}
+                disabled={reportLoading}
+              >
+                Download Report
+              </button>
+            )}
           </div>
 
           {results.length > 0 && (
