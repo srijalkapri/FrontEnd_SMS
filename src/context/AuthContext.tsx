@@ -15,6 +15,7 @@ import {
   hasStoredSession,
   setAuthSession,
 } from '../utils/authStorage';
+import { normalizeAuthUser } from '../utils/roles';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -39,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await authApi.me();
-      setUser(result.data);
+      setUser(normalizeAuthUser(result.data));
     } catch {
       clearAuthSession();
       setUser(null);
@@ -74,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (credentials: LoginRequest) => {
     const result = await authApi.login(credentials);
     setAuthSession(result.data.token, result.data.expiresAt);
-    setUser(result.data.user);
+    setUser(normalizeAuthUser(result.data.user));
   }, []);
 
   const logout = useCallback(async () => {

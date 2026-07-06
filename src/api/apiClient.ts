@@ -1,12 +1,12 @@
 import type { ApiResponse } from '../types/api';
 import { clearAuthSession, getToken } from '../utils/authStorage';
 
-function isLoginRequest(url: string): boolean {
-  return url.includes('/api/Auth/Login');
+function isPublicAuthRequest(url: string): boolean {
+  return url.includes('/api/Auth/Login') || url.includes('/api/Auth/Register');
 }
 
 function handleUnauthorized(url: string): void {
-  if (isLoginRequest(url)) {
+  if (isPublicAuthRequest(url)) {
     return;
   }
 

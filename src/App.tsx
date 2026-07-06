@@ -13,7 +13,9 @@ import { GradeSubjectsPage } from './pages/GradeSubjectsPage';
 import { GradesPage } from './pages/GradesPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { PendingUsersPage } from './pages/PendingUsersPage';
 import { PromotionPage } from './pages/PromotionPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { StudentReportPage } from './pages/StudentReportPage';
 import { StudentsPage } from './pages/StudentsPage';
 import { SubjectsPage } from './pages/SubjectsPage';
@@ -29,6 +31,7 @@ function App() {
           <Routes>
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
             </Route>
 
             <Route element={<ProtectedRoute />}>
@@ -46,6 +49,7 @@ function App() {
                 <Route path="/reports/students" element={<StudentReportPage />} />
                 <Route path="/reports/teachers" element={<TeacherReportPage />} />
                 <Route path="/settings/appearance" element={<AppearancePage />} />
+                <Route path="/admin/pending-users" element={<PendingUsersPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Route>

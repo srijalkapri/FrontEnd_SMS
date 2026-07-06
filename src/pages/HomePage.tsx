@@ -372,7 +372,8 @@ export function HomePage() {
 
         </ul>
 
-      </section>
+          </section>
+
 
     </div>
 

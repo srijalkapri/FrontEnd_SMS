@@ -50,6 +50,10 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: 'Administration',
+    items: [{ to: '/admin/pending-users', label: 'Pending Users', icon: 'shield' }],
+  },
+  {
     label: 'Settings',
     items: [{ to: '/settings/appearance', label: 'Appearance', icon: 'palette' }],
   },
@@ -114,6 +118,16 @@ function NavIcon({ name }: { name: string }) {
             d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402a3.75 3.75 0 00-5.304-5.304l-6.4 6.402a3.75 3.75 0 000 5.304z"
           />
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h.008v.008H15V9z" />
+        </svg>
+      );
+    case 'shield':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+          />
         </svg>
       );
     default:
