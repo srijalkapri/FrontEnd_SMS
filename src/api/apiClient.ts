@@ -1,6 +1,8 @@
 import type { ApiResponse } from '../types/api';
 import { clearAuthSession, getToken } from '../utils/authStorage';
 
+const inFlightGetRequests = new Map<string, Promise<ApiResponse<unknown>>>();
+
 function isPublicAuthRequest(url: string): boolean {
   return url.includes('/api/Auth/Login') || url.includes('/api/Auth/Register');
 }
@@ -35,7 +37,7 @@ async function parseErrorMessage(response: Response): Promise<string> {
   return `Request failed with status ${response.status}`;
 }
 
-export async function request<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
+async function executeRequest<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
   const token = getToken();
   const headers: Record<string, string> = {
     Accept: '*/*',
@@ -57,6 +59,15 @@ export async function request<T>(url: string, options?: RequestInit): Promise<Ap
     throw new Error(await parseErrorMessage(response));
   }
 
+  if (response.status === 403) {
+    const message = await parseErrorMessage(response);
+    throw new Error(
+      message === 'Request failed with status 403'
+        ? 'Access denied. Your account role may not have permission for this action. Sign in with an Admin account, or ask an administrator to update your role.'
+        : message,
+    );
+  }
+
   if (!response.ok) {
     throw new Error(await parseErrorMessage(response));
   }
@@ -72,4 +83,24 @@ export async function request<T>(url: string, options?: RequestInit): Promise<Ap
   }
 
   return result;
+}
+
+export async function request<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
+  const method = (options?.method ?? 'GET').toUpperCase();
+
+  if (method === 'GET') {
+    const existing = inFlightGetRequests.get(url);
+    if (existing) {
+      return existing as Promise<ApiResponse<T>>;
+    }
+
+    const promise = executeRequest<T>(url, options);
+    inFlightGetRequests.set(url, promise as Promise<ApiResponse<unknown>>);
+    promise.finally(() => {
+      inFlightGetRequests.delete(url);
+    });
+    return promise;
+  }
+
+  return executeRequest<T>(url, options);
 }

@@ -53,23 +53,30 @@ export function TeacherReportPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [gradesResponse, mappingsResponse, assignmentsResponse, studentsResponse] =
-        await Promise.all([
-          gradeApi.getAll(),
-          gradeSubjectApi.getAll(),
-          gradeSubjectTeacherApi.getAll(),
-          studentApi.getAll(),
-        ]);
+      const [gradesResponse, mappingsResponse, assignmentsResponse] = await Promise.all([
+        gradeApi.getAll(),
+        gradeSubjectApi.getAll(),
+        gradeSubjectTeacherApi.getAll(),
+      ]);
       setGrades(gradesResponse.data);
       setMappings(mappingsResponse.data);
       setAssignments(assignmentsResponse.data);
-      setStudents(studentsResponse.data);
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to load report data');
     } finally {
       setLoading(false);
     }
   }, [showToast]);
+
+  const ensureStudentsLoaded = useCallback(async () => {
+    if (students.length > 0) {
+      return students;
+    }
+
+    const studentsResponse = await studentApi.getAll();
+    setStudents(studentsResponse.data);
+    return studentsResponse.data;
+  }, [students]);
 
   useEffect(() => {
     fetchData();
@@ -114,7 +121,7 @@ export function TeacherReportPage() {
     };
   };
 
-  const handleGenerate = (e: FormEvent) => {
+  const handleGenerate = async (e: FormEvent) => {
     e.preventDefault();
     const filters = buildFilters();
 
@@ -132,7 +139,8 @@ export function TeacherReportPage() {
     setReportLoading(true);
 
     try {
-      const filtered = buildTeacherReportRows(assignments, grades, students, filters);
+      const studentData = await ensureStudentsLoaded();
+      const filtered = buildTeacherReportRows(assignments, grades, studentData, filters);
       setResults(filtered);
       setHasGenerated(true);
       setShowDetailModal(false);
@@ -170,10 +178,13 @@ export function TeacherReportPage() {
     setDetailTeacher(null);
 
     try {
-      const response = await teacherApi.getDetails(row.teacherId);
+      const [response, studentData] = await Promise.all([
+        teacherApi.getDetails(row.teacherId),
+        ensureStudentsLoaded(),
+      ]);
       setDetailTeacher(response.data);
 
-      const gradeStudents = students.filter((student) => student.gradeId === row.gradeId);
+      const gradeStudents = studentData.filter((student) => student.gradeId === row.gradeId);
       setDetailRow({ ...row, students: gradeStudents });
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to load teacher report');
