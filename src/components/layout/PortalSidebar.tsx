@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { ThemeToggle } from './ThemeToggle';
 import './Sidebar.css';
 
@@ -73,6 +74,7 @@ function NavIcon({ name }: { name: string }) {
 
 export function PortalSidebar({ portal, mobileOpen = false, onNavigate }: PortalSidebarProps) {
   const { user, logout } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const navItems = portal === 'teacher' ? teacherNav : studentNav;
   const homeRoute = portal === 'teacher' ? '/teacher' : '/student';
@@ -80,6 +82,7 @@ export function PortalSidebar({ portal, mobileOpen = false, onNavigate }: Portal
 
   async function handleLogout() {
     await logout();
+    showToast('success', 'Signed out successfully.');
     onNavigate?.();
     navigate('/login', { replace: true });
   }

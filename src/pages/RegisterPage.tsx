@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
+import { PasswordInput } from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getHomeRouteForRole } from '../utils/roles';
@@ -151,12 +152,10 @@ export function RegisterPage() {
           <label className="form-label" htmlFor="password">
             Password
           </label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
-            className="form-input"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={setPassword}
             autoComplete="new-password"
             placeholder="Create a password"
             disabled={submitting}
@@ -167,12 +166,10 @@ export function RegisterPage() {
           <label className="form-label" htmlFor="confirmPassword">
             Confirm password
           </label>
-          <input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
-            className="form-input"
             value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
+            onChange={setConfirmPassword}
             autoComplete="new-password"
             placeholder="Confirm your password"
             disabled={submitting}

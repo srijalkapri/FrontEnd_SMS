@@ -7,6 +7,7 @@ import { ConfirmDeleteModal } from '../components/ConfirmDeleteModal';
 import { PageHeader } from '../components/layout/PageHeader';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
+import { notifyPendingUsersChanged } from '../hooks/usePendingUsersCount';
 import type { ApproveUserRequest, PendingUser, UserRole } from '../types/auth';
 import type { Grade } from '../types/grade';
 import type { Student } from '../types/student';
@@ -54,6 +55,7 @@ export function PendingUsersPage() {
       setUsers([]);
     } finally {
       setLoading(false);
+      notifyPendingUsersChanged();
     }
   }, [showToast]);
 

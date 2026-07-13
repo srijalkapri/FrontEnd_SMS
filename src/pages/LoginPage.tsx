@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { PasswordInput } from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getHomeRouteForRole, isPathAllowedForRole } from '../utils/roles';
@@ -85,12 +86,10 @@ export function LoginPage() {
           <label className="form-label" htmlFor="password">
             Password
           </label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
-            className="form-input"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={setPassword}
             autoComplete="current-password"
             placeholder="Enter password"
             disabled={submitting}

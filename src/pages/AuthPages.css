@@ -50,6 +50,54 @@
   gap: 1.25rem;
 }
 
+.password-input {
+  position: relative;
+}
+
+.password-input__field {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.password-input__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.625rem;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.password-input--visible .password-input__toggle {
+  color: var(--color-primary);
+  background: var(--color-primary-muted);
+}
+
+.password-input__toggle svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.password-input__toggle:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+}
+
+.password-input__toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .auth-form__submit {
   margin-top: 0.5rem;
   padding: 0.75rem 1rem;

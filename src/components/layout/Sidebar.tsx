@@ -1,5 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { usePendingUsersCount } from '../../hooks/usePendingUsersCount';
 import { ThemeToggle } from './ThemeToggle';
 import './Sidebar.css';
 
@@ -137,10 +139,13 @@ function NavIcon({ name }: { name: string }) {
 
 export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   const { user, logout } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
+  const pendingUsersCount = usePendingUsersCount();
 
   async function handleLogout() {
     await logout();
+    showToast('success', 'Signed out successfully.');
     onNavigate?.();
     navigate('/login', { replace: true });
   }
@@ -188,7 +193,12 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
                     <span className="sidebar__link-icon">
                       <NavIcon name={item.icon} />
                     </span>
-                    {item.label}
+                    <span className="sidebar__link-label">{item.label}</span>
+                    {item.to === '/admin/pending-users' && pendingUsersCount > 0 && (
+                      <span className="sidebar__badge" aria-label={`${pendingUsersCount} pending`}>
+                        {pendingUsersCount > 99 ? '99+' : pendingUsersCount}
+                      </span>
+                    )}
                   </NavLink>
                 </li>
               ))}
