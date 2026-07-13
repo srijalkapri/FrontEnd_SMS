@@ -3,10 +3,11 @@ import { Link, Navigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { getHomeRouteForRole } from '../utils/roles';
 import './AuthPages.css';
 
 export function RegisterPage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const { showToast } = useToast();
 
   const [username, setUsername] = useState('');
@@ -17,8 +18,8 @@ export function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  if (!isLoading && isAuthenticated) {
-    return <Navigate to="/" replace />;
+  if (!isLoading && isAuthenticated && user) {
+    return <Navigate to={getHomeRouteForRole(user.role)} replace />;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

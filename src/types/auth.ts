@@ -1,8 +1,10 @@
+export type UserRole = 'SuperAdmin' | 'Teacher' | 'Student';
+
 export interface AuthUser {
   id: number;
   username: string;
   fullName: string;
-  role: string;
+  role: UserRole | string;
 }
 
 export interface LoginRequest {
@@ -32,8 +34,9 @@ export interface PendingUser {
   createdAt: string;
 }
 
-export type UserRole = 'Admin' | 'Teacher';
-
-export interface ApproveUserRequest {
-  role: UserRole;
-}
+export type ApproveUserRequest =
+  | { role: 'SuperAdmin' }
+  | { role: 'Teacher'; teacherId: number }
+  | { role: 'Teacher'; phoneNo: string }
+  | { role: 'Student'; studentId: number }
+  | { role: 'Student'; gradeId: number; phoneNo: string };

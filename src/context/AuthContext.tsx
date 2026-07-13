@@ -21,7 +21,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<AuthUser>;
   logout: () => Promise<void>;
 }
 
@@ -75,7 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (credentials: LoginRequest) => {
     const result = await authApi.login(credentials);
     setAuthSession(result.data.token, result.data.expiresAt);
-    setUser(normalizeAuthUser(result.data.user));
+    const normalizedUser = normalizeAuthUser(result.data.user);
+    setUser(normalizedUser);
+    return normalizedUser;
   }, []);
 
   const logout = useCallback(async () => {

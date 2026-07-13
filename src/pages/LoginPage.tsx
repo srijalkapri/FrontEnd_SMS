@@ -2,21 +2,24 @@ import { FormEvent, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { getHomeRouteForRole, isPathAllowedForRole } from '../utils/roles';
 import './AuthPages.css';
 
 export function LoginPage() {
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading, user } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? '/';
+  const from = (location.state as { from?: string } | null)?.from;
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  if (!isLoading && isAuthenticated) {
-    return <Navigate to={from} replace />;
+  if (!isLoading && isAuthenticated && user) {
+    const destination =
+      from && isPathAllowedForRole(from, user.role) ? from : getHomeRouteForRole(user.role);
+    return <Navigate to={destination} replace />;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -30,9 +33,13 @@ export function LoginPage() {
     setSubmitting(true);
 
     try {
-      await login({ username: username.trim(), password });
+      const loggedInUser = await login({ username: username.trim(), password });
       showToast('success', 'Login successful.');
-      navigate(from, { replace: true });
+      const destination =
+        from && isPathAllowedForRole(from, loggedInUser.role)
+          ? from
+          : getHomeRouteForRole(loggedInUser.role);
+      navigate(destination, { replace: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed.';
       showToast('error', message);
@@ -54,7 +61,7 @@ export function LoginPage() {
           </svg>
         </div>
         <h1 className="auth-card__title">School Management</h1>
-        <p className="auth-card__subtitle">Sign in to access the admin portal</p>
+        <p className="auth-card__subtitle">Sign in to your portal</p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>

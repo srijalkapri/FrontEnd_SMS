@@ -1,13 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { authApi } from '../api/authApi';
+import { gradeApi } from '../api/gradeApi';
+import { studentApi } from '../api/studentApi';
+import { teacherApi } from '../api/teacherApi';
 import { ConfirmDeleteModal } from '../components/ConfirmDeleteModal';
 import { PageHeader } from '../components/layout/PageHeader';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
-import type { PendingUser, UserRole } from '../types/auth';
+import type { ApproveUserRequest, PendingUser, UserRole } from '../types/auth';
+import type { Grade } from '../types/grade';
+import type { Student } from '../types/student';
+import type { Teacher } from '../types/teacher';
 import '../components/GradeTable.css';
 
-const ROLE_OPTIONS: UserRole[] = ['Teacher', 'Admin'];
+const ROLE_OPTIONS: UserRole[] = ['SuperAdmin', 'Teacher', 'Student'];
+
+type ProfileMode = 'link' | 'create';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -19,10 +27,20 @@ function formatDate(iso: string): string {
 export function PendingUsersPage() {
   const { showToast } = useToast();
   const [users, setUsers] = useState<PendingUser[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lookupsLoading, setLookupsLoading] = useState(false);
   const [approvingUser, setApprovingUser] = useState<PendingUser | null>(null);
   const [rejectingUser, setRejectingUser] = useState<PendingUser | null>(null);
   const [selectedRole, setSelectedRole] = useState<UserRole>('Teacher');
+  const [profileMode, setProfileMode] = useState<ProfileMode>('link');
+  const [teacherId, setTeacherId] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [gradeId, setGradeId] = useState('');
+  const [phoneNo, setPhoneNo] = useState('');
+  const [formError, setFormError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchPendingUsers = useCallback(async () => {
@@ -39,18 +57,48 @@ export function PendingUsersPage() {
     }
   }, [showToast]);
 
+  const fetchLookups = useCallback(async () => {
+    setLookupsLoading(true);
+    try {
+      const [teachersResponse, studentsResponse, gradesResponse] = await Promise.all([
+        teacherApi.getAll(),
+        studentApi.getAll(),
+        gradeApi.getAll(),
+      ]);
+      setTeachers(teachersResponse.data);
+      setStudents(studentsResponse.data);
+      setGrades(gradesResponse.data);
+    } catch (error) {
+      showToast('error', error instanceof Error ? error.message : 'Failed to load lookup data.');
+    } finally {
+      setLookupsLoading(false);
+    }
+  }, [showToast]);
+
   useEffect(() => {
     fetchPendingUsers();
   }, [fetchPendingUsers]);
 
+  function resetApproveForm(role: UserRole = 'Teacher') {
+    setSelectedRole(role);
+    setProfileMode('link');
+    setTeacherId('');
+    setStudentId('');
+    setGradeId('');
+    setPhoneNo('');
+    setFormError('');
+  }
+
   function openApproveModal(user: PendingUser) {
-    setSelectedRole('Teacher');
+    resetApproveForm('Teacher');
     setApprovingUser(user);
+    void fetchLookups();
   }
 
   function closeApproveModal() {
     if (!actionLoading) {
       setApprovingUser(null);
+      resetApproveForm();
     }
   }
 
@@ -60,14 +108,64 @@ export function PendingUsersPage() {
     }
   }
 
+  function buildApprovePayload(): ApproveUserRequest | null {
+    if (selectedRole === 'SuperAdmin') {
+      return { role: 'SuperAdmin' };
+    }
+
+    if (selectedRole === 'Teacher') {
+      if (profileMode === 'link') {
+        const parsedTeacherId = parseInt(teacherId, 10);
+        if (!parsedTeacherId || parsedTeacherId <= 0) {
+          setFormError('Select an existing teacher to link.');
+          return null;
+        }
+        return { role: 'Teacher', teacherId: parsedTeacherId };
+      }
+
+      const trimmedPhone = phoneNo.trim();
+      if (!trimmedPhone) {
+        setFormError('Phone number is required to create a teacher profile.');
+        return null;
+      }
+      return { role: 'Teacher', phoneNo: trimmedPhone };
+    }
+
+    if (profileMode === 'link') {
+      const parsedStudentId = parseInt(studentId, 10);
+      if (!parsedStudentId || parsedStudentId <= 0) {
+        setFormError('Select an existing student to link.');
+        return null;
+      }
+      return { role: 'Student', studentId: parsedStudentId };
+    }
+
+    const parsedGradeId = parseInt(gradeId, 10);
+    const trimmedPhone = phoneNo.trim();
+    if (!parsedGradeId || parsedGradeId <= 0) {
+      setFormError('Select a grade for the new student profile.');
+      return null;
+    }
+    if (!trimmedPhone) {
+      setFormError('Phone number is required to create a student profile.');
+      return null;
+    }
+    return { role: 'Student', gradeId: parsedGradeId, phoneNo: trimmedPhone };
+  }
+
   async function handleApprove() {
     if (!approvingUser) return;
 
+    setFormError('');
+    const payload = buildApprovePayload();
+    if (!payload) return;
+
     setActionLoading(true);
     try {
-      await authApi.approveUser(approvingUser.id, { role: selectedRole });
+      await authApi.approveUser(approvingUser.id, payload);
       showToast('success', `${approvingUser.fullName} approved as ${selectedRole}.`);
       setApprovingUser(null);
+      resetApproveForm();
       await fetchPendingUsers();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to approve user.';
@@ -130,13 +228,6 @@ export function PendingUsersPage() {
             </div>
           ) : users.length === 0 ? (
             <div className="table-empty">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                />
-              </svg>
               <p>No pending registration requests.</p>
             </div>
           ) : (
@@ -198,6 +289,7 @@ export function PendingUsersPage() {
             : undefined
         }
         onClose={closeApproveModal}
+        size="lg"
       >
         <div className="form-group">
           <label className="form-label" htmlFor="approve-role">
@@ -207,7 +299,11 @@ export function PendingUsersPage() {
             id="approve-role"
             className="form-input"
             value={selectedRole}
-            onChange={(event) => setSelectedRole(event.target.value as UserRole)}
+            onChange={(event) => {
+              setSelectedRole(event.target.value as UserRole);
+              setProfileMode('link');
+              setFormError('');
+            }}
             disabled={actionLoading}
           >
             {ROLE_OPTIONS.map((role) => (
@@ -217,6 +313,148 @@ export function PendingUsersPage() {
             ))}
           </select>
         </div>
+
+        {selectedRole === 'Teacher' && (
+          <>
+            <div className="form-group">
+              <label className="form-label" htmlFor="teacher-profile-mode">
+                Teacher profile
+              </label>
+              <select
+                id="teacher-profile-mode"
+                className="form-input"
+                value={profileMode}
+                onChange={(event) => {
+                  setProfileMode(event.target.value as ProfileMode);
+                  setFormError('');
+                }}
+                disabled={actionLoading || lookupsLoading}
+              >
+                <option value="link">Link existing teacher</option>
+                <option value="create">Create new teacher profile</option>
+              </select>
+            </div>
+            {profileMode === 'link' ? (
+              <div className="form-group">
+                <label className="form-label" htmlFor="approve-teacher-id">
+                  Existing teacher
+                </label>
+                <select
+                  id="approve-teacher-id"
+                  className="form-input"
+                  value={teacherId}
+                  onChange={(event) => setTeacherId(event.target.value)}
+                  disabled={actionLoading || lookupsLoading}
+                >
+                  <option value="">Select teacher…</option>
+                  {teachers.map((teacher) => (
+                    <option key={teacher.id} value={teacher.id}>
+                      #{teacher.id} — {teacher.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div className="form-group">
+                <label className="form-label" htmlFor="approve-teacher-phone">
+                  Phone number
+                </label>
+                <input
+                  id="approve-teacher-phone"
+                  type="tel"
+                  className="form-input"
+                  value={phoneNo}
+                  onChange={(event) => setPhoneNo(event.target.value)}
+                  placeholder="e.g. 9800000001"
+                  disabled={actionLoading}
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {selectedRole === 'Student' && (
+          <>
+            <div className="form-group">
+              <label className="form-label" htmlFor="student-profile-mode">
+                Student profile
+              </label>
+              <select
+                id="student-profile-mode"
+                className="form-input"
+                value={profileMode}
+                onChange={(event) => {
+                  setProfileMode(event.target.value as ProfileMode);
+                  setFormError('');
+                }}
+                disabled={actionLoading || lookupsLoading}
+              >
+                <option value="link">Link existing student</option>
+                <option value="create">Create new student profile</option>
+              </select>
+            </div>
+            {profileMode === 'link' ? (
+              <div className="form-group">
+                <label className="form-label" htmlFor="approve-student-id">
+                  Existing student
+                </label>
+                <select
+                  id="approve-student-id"
+                  className="form-input"
+                  value={studentId}
+                  onChange={(event) => setStudentId(event.target.value)}
+                  disabled={actionLoading || lookupsLoading}
+                >
+                  <option value="">Select student…</option>
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      #{student.id} — {student.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="approve-student-grade">
+                    Grade
+                  </label>
+                  <select
+                    id="approve-student-grade"
+                    className="form-input"
+                    value={gradeId}
+                    onChange={(event) => setGradeId(event.target.value)}
+                    disabled={actionLoading || lookupsLoading}
+                  >
+                    <option value="">Select grade…</option>
+                    {grades.map((grade) => (
+                      <option key={grade.id} value={grade.id}>
+                        {grade.className}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="approve-student-phone">
+                    Phone number
+                  </label>
+                  <input
+                    id="approve-student-phone"
+                    type="tel"
+                    className="form-input"
+                    value={phoneNo}
+                    onChange={(event) => setPhoneNo(event.target.value)}
+                    placeholder="e.g. 9800000002"
+                    disabled={actionLoading}
+                  />
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {formError && <span className="form-error">{formError}</span>}
+
         <div className="embedded-form__actions">
           <button
             type="button"
@@ -230,7 +468,7 @@ export function PendingUsersPage() {
             type="button"
             className="btn btn--primary"
             onClick={handleApprove}
-            disabled={actionLoading}
+            disabled={actionLoading || lookupsLoading}
           >
             {actionLoading ? 'Approving…' : 'Approve user'}
           </button>

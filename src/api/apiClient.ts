@@ -63,7 +63,7 @@ async function executeRequest<T>(url: string, options?: RequestInit): Promise<Ap
     const message = await parseErrorMessage(response);
     throw new Error(
       message === 'Request failed with status 403'
-        ? 'Access denied. Your account role may not have permission for this action. Sign in with an Admin account, or ask an administrator to update your role.'
+        ? 'Access denied. Your account role may not have permission for this action.'
         : message,
     );
   }
