@@ -227,10 +227,25 @@
   height: 1rem;
 }
 
-.sidebar__logout:hover {
+.sidebar__logout:hover:not(:disabled) {
   color: var(--color-danger);
   border-color: rgba(239, 68, 68, 0.35);
   background: var(--color-danger-bg);
+}
+
+.sidebar__logout--loading {
+  cursor: wait;
+  opacity: 0.85;
+}
+
+.sidebar__logout:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.sidebar__logout .auth-spinner--inline {
+  border-color: color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
 }
 
 @media (max-width: 1024px) {

@@ -1,9 +1,12 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { AuthCardShell } from '../components/auth/AuthCardShell';
+import { AuthSubmitButton } from '../components/auth/AuthSubmitButton';
 import { PasswordInput } from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { getHomeRouteForRole, isPathAllowedForRole } from '../utils/roles';
+import { runWithSlowNotice, withTimeout } from '../utils/asyncRequest';
+import { getHomeRouteForRole, isPathAllowedForRole, parseUserRole } from '../utils/roles';
 import './AuthPages.css';
 
 export function LoginPage() {
@@ -16,11 +19,26 @@ export function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [slowNotice, setSlowNotice] = useState(false);
+  const slowToastShown = useRef(false);
 
-  if (!isLoading && isAuthenticated && user) {
+  if (isLoading) {
+    return (
+      <AuthCardShell busy overlayTitle="Checking session…">
+        <div className="auth-card__header">
+          <p className="auth-card__subtitle">Please wait</p>
+        </div>
+      </AuthCardShell>
+    );
+  }
+
+  if (isAuthenticated && user) {
     const destination =
       from && isPathAllowedForRole(from, user.role) ? from : getHomeRouteForRole(user.role);
-    return <Navigate to={destination} replace />;
+
+    if (destination !== '/login') {
+      return <Navigate to={destination} replace />;
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,25 +50,54 @@ export function LoginPage() {
     }
 
     setSubmitting(true);
+    setSlowNotice(false);
+    slowToastShown.current = false;
 
     try {
-      const loggedInUser = await login({ username: username.trim(), password });
-      showToast('success', 'Login successful.');
+      const loggedInUser = await runWithSlowNotice(
+        withTimeout(login({ username: username.trim(), password })),
+        () => {
+          setSlowNotice(true);
+          if (!slowToastShown.current) {
+            slowToastShown.current = true;
+            showToast('info', 'Server is waking up… This may take up to a minute.');
+          }
+        },
+      );
+
       const destination =
         from && isPathAllowedForRole(from, loggedInUser.role)
           ? from
           : getHomeRouteForRole(loggedInUser.role);
+
+      if (destination === '/login' || !parseUserRole(loggedInUser.role)) {
+        showToast(
+          'error',
+          `Signed in, but role "${loggedInUser.role || 'unknown'}" is not supported.`,
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      showToast('success', 'Login successful.');
       navigate(destination, { replace: true });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Login failed.';
+      const message =
+        error instanceof Error ? error.message : 'Login failed. Please try again.';
       showToast('error', message);
-    } finally {
       setSubmitting(false);
+      setSlowNotice(false);
     }
   }
 
   return (
-    <div className="auth-card">
+    <AuthCardShell
+      busy={submitting}
+      overlayTitle="Signing in…"
+      overlayHint={
+        slowNotice ? 'Server is waking up. This can take up to a minute on first request.' : undefined
+      }
+    >
       <div className="auth-card__header">
         <div className="auth-card__logo" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -65,7 +112,7 @@ export function LoginPage() {
         <p className="auth-card__subtitle">Sign in to your portal</p>
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit} aria-busy={submitting}>
         <div className="form-group">
           <label className="form-label" htmlFor="username">
             Username
@@ -96,14 +143,12 @@ export function LoginPage() {
           />
         </div>
 
-        <button type="submit" className="auth-form__submit" disabled={submitting}>
-          {submitting ? 'Signing in…' : 'Sign in'}
-        </button>
+        <AuthSubmitButton loading={submitting} loadingLabel="Signing in…" label="Sign in" />
       </form>
 
       <p className="auth-card__footer">
         Need an account? <Link to="/register">Create one</Link>
       </p>
-    </div>
+    </AuthCardShell>
   );
 }

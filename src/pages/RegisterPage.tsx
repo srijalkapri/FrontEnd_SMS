@@ -19,8 +19,22 @@ export function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  if (!isLoading && isAuthenticated && user) {
-    return <Navigate to={getHomeRouteForRole(user.role)} replace />;
+  if (isLoading) {
+    return (
+      <div className="auth-card">
+        <div className="auth-card__header">
+          <p className="auth-card__subtitle">Checking session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated && user) {
+    const destination = getHomeRouteForRole(user.role);
+
+    if (destination !== '/login' && destination !== '/register') {
+      return <Navigate to={destination} replace />;
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

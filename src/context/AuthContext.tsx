@@ -15,7 +15,24 @@ import {
   hasStoredSession,
   setAuthSession,
 } from '../utils/authStorage';
-import { normalizeAuthUser } from '../utils/roles';
+import { normalizeAuthUser, parseUserRole } from '../utils/roles';
+
+type RawLoginPayload = {
+  token?: string;
+  Token?: string;
+  expiresAt?: string;
+  ExpiresAt?: string;
+  user?: Parameters<typeof normalizeAuthUser>[0];
+  User?: Parameters<typeof normalizeAuthUser>[0];
+};
+
+function normalizeLoginPayload(raw: RawLoginPayload) {
+  return {
+    token: raw.token ?? raw.Token ?? '',
+    expiresAt: raw.expiresAt ?? raw.ExpiresAt ?? '',
+    user: normalizeAuthUser(raw.user ?? raw.User ?? {}),
+  };
+}
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -40,7 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await authApi.me();
-      setUser(normalizeAuthUser(result.data));
+      const normalizedUser = normalizeAuthUser(result.data);
+
+      if (!parseUserRole(normalizedUser.role)) {
+        clearAuthSession();
+        setUser(null);
+        return;
+      }
+
+      setUser(normalizedUser);
     } catch {
       clearAuthSession();
       setUser(null);
@@ -52,6 +77,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function bootstrap() {
       if (!getToken()) {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      if (!hasStoredSession()) {
+        clearAuthSession();
         if (!cancelled) {
           setIsLoading(false);
         }
@@ -74,8 +107,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (credentials: LoginRequest) => {
     const result = await authApi.login(credentials);
-    setAuthSession(result.data.token, result.data.expiresAt);
-    const normalizedUser = normalizeAuthUser(result.data.user);
+    const payload = normalizeLoginPayload(result.data as RawLoginPayload);
+    setAuthSession(payload.token, payload.expiresAt);
+    const normalizedUser = payload.user;
+
+    if (!parseUserRole(normalizedUser.role)) {
+      clearAuthSession();
+      setUser(null);
+      throw new Error(
+        `Your account role "${normalizedUser.role || 'unknown'}" is not supported. Contact an administrator.`,
+      );
+    }
+
     setUser(normalizedUser);
     return normalizedUser;
   }, []);

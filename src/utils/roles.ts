@@ -1,31 +1,64 @@
 import type { AuthUser, UserRole } from '../types/auth';
 
-type RawAuthUser = AuthUser & {
+type RawAuthUser = {
+  id?: number;
+  Id?: number;
+  username?: string;
+  Username?: string;
+  fullName?: string;
+  FullName?: string;
+  role?: string;
   Role?: string;
 };
 
 const USER_ROLES: UserRole[] = ['SuperAdmin', 'Teacher', 'Student'];
 
+const LEGACY_ROLE_ALIASES: Record<string, UserRole> = {
+  Admin: 'SuperAdmin',
+  admin: 'SuperAdmin',
+  ADMIN: 'SuperAdmin',
+  superadmin: 'SuperAdmin',
+  teacher: 'Teacher',
+  student: 'Student',
+};
+
+export function normalizeRole(role: string | undefined | null): UserRole | string {
+  if (!role) {
+    return '';
+  }
+
+  const trimmed = role.trim();
+  const legacy = LEGACY_ROLE_ALIASES[trimmed];
+  if (legacy) {
+    return legacy;
+  }
+
+  const matched = USER_ROLES.find(
+    (knownRole) => knownRole.toLowerCase() === trimmed.toLowerCase(),
+  );
+
+  return matched ?? trimmed;
+}
+
 export function normalizeAuthUser(raw: RawAuthUser): AuthUser {
-  const role = (raw.role ?? raw.Role ?? '') as UserRole | string;
   return {
-    id: raw.id,
-    username: raw.username,
-    fullName: raw.fullName,
-    role,
+    id: raw.id ?? raw.Id ?? 0,
+    username: raw.username ?? raw.Username ?? '',
+    fullName: raw.fullName ?? raw.FullName ?? '',
+    role: normalizeRole(raw.role ?? raw.Role),
   };
 }
 
 export function isSuperAdminRole(role: string | undefined | null): boolean {
-  return role?.trim() === 'SuperAdmin';
+  return parseUserRole(role) === 'SuperAdmin';
 }
 
 export function isTeacherRole(role: string | undefined | null): boolean {
-  return role?.trim() === 'Teacher';
+  return parseUserRole(role) === 'Teacher';
 }
 
 export function isStudentRole(role: string | undefined | null): boolean {
-  return role?.trim() === 'Student';
+  return parseUserRole(role) === 'Student';
 }
 
 export function getHomeRouteForRole(role: string | undefined | null): string {
@@ -53,8 +86,12 @@ export function isPathAllowedForRole(pathname: string, role: string | undefined 
 }
 
 export function parseUserRole(role: string | undefined | null): UserRole | null {
-  if (!role) return null;
-  return USER_ROLES.includes(role as UserRole) ? (role as UserRole) : null;
+  const normalized = normalizeRole(role);
+  if (!normalized) {
+    return null;
+  }
+
+  return USER_ROLES.includes(normalized as UserRole) ? (normalized as UserRole) : null;
 }
 
 export function roleMatches(role: string | undefined | null, allowed: UserRole[]): boolean {
