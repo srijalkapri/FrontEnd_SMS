@@ -3,6 +3,17 @@ import { clearAuthSession, getToken } from '../utils/authStorage';
 
 const inFlightGetRequests = new Map<string, Promise<ApiResponse<unknown>>>();
 
+/** Production: set VITE_API_URL=https://your-api.onrender.com (no trailing slash). Dev: leave empty to use Vite proxy. */
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+
+function resolveUrl(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  return `${API_BASE}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
 function isPublicAuthRequest(url: string): boolean {
   return url.includes('/api/Auth/Login') || url.includes('/api/Auth/Register');
 }
@@ -49,7 +60,7 @@ async function executeRequest<T>(url: string, options?: RequestInit): Promise<Ap
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(resolveUrl(url), {
     ...options,
     headers,
   });
@@ -87,17 +98,18 @@ async function executeRequest<T>(url: string, options?: RequestInit): Promise<Ap
 
 export async function request<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
   const method = (options?.method ?? 'GET').toUpperCase();
+  const resolved = resolveUrl(url);
 
   if (method === 'GET') {
-    const existing = inFlightGetRequests.get(url);
+    const existing = inFlightGetRequests.get(resolved);
     if (existing) {
       return existing as Promise<ApiResponse<T>>;
     }
 
     const promise = executeRequest<T>(url, options);
-    inFlightGetRequests.set(url, promise as Promise<ApiResponse<unknown>>);
+    inFlightGetRequests.set(resolved, promise as Promise<ApiResponse<unknown>>);
     promise.finally(() => {
-      inFlightGetRequests.delete(url);
+      inFlightGetRequests.delete(resolved);
     });
     return promise;
   }
