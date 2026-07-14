@@ -198,7 +198,11 @@
 .contact-link {
   color: var(--color-badge-text);
   text-decoration: none;
-  word-break: break-word;
+}
+
+.grade-table .contact-link,
+.grade-subject-table .contact-link {
+  white-space: nowrap;
 }
 
 .contact-link:hover {

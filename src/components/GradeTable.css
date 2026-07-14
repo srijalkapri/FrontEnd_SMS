@@ -1,5 +1,6 @@
 .grade-table-section {
   animation: fadeIn 0.4s ease-out 0.1s both;
+  min-width: 0;
 }
 
 .grade-table__actions {
@@ -45,10 +46,14 @@
 
 .table-wrapper {
   overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .grade-table {
   width: 100%;
+  min-width: 36rem;
   border-collapse: collapse;
 }
 
@@ -61,12 +66,15 @@
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
 .grade-table td {
   padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--color-border);
   font-size: 0.9375rem;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .grade-table tbody tr {
@@ -135,6 +143,26 @@
 }
 
 @media (max-width: 640px) {
+  .grade-table-section {
+    min-width: 0;
+  }
+
+  .table-wrapper {
+    margin-inline: -0.5rem;
+    padding-inline: 0.5rem;
+    scrollbar-width: thin;
+  }
+
+  .grade-table {
+    min-width: 34rem;
+  }
+
+  .grade-table th,
+  .grade-table td {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
   .grade-table__actions {
     flex-direction: column;
     align-items: stretch;

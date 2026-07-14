@@ -10,6 +10,7 @@
 
 .grade-subject-table {
   width: 100%;
+  min-width: 36rem;
   border-collapse: collapse;
 }
 
@@ -22,6 +23,7 @@
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
 .grade-subject-table td {
@@ -29,6 +31,7 @@
   border-bottom: 1px solid var(--color-border);
   font-size: 0.9375rem;
   vertical-align: top;
+  white-space: nowrap;
 }
 
 .grade-subject-table tbody tr {
@@ -59,6 +62,20 @@
 }
 
 @media (max-width: 640px) {
+  .grade-subject-table-section {
+    min-width: 0;
+  }
+
+  .grade-subject-table {
+    min-width: 34rem;
+  }
+
+  .grade-subject-table th,
+  .grade-subject-table td {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
   .grade-subject-table__actions {
     flex-direction: column;
     align-items: stretch;
