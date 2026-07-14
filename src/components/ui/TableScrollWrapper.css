@@ -1,0 +1,72 @@
+.table-scroll {
+  position: relative;
+  min-width: 0;
+}
+
+.table-scroll__fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.table-scroll__fade--left {
+  left: 0;
+  background: linear-gradient(to right, var(--color-bg-card) 15%, transparent);
+}
+
+.table-scroll__fade--right {
+  right: 0;
+  background: linear-gradient(to left, var(--color-bg-card) 15%, transparent);
+}
+
+.table-scroll__hint {
+  margin: 0.625rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
+}
+
+.table-scroll--scrollable .table-wrapper {
+  overflow-x: scroll;
+  scrollbar-gutter: stable;
+  padding-bottom: 0.125rem;
+}
+
+.table-scroll--scrollable .table-wrapper::-webkit-scrollbar {
+  height: 0.5rem;
+}
+
+.table-scroll--scrollable .table-wrapper::-webkit-scrollbar-track {
+  margin-inline: 0.25rem;
+  background: color-mix(in srgb, var(--color-border) 55%, transparent);
+  border-radius: 999px;
+}
+
+.table-scroll--scrollable .table-wrapper::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-primary) 70%, var(--color-text-subtle));
+  border-radius: 999px;
+}
+
+.table-scroll--scrollable .table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+.table-scroll--scrollable .table-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) color-mix(in srgb, var(--color-border) 55%, transparent);
+}
+
+@media (max-width: 768px) {
+  .table-scroll--scrollable .table-wrapper::-webkit-scrollbar {
+    height: 0.625rem;
+  }
+
+  .table-scroll__fade {
+    width: 1.75rem;
+  }
+}

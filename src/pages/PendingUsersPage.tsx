@@ -12,6 +12,7 @@ import type { ApproveUserRequest, PendingUser, UserRole } from '../types/auth';
 import type { Grade } from '../types/grade';
 import type { Student } from '../types/student';
 import type { Teacher } from '../types/teacher';
+import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import '../components/GradeTable.css';
 
 const ROLE_OPTIONS: UserRole[] = ['SuperAdmin', 'Teacher', 'Student'];
@@ -222,7 +223,7 @@ export function PendingUsersPage() {
           </div>
         </div>
 
-        <div className="table-wrapper">
+        <TableScrollWrapper>
           {loading && users.length === 0 ? (
             <div className="table-loading">
               <div className="spinner" />
@@ -279,7 +280,7 @@ export function PendingUsersPage() {
               </tbody>
             </table>
           )}
-        </div>
+        </TableScrollWrapper>
       </section>
 
       <FormModal

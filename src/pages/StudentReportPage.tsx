@@ -18,6 +18,7 @@ import type { SubjectTypeFilter } from '../utils/subjectType';
 import { downloadStudentReportCsv } from '../utils/studentReportExport';
 import '../components/SearchGrade.css';
 import '../components/SearchGradeSubject.css';
+import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import './StudentReportPage.css';
 
 export function StudentReportPage() {
@@ -364,7 +365,7 @@ export function StudentReportPage() {
           </div>
 
           {results.length > 0 && (
-            <div className="table-wrapper">
+            <TableScrollWrapper>
               <table className="grade-table">
                 <thead>
                   <tr>
@@ -413,7 +414,7 @@ export function StudentReportPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+</TableScrollWrapper>
           )}
         </section>
       )}

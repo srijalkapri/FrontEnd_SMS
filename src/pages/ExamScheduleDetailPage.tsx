@@ -20,6 +20,7 @@ import { getExamStatusLabel, isExamSchedulePublished } from '../utils/examStatus
 import { getSubjectTypeLabel } from '../utils/subjectType';
 import '../components/GradeTable.css';
 import '../components/SearchGradeSubject.css';
+import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import './ExamSchedulesPage.css';
 
 export function ExamScheduleDetailPage() {
@@ -390,7 +391,7 @@ export function ExamScheduleDetailPage() {
             <p>Sessions are created automatically when the schedule is generated from grade subjects.</p>
           </div>
         ) : (
-          <div className="table-wrapper">
+          <TableScrollWrapper>
             <table className="grade-table exam-session-table">
               <thead>
                 <tr>
@@ -479,7 +480,7 @@ export function ExamScheduleDetailPage() {
                 })}
               </tbody>
             </table>
-          </div>
+</TableScrollWrapper>
         )}
       </section>
 

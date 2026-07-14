@@ -15,6 +15,7 @@ import { countConfiguredSessions, formatExamDate } from '../utils/examFormat';
 import { getExamStatusLabel, isExamSchedulePublished } from '../utils/examStatus';
 import '../components/GradeTable.css';
 import '../components/SearchGradeSubject.css';
+import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import './ExamSchedulesPage.css';
 
 export function ExamSchedulesPage() {
@@ -198,7 +199,7 @@ export function ExamSchedulesPage() {
             </button>
           </div>
         ) : (
-          <div className="table-wrapper">
+          <TableScrollWrapper>
             <table className="grade-table">
               <thead>
                 <tr>
@@ -263,7 +264,7 @@ export function ExamSchedulesPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </TableScrollWrapper>
         )}
 
         <PaginationControls

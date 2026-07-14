@@ -1,6 +1,7 @@
 import type { Teacher } from '../types/teacher';
 import type { TablePaginationProps } from '../types/pagination';
 import { PaginationControls } from './ui/PaginationControls';
+import { TableScrollWrapper } from './ui/TableScrollWrapper';
 import './GradeTable.css';
 
 interface TeacherTableProps extends Partial<TablePaginationProps> {
@@ -75,7 +76,7 @@ export function TeacherTable({
         </div>
       </div>
 
-      <div className="table-wrapper">
+      <TableScrollWrapper>
         {loading && teachers.length === 0 ? (
           <div className="table-loading">
             <div className="spinner" />
@@ -167,7 +168,7 @@ export function TeacherTable({
             </tbody>
           </table>
         )}
-      </div>
+      </TableScrollWrapper>
 
       {onPageChange && onPageSizeChange && (
         <PaginationControls

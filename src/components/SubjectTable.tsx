@@ -1,6 +1,7 @@
 import type { Subject } from '../types/subject';
 import type { TablePaginationProps } from '../types/pagination';
 import { PaginationControls } from './ui/PaginationControls';
+import { TableScrollWrapper } from './ui/TableScrollWrapper';
 import './GradeTable.css';
 
 interface SubjectTableProps extends Partial<TablePaginationProps> {
@@ -73,7 +74,7 @@ export function SubjectTable({
         </div>
       </div>
 
-      <div className="table-wrapper">
+      <TableScrollWrapper>
         {loading && subjects.length === 0 ? (
           <div className="table-loading">
             <div className="spinner" />
@@ -143,7 +144,7 @@ export function SubjectTable({
             </tbody>
           </table>
         )}
-      </div>
+      </TableScrollWrapper>
 
       {onPageChange && onPageSizeChange && (
         <PaginationControls

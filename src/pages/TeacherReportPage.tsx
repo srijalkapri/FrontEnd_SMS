@@ -24,6 +24,7 @@ import { downloadTeacherReportCsv } from '../utils/teacherReportExport';
 import '../components/SearchGrade.css';
 import '../components/SearchGradeSubject.css';
 import './StudentReportPage.css';
+import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import './TeacherReportPage.css';
 
 export function TeacherReportPage() {
@@ -414,7 +415,7 @@ export function TeacherReportPage() {
           </div>
 
           {results.length > 0 && (
-            <div className="table-wrapper">
+            <TableScrollWrapper>
               <table className="grade-table">
                 <thead>
                   <tr>
@@ -471,7 +472,7 @@ export function TeacherReportPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+</TableScrollWrapper>
           )}
         </section>
       )}

@@ -1,6 +1,7 @@
 import type { Teacher, TeacherDetails } from '../../types/teacher';
 import { getSubjectTypeLabel } from '../../utils/subjectType';
 import type { TeacherReportRow } from '../../utils/teacherReportFilters';
+import { TableScrollWrapper } from '../ui/TableScrollWrapper';
 import '../SearchGradeSubject.css';
 
 interface TeacherAssignmentReportCardProps {
@@ -58,7 +59,7 @@ export function TeacherAssignmentReportCard({ teacher, row }: TeacherAssignmentR
         <div className="search-result__field search-result__field--full">
           <span className="search-result__label">Students</span>
           {row.students.length > 0 ? (
-            <div className="table-wrapper">
+            <TableScrollWrapper>
               <table className="grade-table">
                 <thead>
                   <tr>
@@ -85,7 +86,7 @@ export function TeacherAssignmentReportCard({ teacher, row }: TeacherAssignmentR
                   ))}
                 </tbody>
               </table>
-            </div>
+</TableScrollWrapper>
           ) : (
             <span className="search-result__muted">No students enrolled in this grade.</span>
           )}

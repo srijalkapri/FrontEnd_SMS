@@ -1,5 +1,6 @@
 import type { Student } from '../../types/student';
 import { getSubjectTypeLabel } from '../../utils/subjectType';
+import { TableScrollWrapper } from '../ui/TableScrollWrapper';
 import '../SearchGradeSubject.css';
 
 export function StudentDetailsCard({ student }: { student: Student }) {
@@ -32,7 +33,7 @@ export function StudentDetailsCard({ student }: { student: Student }) {
         <div className="search-result__field search-result__field--full">
           <span className="search-result__label">Subjects & Teachers</span>
           {student.subjects.length > 0 ? (
-            <div className="table-wrapper">
+            <TableScrollWrapper>
               <table className="grade-table">
                 <thead>
                   <tr>
@@ -69,7 +70,7 @@ export function StudentDetailsCard({ student }: { student: Student }) {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableScrollWrapper>
           ) : (
             <span className="search-result__muted">No subjects enrolled</span>
           )}

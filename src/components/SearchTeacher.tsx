@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import type { Teacher, TeacherDetails } from '../types/teacher';
 import { getSubjectTypeLabel } from '../utils/subjectType';
 import './SearchGrade.css';
+import { TableScrollWrapper } from './ui/TableScrollWrapper';
 import './SearchGradeSubject.css';
 
 interface SearchTeacherProps {
@@ -249,7 +250,7 @@ export function SearchTeacher({
             <div className="search-result__field search-result__field--full">
               <span className="search-result__label">Assigned Grade Subjects</span>
               {detailsResult.assignedGradeSubjectTeachers.length > 0 ? (
-                <div className="table-wrapper">
+                <TableScrollWrapper>
                   <table className="grade-table">
                     <thead>
                       <tr>
@@ -274,7 +275,7 @@ export function SearchTeacher({
                       ))}
                     </tbody>
                   </table>
-                </div>
+</TableScrollWrapper>
               ) : (
                 <span className="search-result__muted">No grade subjects assigned</span>
               )}

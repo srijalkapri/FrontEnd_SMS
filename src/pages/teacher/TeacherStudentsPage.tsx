@@ -4,6 +4,7 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { useToast } from '../../context/ToastContext';
 import type { TeacherPortalStudent } from '../../types/teacherPortal';
 import '../../components/GradeTable.css';
+import { TableScrollWrapper } from '../../components/ui/TableScrollWrapper';
 import '../PortalPages.css';
 
 export function TeacherStudentsPage() {
@@ -41,7 +42,7 @@ export function TeacherStudentsPage() {
       />
 
       <section className="card grade-table-section">
-        <div className="table-wrapper">
+        <TableScrollWrapper>
           {loading ? (
             <div className="table-loading">
               <div className="spinner" />
@@ -81,7 +82,7 @@ export function TeacherStudentsPage() {
               </tbody>
             </table>
           )}
-        </div>
+        </TableScrollWrapper>
       </section>
     </div>
   );

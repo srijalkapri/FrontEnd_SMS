@@ -8,6 +8,7 @@ import type { Grade } from '../types/grade';
 import type { PromotionResult } from '../types/promotion';
 import type { Student } from '../types/student';
 import './PromotionPage.css';
+import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import '../components/GradeTable.css';
 
 function FlowArrowIcon() {
@@ -473,7 +474,7 @@ export function PromotionPage() {
               </p>
             </div>
 
-            <div className="table-wrapper">
+            <TableScrollWrapper>
               <table className="grade-table">
                 <thead>
                   <tr>
@@ -545,7 +546,7 @@ export function PromotionPage() {
                   )}
                 </tbody>
               </table>
-            </div>
+            </TableScrollWrapper>
           </>
         )}
 

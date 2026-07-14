@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import type { TeacherPortalSubject } from '../../types/teacherPortal';
 import { getSubjectTypeLabel } from '../../utils/subjectType';
 import '../../components/GradeTable.css';
+import { TableScrollWrapper } from '../../components/ui/TableScrollWrapper';
 import '../PortalPages.css';
 
 export function TeacherSubjectsPage() {
@@ -42,7 +43,7 @@ export function TeacherSubjectsPage() {
       />
 
       <section className="card grade-table-section">
-        <div className="table-wrapper">
+        <TableScrollWrapper>
           {loading ? (
             <div className="table-loading">
               <div className="spinner" />
@@ -78,7 +79,7 @@ export function TeacherSubjectsPage() {
               </tbody>
             </table>
           )}
-        </div>
+        </TableScrollWrapper>
       </section>
     </div>
   );

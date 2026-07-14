@@ -5,6 +5,7 @@ import { PaginationControls } from './ui/PaginationControls';
 import './GradeCurriculumTable.css';
 import './GradeSubjectTable.css';
 import './GradeTable.css';
+import { TableScrollWrapper } from './ui/TableScrollWrapper';
 import './SearchGradeSubject.css';
 
 interface GradeCurriculumTableProps extends Partial<TablePaginationProps> {
@@ -73,7 +74,7 @@ export function GradeCurriculumTable({
         </div>
       </div>
 
-      <div className="table-wrapper">
+      <TableScrollWrapper>
         {loading && subjects.length === 0 ? (
           <div className="table-loading">
             <div className="spinner" />
@@ -139,7 +140,7 @@ export function GradeCurriculumTable({
             </tbody>
           </table>
         )}
-      </div>
+      </TableScrollWrapper>
 
       {onPageChange && onPageSizeChange && (
         <PaginationControls
