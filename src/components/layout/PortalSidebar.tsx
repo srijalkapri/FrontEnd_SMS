@@ -28,12 +28,20 @@ const teacherNav: NavItem[] = [
   { to: '/teacher/subjects', label: 'My Subjects', icon: 'book' },
 ];
 
+const teacherSettingsNav: NavItem[] = [
+  { to: '/teacher/settings/appearance', label: 'Appearance', icon: 'palette' },
+];
+
 const studentNav: NavItem[] = [
   { to: '/student', label: 'Overview', icon: 'home', end: true },
   { to: '/student/profile', label: 'My Profile', icon: 'student' },
   { to: '/student/grade', label: 'My Grade', icon: 'layers' },
   { to: '/student/subjects', label: 'My Subjects', icon: 'book' },
   { to: '/student/teachers', label: 'My Teachers', icon: 'users' },
+];
+
+const studentSettingsNav: NavItem[] = [
+  { to: '/student/settings/appearance', label: 'Appearance', icon: 'palette' },
 ];
 
 function NavIcon({ name }: { name: string }) {
@@ -68,6 +76,17 @@ function NavIcon({ name }: { name: string }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
         </svg>
       );
+    case 'palette':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402a3.75 3.75 0 00-5.304-5.304l-6.4 6.402a3.75 3.75 0 000 5.304z"
+          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h.008v.008H15V9z" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -77,6 +96,7 @@ export function PortalSidebar({ portal, mobileOpen = false, onNavigate }: Portal
   const { user } = useAuth();
   const { signOut, signingOut } = useSignOut(onNavigate);
   const navItems = portal === 'teacher' ? teacherNav : studentNav;
+  const settingsNav = portal === 'teacher' ? teacherSettingsNav : studentSettingsNav;
   const homeRoute = portal === 'teacher' ? '/teacher' : '/student';
   const portalTitle = portal === 'teacher' ? 'Teacher Portal' : 'Student Portal';
 
@@ -110,6 +130,29 @@ export function PortalSidebar({ portal, mobileOpen = false, onNavigate }: Portal
           <div className="sidebar__group-label">Menu</div>
           <ul className="sidebar__list">
             {navItems.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
+                  }
+                >
+                  <span className="sidebar__link-icon">
+                    <NavIcon name={item.icon} />
+                  </span>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="sidebar__group">
+          <div className="sidebar__group-label">Settings</div>
+          <ul className="sidebar__list">
+            {settingsNav.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}

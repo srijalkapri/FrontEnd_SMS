@@ -74,6 +74,7 @@ function App() {
                   <Route path="/teacher/classes" element={<TeacherClassesPage />} />
                   <Route path="/teacher/students" element={<TeacherStudentsPage />} />
                   <Route path="/teacher/subjects" element={<TeacherSubjectsPage />} />
+                  <Route path="/teacher/settings/appearance" element={<AppearancePage />} />
                   <Route path="*" element={<Navigate to="/teacher" replace />} />
                 </Route>
               </Route>
@@ -85,6 +86,7 @@ function App() {
                   <Route path="/student/grade" element={<StudentGradePage />} />
                   <Route path="/student/subjects" element={<StudentSubjectsPage />} />
                   <Route path="/student/teachers" element={<StudentTeachersPage />} />
+                  <Route path="/student/settings/appearance" element={<AppearancePage />} />
                   <Route path="*" element={<Navigate to="/student" replace />} />
                 </Route>
               </Route>
