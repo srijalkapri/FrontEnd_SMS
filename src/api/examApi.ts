@@ -6,6 +6,11 @@ import type {
   UpdateExamScheduleRequest,
   UpdateExamSessionRequest,
 } from '../types/exam';
+import type {
+  AdminExamResultReview,
+  AdminPendingExamResult,
+  ReviewExamResultsRequest,
+} from '../types/examResult';
 import type { PaginationQuery, PagedResult } from '../types/pagination';
 import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
@@ -82,5 +87,23 @@ export const examApi = {
   deleteSession: (id: number) =>
     request<number>(`${BASE_URL}/DeleteSession?id=${id}`, {
       method: 'DELETE',
+    }),
+
+  getPendingResultApprovals: () =>
+    request<AdminPendingExamResult[]>(`${BASE_URL}/ResultApprovals/Pending`),
+
+  getResultApprovalBatch: (batchId: number) =>
+    request<AdminExamResultReview>(`${BASE_URL}/ResultApprovals/${batchId}`),
+
+  approveResultBatch: (batchId: number, data: ReviewExamResultsRequest) =>
+    request<string>(`${BASE_URL}/ResultApprovals/${batchId}/Approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  rejectResultBatch: (batchId: number, data: ReviewExamResultsRequest) =>
+    request<string>(`${BASE_URL}/ResultApprovals/${batchId}/Reject`, {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
 };

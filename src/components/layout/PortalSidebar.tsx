@@ -26,6 +26,7 @@ const teacherNav: NavItem[] = [
   { to: '/teacher/classes', label: 'My Classes', icon: 'layers' },
   { to: '/teacher/students', label: 'My Students', icon: 'student' },
   { to: '/teacher/subjects', label: 'My Subjects', icon: 'book' },
+  { to: '/teacher/exams', label: 'Exam Results', icon: 'exam' },
 ];
 
 const teacherSettingsNav: NavItem[] = [
@@ -38,6 +39,7 @@ const studentNav: NavItem[] = [
   { to: '/student/grade', label: 'My Grade', icon: 'layers' },
   { to: '/student/subjects', label: 'My Subjects', icon: 'book' },
   { to: '/student/teachers', label: 'My Teachers', icon: 'users' },
+  { to: '/student/results', label: 'My Results', icon: 'exam' },
 ];
 
 const studentSettingsNav: NavItem[] = [
@@ -85,6 +87,12 @@ function NavIcon({ name }: { name: string }) {
             d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402a3.75 3.75 0 00-5.304-5.304l-6.4 6.402a3.75 3.75 0 000 5.304z"
           />
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h.008v.008H15V9z" />
+        </svg>
+      );
+    case 'exam':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 9.75h18M4.5 7.5h15a1.5 1.5 0 011.5 1.5v10.5a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5V9a1.5 1.5 0 011.5-1.5z" />
         </svg>
       );
     default:

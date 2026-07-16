@@ -18,7 +18,10 @@ import { LoginPage } from './pages/LoginPage';
 import { PendingUsersPage } from './pages/PendingUsersPage';
 import { PromotionPage } from './pages/PromotionPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ResultApprovalDetailPage } from './pages/ResultApprovalDetailPage';
+import { ResultApprovalsPage } from './pages/ResultApprovalsPage';
 import { StudentReportPage } from './pages/StudentReportPage';
+import { StudentResultsPage } from './pages/student/StudentResultsPage';
 import { StudentOverviewPage } from './pages/student/StudentOverviewPage';
 import { StudentGradePage } from './pages/student/StudentGradePage';
 import { StudentProfilePage } from './pages/student/StudentProfilePage';
@@ -27,6 +30,8 @@ import { StudentTeachersPage } from './pages/student/StudentTeachersPage';
 import { StudentsPage } from './pages/StudentsPage';
 import { SubjectsPage } from './pages/SubjectsPage';
 import { TeacherReportPage } from './pages/TeacherReportPage';
+import { TeacherExamResultsPage } from './pages/teacher/TeacherExamResultsPage';
+import { TeacherExamSessionsPage } from './pages/teacher/TeacherExamSessionsPage';
 import { TeacherClassesPage } from './pages/teacher/TeacherClassesPage';
 import { TeacherOverviewPage } from './pages/teacher/TeacherOverviewPage';
 import { TeacherProfilePage } from './pages/teacher/TeacherProfilePage';
@@ -58,6 +63,8 @@ function App() {
                   <Route path="/grade-subjects" element={<GradeSubjectsPage />} />
                   <Route path="/promotion" element={<PromotionPage />} />
                   <Route path="/exams" element={<ExamSchedulesPage />} />
+                  <Route path="/exams/result-approvals" element={<ResultApprovalsPage />} />
+                  <Route path="/exams/result-approvals/:batchId" element={<ResultApprovalDetailPage />} />
                   <Route path="/exams/:id" element={<ExamScheduleDetailPage />} />
                   <Route path="/reports/students" element={<StudentReportPage />} />
                   <Route path="/reports/teachers" element={<TeacherReportPage />} />
@@ -74,6 +81,8 @@ function App() {
                   <Route path="/teacher/classes" element={<TeacherClassesPage />} />
                   <Route path="/teacher/students" element={<TeacherStudentsPage />} />
                   <Route path="/teacher/subjects" element={<TeacherSubjectsPage />} />
+                  <Route path="/teacher/exams" element={<TeacherExamSessionsPage />} />
+                  <Route path="/teacher/exams/:examSessionId" element={<TeacherExamResultsPage />} />
                   <Route path="/teacher/settings/appearance" element={<AppearancePage />} />
                   <Route path="*" element={<Navigate to="/teacher" replace />} />
                 </Route>
@@ -86,6 +95,7 @@ function App() {
                   <Route path="/student/grade" element={<StudentGradePage />} />
                   <Route path="/student/subjects" element={<StudentSubjectsPage />} />
                   <Route path="/student/teachers" element={<StudentTeachersPage />} />
+                  <Route path="/student/results" element={<StudentResultsPage />} />
                   <Route path="/student/settings/appearance" element={<AppearancePage />} />
                   <Route path="*" element={<Navigate to="/student" replace />} />
                 </Route>

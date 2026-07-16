@@ -36,6 +36,7 @@ const navGroups: NavGroup[] = [
       { to: '/grade-subjects', label: 'Grade Subjects', icon: 'link' },
       { to: '/promotion', label: 'Promotion', icon: 'promotion' },
       { to: '/exams', label: 'Exam Schedules', icon: 'exam' },
+      { to: '/exams/result-approvals', label: 'Result Approvals', icon: 'exam' },
     ],
   },
   {

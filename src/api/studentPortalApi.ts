@@ -1,3 +1,4 @@
+import type { StudentExamResultSchedule } from '../types/examResult';
 import type { StudentPortalOverview, StudentPortalProfile } from '../types/studentPortal';
 import type { Grade } from '../types/grade';
 import type { StudentSubject, StudentTeacher } from '../types/student';
@@ -15,4 +16,9 @@ export const studentPortalApi = {
   getSubjects: () => request<StudentSubject[]>(`${BASE_URL}/Subjects`),
 
   getTeachers: () => request<StudentTeacher[]>(`${BASE_URL}/Teachers`),
+
+  getResults: (examScheduleId?: number) => {
+    const qs = examScheduleId != null ? `?examScheduleId=${examScheduleId}` : '';
+    return request<StudentExamResultSchedule[]>(`${BASE_URL}/Results${qs}`);
+  },
 };
