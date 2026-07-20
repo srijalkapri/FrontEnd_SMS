@@ -31,11 +31,22 @@ export function StudentsPage() {
   const [prefillResult, setPrefillResult] = useState<Student | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [gradeFilter, setGradeFilter] = useState('');
 
-  const fetchPage = useCallback(async (query: Parameters<typeof studentApi.getPaged>[0]) => {
-    const response = await studentApi.getPaged(query);
-    return response.data;
-  }, []);
+  const parsedGradeId =
+    gradeFilter && gradeFilter !== 'all' ? parseInt(gradeFilter, 10) : NaN;
+
+  const fetchPage = useCallback(
+    async (query: Parameters<typeof studentApi.getPaged>[0]) => {
+      if (!isNaN(parsedGradeId) && parsedGradeId > 0) {
+        const response = await studentApi.getByGradePaged(parsedGradeId, query);
+        return response.data;
+      }
+      const response = await studentApi.getPaged(query);
+      return response.data;
+    },
+    [parsedGradeId],
+  );
 
   const {
     items: students,
@@ -52,7 +63,17 @@ export function StudentsPage() {
     setPageSize,
     setSearch: setSearchQuery,
     refresh: fetchStudents,
-  } = usePagedList({ fetchPage });
+  } = usePagedList({ fetchPage, enabled: gradeFilter !== '' });
+
+  useEffect(() => {
+    setPageNumber(1);
+  }, [gradeFilter, setPageNumber]);
+
+  const selectedGradeLabel = useMemo(() => {
+    if (gradeFilter === 'all') return 'All';
+    if (!gradeFilter) return undefined;
+    return grades.find((grade) => grade.id === parseInt(gradeFilter, 10))?.className;
+  }, [gradeFilter, grades]);
 
   useEffect(() => {
     if (error) {
@@ -227,6 +248,10 @@ export function StudentsPage() {
         onPageChange={setPageNumber}
         onPageSizeChange={setPageSize}
         getSubjectCount={resolveSubjectCount}
+        grades={grades}
+        gradeFilter={gradeFilter}
+        onGradeFilterChange={setGradeFilter}
+        selectedGradeLabel={selectedGradeLabel}
       />
 
       <FormModal

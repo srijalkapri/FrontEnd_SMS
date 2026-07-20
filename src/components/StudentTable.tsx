@@ -1,4 +1,5 @@
 import type { Student } from '../types/student';
+import type { Grade } from '../types/grade';
 import type { TablePaginationProps } from '../types/pagination';
 import { PaginationControls } from './ui/PaginationControls';
 import { TableScrollWrapper } from './ui/TableScrollWrapper';
@@ -14,6 +15,10 @@ interface StudentTableProps extends Partial<TablePaginationProps> {
   onViewDetails: (student: Student) => void;
   onRefresh: () => void;
   getSubjectCount?: (student: Student) => number;
+  grades?: Grade[];
+  gradeFilter?: string;
+  onGradeFilterChange?: (value: string) => void;
+  selectedGradeLabel?: string;
 }
 
 export function StudentTable({
@@ -34,17 +39,43 @@ export function StudentTable({
   onPageChange,
   onPageSizeChange,
   getSubjectCount = (student) => student.subjects.length,
+  grades = [],
+  gradeFilter = '',
+  onGradeFilterChange,
+  selectedGradeLabel,
 }: StudentTableProps) {
+  const hasGradeSelection = gradeFilter !== '';
+  const tableTitle = selectedGradeLabel ? `${selectedGradeLabel} Students` : 'Students';
+
   return (
     <section className="card grade-table-section">
       <div className="card__header">
         <div>
-          <h2 className="card__title">All Students</h2>
+          <h2 className="card__title">{tableTitle}</h2>
           <p className="card__subtitle">
-            {totalCount} student{totalCount !== 1 ? 's' : ''} total
+            {hasGradeSelection
+              ? `${totalCount} student${totalCount !== 1 ? 's' : ''} total`
+              : 'Select a class to load students'}
           </p>
         </div>
-        <div className="grade-table__actions">
+        <div className="grade-table__actions grade-table__actions--wrap">
+          {onGradeFilterChange && (
+            <select
+              className="form-input student-grade-filter"
+              value={gradeFilter}
+              onChange={(e) => onGradeFilterChange(e.target.value)}
+              disabled={loading && hasGradeSelection}
+              aria-label="Filter students by class"
+            >
+              <option value="">Select class…</option>
+              <option value="all">All classes</option>
+              {grades.map((grade) => (
+                <option key={grade.id} value={grade.id}>
+                  {grade.className}
+                </option>
+              ))}
+            </select>
+          )}
           <div className="search-input">
             <svg className="search-input__icon" viewBox="0 0 20 20" fill="currentColor">
               <path
@@ -59,9 +90,14 @@ export function StudentTable({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="search-input__field"
+              disabled={!hasGradeSelection}
             />
           </div>
-          <button className="btn btn--ghost" onClick={onRefresh} disabled={loading}>
+          <button
+            className="btn btn--ghost"
+            onClick={onRefresh}
+            disabled={loading || !hasGradeSelection}
+          >
             <svg
               className={`btn__icon ${loading ? 'btn__icon--spin' : ''}`}
               viewBox="0 0 20 20"
@@ -79,7 +115,11 @@ export function StudentTable({
       </div>
 
       <TableScrollWrapper>
-        {loading && students.length === 0 ? (
+        {!hasGradeSelection ? (
+          <div className="table-empty">
+            <p>Select a class from the dropdown to view students.</p>
+          </div>
+        ) : loading && students.length === 0 ? (
           <div className="table-loading">
             <div className="spinner" />
             <p>Loading students...</p>
@@ -96,7 +136,7 @@ export function StudentTable({
             <p>
               {searchQuery
                 ? 'No students match your search.'
-                : 'No students found. Create one to get started.'}
+                : 'No students found in this class.'}
             </p>
           </div>
         ) : (
@@ -178,7 +218,7 @@ export function StudentTable({
         )}
       </TableScrollWrapper>
 
-      {onPageChange && onPageSizeChange && (
+      {onPageChange && onPageSizeChange && hasGradeSelection && (
         <PaginationControls
           totalCount={totalCount}
           pageNumber={pageNumber}
