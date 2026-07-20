@@ -58,14 +58,20 @@ export function StudentTable({
               : 'Select a class to load students'}
           </p>
         </div>
-        <div className="grade-table__actions grade-table__actions--wrap">
-          {onGradeFilterChange && (
+      </div>
+
+      <div className="grade-table-toolbar">
+        {onGradeFilterChange && (
+          <div className="grade-table-toolbar__filters">
+            <label className="grade-table-toolbar__label" htmlFor="student-grade-filter">
+              Class
+            </label>
             <select
-              className="form-input student-grade-filter"
+              id="student-grade-filter"
+              className="form-input grade-table-toolbar__select"
               value={gradeFilter}
               onChange={(e) => onGradeFilterChange(e.target.value)}
               disabled={loading && hasGradeSelection}
-              aria-label="Filter students by class"
             >
               <option value="">Select class…</option>
               <option value="all">All classes</option>
@@ -75,7 +81,10 @@ export function StudentTable({
                 </option>
               ))}
             </select>
-          )}
+          </div>
+        )}
+
+        <div className="grade-table-toolbar__actions">
           <div className="search-input">
             <svg className="search-input__icon" viewBox="0 0 20 20" fill="currentColor">
               <path
@@ -86,7 +95,7 @@ export function StudentTable({
             </svg>
             <input
               type="text"
-              placeholder="Search name, phone, email, grade..."
+              placeholder="Search name, phone, email..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="search-input__field"

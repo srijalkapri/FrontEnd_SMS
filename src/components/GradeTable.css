@@ -9,12 +9,47 @@
   gap: 0.75rem;
 }
 
-.grade-table__actions--wrap {
+.grade-table-toolbar {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.student-grade-filter {
-  min-width: 10rem;
+.grade-table-toolbar__filters {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.grade-table-toolbar__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.grade-table-toolbar__select {
+  min-width: 11rem;
+}
+
+.grade-table-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 16rem;
+  justify-content: flex-end;
+}
+
+.grade-table-toolbar__actions .search-input {
+  flex: 1 1 12rem;
+  max-width: 20rem;
+}
+
+.grade-table-toolbar__actions .search-input__field {
+  width: 100%;
 }
 
 .search-input {
@@ -175,6 +210,30 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+  }
+
+  .grade-table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grade-table-toolbar__filters {
+    width: 100%;
+  }
+
+  .grade-table-toolbar__select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .grade-table-toolbar__actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grade-table-toolbar__actions .search-input {
+    max-width: none;
   }
 
   .search-input__field {
