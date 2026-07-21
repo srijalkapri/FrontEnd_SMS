@@ -1,10 +1,26 @@
 import type { ApiResponse } from '../types/api';
-import { clearAuthSession, getToken } from '../utils/authStorage';
+import type { LoginResponse } from '../types/auth';
+import {
+  clearAuthSession,
+  getRefreshToken,
+  getToken,
+  isRefreshTokenExpired,
+  setAuthSession,
+} from '../utils/authStorage';
 
 const inFlightGetRequests = new Map<string, Promise<ApiResponse<unknown>>>();
 
 /** Production: set VITE_API_URL=https://your-api.onrender.com (no trailing slash). Dev: leave empty to use Vite proxy. */
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+
+type RawLoginPayload = LoginResponse & {
+  Token?: string;
+  ExpiresAt?: string;
+  RefreshToken?: string;
+  RefreshTokenExpiresAt?: string;
+};
+
+let refreshPromise: Promise<boolean> | null = null;
 
 function resolveUrl(url: string): string {
   if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -15,14 +31,28 @@ function resolveUrl(url: string): string {
 }
 
 function isPublicAuthRequest(url: string): boolean {
-  return url.includes('/api/Auth/Login') || url.includes('/api/Auth/Register');
+  return (
+    url.includes('/api/Auth/Login') ||
+    url.includes('/api/Auth/Register') ||
+    url.includes('/api/Auth/Refresh')
+  );
 }
 
-function handleUnauthorized(url: string): void {
-  if (isPublicAuthRequest(url)) {
-    return;
-  }
+function isLogoutRequest(url: string): boolean {
+  return url.includes('/api/Auth/Logout');
+}
 
+function normalizeLoginPayload(raw: RawLoginPayload): LoginResponse {
+  return {
+    token: raw.token ?? raw.Token ?? '',
+    expiresAt: raw.expiresAt ?? raw.ExpiresAt ?? '',
+    refreshToken: raw.refreshToken ?? raw.RefreshToken ?? '',
+    refreshTokenExpiresAt: raw.refreshTokenExpiresAt ?? raw.RefreshTokenExpiresAt ?? '',
+    user: raw.user,
+  };
+}
+
+function handleUnauthorized(): void {
   clearAuthSession();
 
   if (window.location.pathname !== '/login') {
@@ -48,7 +78,56 @@ async function parseErrorMessage(response: Response): Promise<string> {
   return `Request failed with status ${response.status}`;
 }
 
-async function executeRequest<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
+async function refreshAccessToken(): Promise<boolean> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken || isRefreshTokenExpired()) {
+    return false;
+  }
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const response = await fetch(resolveUrl('/api/Auth/Refresh'), {
+          method: 'POST',
+          headers: {
+            Accept: '*/*',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+
+        if (!response.ok) {
+          return false;
+        }
+
+        const result = (await response.json()) as ApiResponse<RawLoginPayload>;
+        if (!result.success || !result.data) {
+          return false;
+        }
+
+        const payload = normalizeLoginPayload(result.data);
+        if (!payload.token || !payload.refreshToken) {
+          return false;
+        }
+
+        setAuthSession(payload);
+        return true;
+      } catch {
+        return false;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+}
+
+async function executeRequest<T>(
+  url: string,
+  options?: RequestInit,
+  retried = false,
+): Promise<ApiResponse<T>> {
   const token = getToken();
   const headers: Record<string, string> = {
     Accept: '*/*',
@@ -66,7 +145,17 @@ async function executeRequest<T>(url: string, options?: RequestInit): Promise<Ap
   });
 
   if (response.status === 401) {
-    handleUnauthorized(url);
+    const canRefresh =
+      !retried && !isPublicAuthRequest(url) && !isLogoutRequest(url);
+
+    if (canRefresh && (await refreshAccessToken())) {
+      return executeRequest<T>(url, options, true);
+    }
+
+    if (!isPublicAuthRequest(url)) {
+      handleUnauthorized();
+    }
+
     throw new Error(await parseErrorMessage(response));
   }
 

@@ -3,7 +3,9 @@ import type {
   AuthUser,
   LoginRequest,
   LoginResponse,
+  LogoutRequest,
   PendingUser,
+  RefreshTokenRequest,
   RegisterRequest,
 } from '../types/auth';
 import { request } from './apiClient';
@@ -23,11 +25,18 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
 
+  refresh: (data: RefreshTokenRequest) =>
+    request<LoginResponse>(`${BASE_URL}/Refresh`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
   me: () => request<AuthUser>(`${BASE_URL}/Me`),
 
-  logout: () =>
+  logout: (data: LogoutRequest) =>
     request<null>(`${BASE_URL}/Logout`, {
       method: 'POST',
+      body: JSON.stringify(data),
     }),
 
   getPendingUsers: () => request<PendingUser[]>(`${BASE_URL}/PendingUsers`),

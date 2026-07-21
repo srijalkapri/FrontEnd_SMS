@@ -15,7 +15,17 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   expiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
   user: AuthUser;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;
 }
 
 export interface RegisterRequest {

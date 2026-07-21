@@ -11,7 +11,7 @@ import { authApi } from '../api/authApi';
 import type { AuthUser, LoginRequest } from '../types/auth';
 import {
   clearAuthSession,
-  getToken,
+  getRefreshToken,
   hasStoredSession,
   setAuthSession,
 } from '../utils/authStorage';
@@ -22,6 +22,10 @@ type RawLoginPayload = {
   Token?: string;
   expiresAt?: string;
   ExpiresAt?: string;
+  refreshToken?: string;
+  RefreshToken?: string;
+  refreshTokenExpiresAt?: string;
+  RefreshTokenExpiresAt?: string;
   user?: Parameters<typeof normalizeAuthUser>[0];
   User?: Parameters<typeof normalizeAuthUser>[0];
 };
@@ -30,6 +34,8 @@ function normalizeLoginPayload(raw: RawLoginPayload) {
   return {
     token: raw.token ?? raw.Token ?? '',
     expiresAt: raw.expiresAt ?? raw.ExpiresAt ?? '',
+    refreshToken: raw.refreshToken ?? raw.RefreshToken ?? '',
+    refreshTokenExpiresAt: raw.refreshTokenExpiresAt ?? raw.RefreshTokenExpiresAt ?? '',
     user: normalizeAuthUser(raw.user ?? raw.User ?? {}),
   };
 }
@@ -76,13 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function bootstrap() {
-      if (!getToken()) {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-        return;
-      }
-
       if (!hasStoredSession()) {
         clearAuthSession();
         if (!cancelled) {
@@ -108,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (credentials: LoginRequest) => {
     const result = await authApi.login(credentials);
     const payload = normalizeLoginPayload(result.data as RawLoginPayload);
-    setAuthSession(payload.token, payload.expiresAt);
+    setAuthSession(payload);
     const normalizedUser = payload.user;
 
     if (!parseUserRole(normalizedUser.role)) {
@@ -125,8 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      if (getToken()) {
-        await authApi.logout();
+      const refreshToken = getRefreshToken();
+      if (refreshToken) {
+        await authApi.logout({ refreshToken });
       }
     } catch {
       // Token may already be invalid; still clear local session.
