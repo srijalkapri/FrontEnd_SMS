@@ -119,10 +119,13 @@ export function PromotionPage() {
     setPreview(null);
   }, [fromGradeId, toGradeId, selectedIds]);
 
-  const targetGrades = useMemo(
-    () => grades.filter((grade) => grade.id !== parsedFromGradeId),
-    [grades, parsedFromGradeId],
-  );
+  const targetGrades = useMemo(() => {
+    if (!fromGrade) {
+      return [];
+    }
+
+    return grades.filter((grade) => grade.level > fromGrade.level);
+  }, [grades, fromGrade]);
 
   const filteredStudents = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -163,6 +166,11 @@ export function PromotionPage() {
 
     if (parsedFromGradeId === parsedToGradeId) {
       setFormError('Source and target grade must be different.');
+      return false;
+    }
+
+    if (fromGrade && toGrade && toGrade.level <= fromGrade.level) {
+      setFormError('Target grade must be higher than source grade.');
       return false;
     }
 
@@ -314,11 +322,17 @@ export function PromotionPage() {
                 disabled={isBusy || !fromGradeId}
               >
                 <option value="">Choose next grade</option>
-                {targetGrades.map((grade) => (
-                  <option key={grade.id} value={grade.id}>
-                    {grade.className}
+                {targetGrades.length === 0 ? (
+                  <option value="" disabled>
+                    No higher grade available
                   </option>
-                ))}
+                ) : (
+                  targetGrades.map((grade) => (
+                    <option key={grade.id} value={grade.id}>
+                      {grade.className}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
           </div>

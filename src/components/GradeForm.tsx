@@ -6,7 +6,12 @@ import './GradeForm.css';
 interface GradeFormProps {
   editingGrade: Grade | null;
   teachers: Teacher[];
-  onSubmit: (className: string, classTeacherId: number | null, id?: number) => Promise<void>;
+  onSubmit: (
+    className: string,
+    level: number,
+    classTeacherId: number | null,
+    id?: number,
+  ) => Promise<void>;
   onCancelEdit: () => void;
   loading: boolean;
   embedded?: boolean;
@@ -21,17 +26,20 @@ export function GradeForm({
   embedded = false,
 }: GradeFormProps) {
   const [className, setClassName] = useState('');
+  const [level, setLevel] = useState('');
   const [classTeacherId, setClassTeacherId] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (editingGrade) {
       setClassName(editingGrade.className);
+      setLevel(String(editingGrade.level));
       setClassTeacherId(
         editingGrade.classTeacherId != null ? String(editingGrade.classTeacherId) : '',
       );
     } else {
       setClassName('');
+      setLevel('');
       setClassTeacherId('');
     }
     setError('');
@@ -40,9 +48,15 @@ export function GradeForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmed = className.trim();
+    const parsedLevel = parseInt(level, 10);
 
     if (!trimmed) {
       setError('Class name is required.');
+      return;
+    }
+
+    if (!Number.isFinite(parsedLevel) || parsedLevel <= 0) {
+      setError('Level must be a positive number (e.g. 9 for Grade 9).');
       return;
     }
 
@@ -51,9 +65,10 @@ export function GradeForm({
       parsedTeacherId && !isNaN(parsedTeacherId) && parsedTeacherId > 0 ? parsedTeacherId : null;
 
     setError('');
-    await onSubmit(trimmed, teacherId, editingGrade?.id);
+    await onSubmit(trimmed, parsedLevel, teacherId, editingGrade?.id);
     if (!editingGrade) {
       setClassName('');
+      setLevel('');
       setClassTeacherId('');
     }
   };
@@ -79,6 +94,27 @@ export function GradeForm({
           disabled={loading}
         />
         {error && <span className="form-error">{error}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="level" className="form-label">
+          Level
+        </label>
+        <input
+          id="level"
+          type="number"
+          min={1}
+          step={1}
+          className={`form-input ${error ? 'form-input--error' : ''}`}
+          placeholder="e.g. 9"
+          value={level}
+          onChange={(e) => {
+            setLevel(e.target.value);
+            if (error) setError('');
+          }}
+          disabled={loading}
+        />
+        <span className="form-hint">Numeric grade level used for promotion order (higher = next year).</span>
       </div>
 
       <div className="form-group">

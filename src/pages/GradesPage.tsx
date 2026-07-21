@@ -99,17 +99,18 @@ export function GradesPage() {
 
   const handleCreateOrUpdate = async (
     className: string,
+    level: number,
     classTeacherId: number | null,
     id?: number,
   ) => {
     setFormLoading(true);
     try {
       if (id) {
-        const response = await gradeApi.update(id, { className, classTeacherId });
+        const response = await gradeApi.update(id, { className, level, classTeacherId });
         showToast('success', response.message);
         closeFormModal();
       } else {
-        const response = await gradeApi.create({ className, classTeacherId });
+        const response = await gradeApi.create({ className, level, classTeacherId });
         showToast('success', response.message);
         closeFormModal();
       }
@@ -154,7 +155,7 @@ export function GradesPage() {
     }
   };
 
-  const gradesForLookup = entries.map(({ id, className }) => ({ id, className }));
+  const gradesForLookup = entries;
 
   return (
     <div className="page-content">
