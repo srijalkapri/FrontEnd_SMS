@@ -51,6 +51,19 @@
   text-align: right;
 }
 
+.grade-subject-table__index-col {
+  width: 3rem;
+}
+
+.row-index {
+  display: inline-block;
+  min-width: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
 .cell-primary {
   font-weight: 500;
 }

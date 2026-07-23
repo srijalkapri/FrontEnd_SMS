@@ -100,6 +100,30 @@ export interface StudentExamResultSchedule {
   percentage: number;
 }
 
+export interface AdminStudentMarksRow {
+  studentId: number;
+  studentName: string;
+  subjects: StudentExamResultSubject[];
+  totalObtained: number;
+  totalMarks: number;
+  percentage: number;
+}
+
+export interface AdminScheduleMarks {
+  examScheduleId: number;
+  examTitle: string;
+  academicYear: string | null;
+  gradeName: string;
+  students: AdminStudentMarksRow[];
+}
+
+export interface AdminStudentMarksRecord {
+  studentId: number;
+  studentName: string;
+  gradeName: string;
+  results: StudentExamResultSchedule[];
+}
+
 export interface ExamResultItemDraft {
   studentId: number;
   studentName: string;

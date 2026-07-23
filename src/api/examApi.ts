@@ -9,6 +9,8 @@ import type {
 import type {
   AdminExamResultReview,
   AdminPendingExamResult,
+  AdminScheduleMarks,
+  AdminStudentMarksRecord,
   ReviewExamResultsRequest,
 } from '../types/examResult';
 import type { PaginationQuery, PagedResult } from '../types/pagination';
@@ -106,4 +108,12 @@ export const examApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  getResultsBySchedule: (examScheduleId: number) =>
+    request<AdminScheduleMarks>(`${BASE_URL}/Results/BySchedule/${examScheduleId}`),
+
+  getResultsByStudent: (studentId: number, examScheduleId?: number) => {
+    const qs = examScheduleId != null ? `?examScheduleId=${examScheduleId}` : '';
+    return request<AdminStudentMarksRecord>(`${BASE_URL}/Results/ByStudent/${studentId}${qs}`);
+  },
 };

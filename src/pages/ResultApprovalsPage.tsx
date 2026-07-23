@@ -6,6 +6,7 @@ import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import { useToast } from '../context/ToastContext';
 import type { AdminPendingExamResult } from '../types/examResult';
 import { formatResultDateTime } from '../utils/examResultFormat';
+import { notifyPendingResultApprovalsChanged } from '../hooks/usePendingResultApprovalsCount';
 import '../components/GradeTable.css';
 import './ExamResultsPage.css';
 
@@ -24,6 +25,7 @@ export function ResultApprovalsPage() {
       setApprovals([]);
     } finally {
       setLoading(false);
+      notifyPendingResultApprovalsChanged();
     }
   }, [showToast]);
 

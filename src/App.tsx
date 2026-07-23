@@ -18,6 +18,7 @@ import { LoginPage } from './pages/LoginPage';
 import { PendingUsersPage } from './pages/PendingUsersPage';
 import { PromotionPage } from './pages/PromotionPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ExamResultsLookupPage } from './pages/ExamResultsLookupPage';
 import { ResultApprovalDetailPage } from './pages/ResultApprovalDetailPage';
 import { ResultApprovalsPage } from './pages/ResultApprovalsPage';
 import { StudentReportPage } from './pages/StudentReportPage';
@@ -65,6 +66,7 @@ function App() {
                   <Route path="/exams" element={<ExamSchedulesPage />} />
                   <Route path="/exams/result-approvals" element={<ResultApprovalsPage />} />
                   <Route path="/exams/result-approvals/:batchId" element={<ResultApprovalDetailPage />} />
+                  <Route path="/exams/results" element={<ExamResultsLookupPage />} />
                   <Route path="/exams/:id" element={<ExamScheduleDetailPage />} />
                   <Route path="/reports/students" element={<StudentReportPage />} />
                   <Route path="/reports/teachers" element={<TeacherReportPage />} />

@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { usePendingResultApprovalsCount } from '../../hooks/usePendingResultApprovalsCount';
 import { usePendingUsersCount } from '../../hooks/usePendingUsersCount';
 import { useSignOut } from '../../hooks/useSignOut';
 import { ThemeToggle } from './ThemeToggle';
@@ -37,6 +38,7 @@ const navGroups: NavGroup[] = [
       { to: '/promotion', label: 'Promotion', icon: 'promotion' },
       { to: '/exams', label: 'Exam Schedules', icon: 'exam' },
       { to: '/exams/result-approvals', label: 'Result Approvals', icon: 'exam' },
+      { to: '/exams/results', label: 'Exam Results', icon: 'exam' },
     ],
   },
   {
@@ -143,6 +145,7 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   const { user } = useAuth();
   const { signOut, signingOut } = useSignOut(onNavigate);
   const pendingUsersCount = usePendingUsersCount();
+  const pendingResultApprovalsCount = usePendingResultApprovalsCount();
 
   return (
     <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>
@@ -189,8 +192,16 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
                     </span>
                     <span className="sidebar__link-label">{item.label}</span>
                     {item.to === '/admin/pending-users' && pendingUsersCount > 0 && (
-                      <span className="sidebar__badge" aria-label={`${pendingUsersCount} pending`}>
+                      <span className="sidebar__badge" aria-label={`${pendingUsersCount} pending users`}>
                         {pendingUsersCount > 99 ? '99+' : pendingUsersCount}
+                      </span>
+                    )}
+                    {item.to === '/exams/result-approvals' && pendingResultApprovalsCount > 0 && (
+                      <span
+                        className="sidebar__badge"
+                        aria-label={`${pendingResultApprovalsCount} pending result approvals`}
+                      >
+                        {pendingResultApprovalsCount > 99 ? '99+' : pendingResultApprovalsCount}
                       </span>
                     )}
                   </NavLink>

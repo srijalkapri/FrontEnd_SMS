@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { authApi } from '../api/authApi';
+import { examApi } from '../api/examApi';
 import { useAuth } from '../context/AuthContext';
 import { isSuperAdminRole } from '../utils/roles';
 
-export const PENDING_USERS_CHANGED_EVENT = 'pending-users-changed';
+export const PENDING_RESULT_APPROVALS_CHANGED_EVENT = 'pending-result-approvals-changed';
 
-export function notifyPendingUsersChanged(): void {
-  window.dispatchEvent(new Event(PENDING_USERS_CHANGED_EVENT));
+export function notifyPendingResultApprovalsChanged(): void {
+  window.dispatchEvent(new Event(PENDING_RESULT_APPROVALS_CHANGED_EVENT));
 }
 
-export function usePendingUsersCount(): number {
+export function usePendingResultApprovalsCount(): number {
   const { user } = useAuth();
   const [count, setCount] = useState(0);
 
@@ -20,7 +20,7 @@ export function usePendingUsersCount(): number {
     }
 
     try {
-      const response = await authApi.getPendingUsers();
+      const response = await examApi.getPendingResultApprovals();
       setCount(response.data.length);
     } catch {
       setCount(0);
@@ -36,8 +36,8 @@ export function usePendingUsersCount(): number {
       void refresh();
     }
 
-    window.addEventListener(PENDING_USERS_CHANGED_EVENT, handleChange);
-    return () => window.removeEventListener(PENDING_USERS_CHANGED_EVENT, handleChange);
+    window.addEventListener(PENDING_RESULT_APPROVALS_CHANGED_EVENT, handleChange);
+    return () => window.removeEventListener(PENDING_RESULT_APPROVALS_CHANGED_EVENT, handleChange);
   }, [refresh]);
 
   return count;

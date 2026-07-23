@@ -100,7 +100,7 @@ export function GradeSubjectTable({
           <table className="grade-subject-table">
             <thead>
               <tr>
-                <th>ID</th>
+                <th className="grade-subject-table__index-col">#</th>
                 <th>Grade</th>
                 <th>Subject</th>
                 <th>Type</th>
@@ -109,18 +109,16 @@ export function GradeSubjectTable({
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {items.map((item, index) => (
                 <tr key={item.id}>
                   <td>
-                    <span className="grade-id">#{item.id}</span>
+                    <span className="row-index">{(pageNumber - 1) * pageSize + index + 1}</span>
                   </td>
                   <td>
                     <div className="cell-primary">{item.gradeName}</div>
-                    <div className="cell-secondary">Grade ID: {item.gradeId}</div>
                   </td>
                   <td>
                     <div className="cell-primary">{item.subjectName}</div>
-                    <div className="cell-secondary">Subject ID: {item.subjectId}</div>
                   </td>
                   <td>
                     <span

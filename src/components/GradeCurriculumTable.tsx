@@ -99,21 +99,20 @@ export function GradeCurriculumTable({
           <table className="grade-subject-table">
             <thead>
               <tr>
-                <th>ID</th>
+                <th className="grade-subject-table__index-col">#</th>
                 <th>Subject</th>
                 <th>Type</th>
                 <th>Teachers</th>
               </tr>
             </thead>
             <tbody>
-              {subjects.map((item) => (
+              {subjects.map((item, index) => (
                 <tr key={item.id}>
                   <td>
-                    <span className="grade-id">#{item.id}</span>
+                    <span className="row-index">{(pageNumber - 1) * pageSize + index + 1}</span>
                   </td>
                   <td>
                     <div className="cell-primary">{item.subjectName}</div>
-                    <div className="cell-secondary">Subject ID: {item.subjectId}</div>
                   </td>
                   <td>
                     <span

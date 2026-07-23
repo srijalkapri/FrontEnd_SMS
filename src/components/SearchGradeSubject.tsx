@@ -173,10 +173,6 @@ export function SearchGradeSubject({
           <div className="search-result__badge">Found</div>
           <div className="search-result__details search-result__details--grid">
             <div className="search-result__field">
-              <span className="search-result__label">ID</span>
-              <span className="grade-id">#{result.id}</span>
-            </div>
-            <div className="search-result__field">
               <span className="search-result__label">Grade</span>
               <span className="search-result__value">{result.gradeName}</span>
             </div>
