@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { examApi } from '../api/examApi';
 import { PageHeader } from '../components/layout/PageHeader';
 import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import { useToast } from '../context/ToastContext';
-import { notifyPendingReExamsChanged } from '../hooks/usePendingReExamsCount';
+import { useAdminPendingLists } from '../hooks/useAdminPendingCounts';
 import type { ReExamRequest } from '../types/reExam';
 import { formatMarks, formatResultDateTime } from '../utils/examResultFormat';
 import { getReExamStatusClass, getReExamStatusLabel } from '../utils/reExamStatus';
@@ -23,30 +22,30 @@ function filterByName(items: ReExamRequest[], query: string): ReExamRequest[] {
 
 export function ReExamApprovalsPage() {
   const { showToast } = useToast();
+  const { loadPendingReExams } = useAdminPendingLists();
   const [tab, setTab] = useState<ApprovalTab>('requests');
   const [requests, setRequests] = useState<ReExamRequest[]>([]);
   const [marks, setMarks] = useState<ReExamRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [nameQuery, setNameQuery] = useState('');
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [requestsResponse, marksResponse] = await Promise.all([
-        examApi.getPendingReExams(),
-        examApi.getPendingReExamMarks(),
-      ]);
-      setRequests(requestsResponse.data);
-      setMarks(marksResponse.data);
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load re-exam approvals.');
-      setRequests([]);
-      setMarks([]);
-    } finally {
-      setLoading(false);
-      notifyPendingReExamsChanged();
-    }
-  }, [showToast]);
+  const fetchAll = useCallback(
+    async (force = false) => {
+      setLoading(true);
+      try {
+        const data = await loadPendingReExams(force);
+        setRequests(data.requests);
+        setMarks(data.marks);
+      } catch (err) {
+        showToast('error', err instanceof Error ? err.message : 'Failed to load re-exam approvals.');
+        setRequests([]);
+        setMarks([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadPendingReExams, showToast],
+  );
 
   useEffect(() => {
     fetchAll();
@@ -62,7 +61,7 @@ export function ReExamApprovalsPage() {
         title="Re-Exam Approvals"
         description="Review student re-exam requests and submitted re-exam marks."
         actions={
-          <button type="button" className="btn btn--ghost" onClick={fetchAll} disabled={loading}>
+          <button type="button" className="btn btn--ghost" onClick={() => fetchAll(true)} disabled={loading}>
             Refresh
           </button>
         }

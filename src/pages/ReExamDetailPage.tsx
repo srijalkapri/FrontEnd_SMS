@@ -4,7 +4,7 @@ import { examApi } from '../api/examApi';
 import { PageHeader } from '../components/layout/PageHeader';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
-import { notifyPendingReExamsChanged } from '../hooks/usePendingReExamsCount';
+import { notifyAdminPendingChanged } from '../hooks/useAdminPendingCounts';
 import type { ReExamRequest } from '../types/reExam';
 import { formatMarks, formatResultDateTime } from '../utils/examResultFormat';
 import {
@@ -75,7 +75,7 @@ export function ReExamDetailPage() {
         ? await examApi.approveReExamMarks(item.id, payload)
         : await examApi.approveReExam(item.id, payload);
       showToast('success', response.message || response.data);
-      notifyPendingReExamsChanged();
+      notifyAdminPendingChanged();
       navigate('/exams/re-exams');
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to approve.');
@@ -100,7 +100,7 @@ export function ReExamDetailPage() {
         ? await examApi.rejectReExamMarks(item.id, payload)
         : await examApi.rejectReExam(item.id, payload);
       showToast('success', response.message || response.data);
-      notifyPendingReExamsChanged();
+      notifyAdminPendingChanged();
       navigate('/exams/re-exams');
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to reject.');

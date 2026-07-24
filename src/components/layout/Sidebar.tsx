@@ -1,8 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { usePendingReExamsCount } from '../../hooks/usePendingReExamsCount';
-import { usePendingResultApprovalsCount } from '../../hooks/usePendingResultApprovalsCount';
-import { usePendingUsersCount } from '../../hooks/usePendingUsersCount';
+import { useAdminPendingCounts } from '../../hooks/useAdminPendingCounts';
 import { useSignOut } from '../../hooks/useSignOut';
 import { ThemeToggle } from './ThemeToggle';
 import '../../pages/AuthPages.css';
@@ -146,9 +144,8 @@ function NavIcon({ name }: { name: string }) {
 export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   const { user } = useAuth();
   const { signOut, signingOut } = useSignOut(onNavigate);
-  const pendingUsersCount = usePendingUsersCount();
-  const pendingResultApprovalsCount = usePendingResultApprovalsCount();
-  const pendingReExamsCount = usePendingReExamsCount();
+  const { pendingUsers: pendingUsersCount, pendingResultApprovals: pendingResultApprovalsCount, pendingReExams: pendingReExamsCount } =
+    useAdminPendingCounts();
 
   return (
     <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>

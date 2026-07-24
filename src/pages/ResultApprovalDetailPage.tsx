@@ -11,7 +11,7 @@ import {
   getExamResultStatusClass,
   getExamResultStatusLabel,
 } from '../utils/examResultStatus';
-import { notifyPendingResultApprovalsChanged } from '../hooks/usePendingResultApprovalsCount';
+import { notifyAdminPendingChanged } from '../hooks/useAdminPendingCounts';
 import '../components/GradeTable.css';
 import './ExamResultsPage.css';
 
@@ -70,7 +70,7 @@ export function ResultApprovalDetailPage() {
         comment: comment.trim() || null,
       });
       showToast('success', response.message || response.data);
-      notifyPendingResultApprovalsChanged();
+      notifyAdminPendingChanged();
       navigate('/exams/result-approvals');
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to approve results.');
@@ -94,7 +94,7 @@ export function ResultApprovalDetailPage() {
         comment: comment.trim(),
       });
       showToast('success', response.message || response.data);
-      notifyPendingResultApprovalsChanged();
+      notifyAdminPendingChanged();
       navigate('/exams/result-approvals');
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Failed to reject results.');

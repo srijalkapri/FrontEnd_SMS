@@ -7,7 +7,7 @@ import { ConfirmDeleteModal } from '../components/ConfirmDeleteModal';
 import { PageHeader } from '../components/layout/PageHeader';
 import { FormModal } from '../components/ui/FormModal';
 import { useToast } from '../context/ToastContext';
-import { notifyPendingUsersChanged } from '../hooks/usePendingUsersCount';
+import { useAdminPendingLists } from '../hooks/useAdminPendingCounts';
 import type { ApproveUserRequest, PendingUser, UserRole } from '../types/auth';
 import type { Grade } from '../types/grade';
 import type { Student } from '../types/student';
@@ -28,6 +28,7 @@ function formatDate(iso: string): string {
 
 export function PendingUsersPage() {
   const { showToast } = useToast();
+  const { loadPendingUsers } = useAdminPendingLists();
   const [users, setUsers] = useState<PendingUser[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -45,20 +46,22 @@ export function PendingUsersPage() {
   const [formError, setFormError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchPendingUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await authApi.getPendingUsers();
-      setUsers(response.data);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load pending users.';
-      showToast('error', message);
-      setUsers([]);
-    } finally {
-      setLoading(false);
-      notifyPendingUsersChanged();
-    }
-  }, [showToast]);
+  const fetchPendingUsers = useCallback(
+    async (force = false) => {
+      setLoading(true);
+      try {
+        const data = await loadPendingUsers(force);
+        setUsers(data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to load pending users.';
+        showToast('error', message);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadPendingUsers, showToast],
+  );
 
   const fetchLookups = useCallback(async () => {
     setLookupsLoading(true);
@@ -205,7 +208,7 @@ export function PendingUsersPage() {
           <button
             type="button"
             className="btn btn--ghost"
-            onClick={fetchPendingUsers}
+            onClick={() => fetchPendingUsers(true)}
             disabled={loading}
           >
             Refresh

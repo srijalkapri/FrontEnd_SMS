@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
+import { AdminPendingCountsProvider } from '../../hooks/useAdminPendingCounts';
 import { Sidebar } from './Sidebar';
 import { ThemeToggle } from './ThemeToggle';
 import './AppLayout.css';
@@ -8,6 +9,7 @@ export function AppLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
+    <AdminPendingCountsProvider>
     <div className="app-shell">
       {mobileNavOpen && (
         <button
@@ -42,5 +44,6 @@ export function AppLayout() {
         </main>
       </div>
     </div>
+    </AdminPendingCountsProvider>
   );
 }

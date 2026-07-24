@@ -1,33 +1,35 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { examApi } from '../api/examApi';
 import { PageHeader } from '../components/layout/PageHeader';
 import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import { useToast } from '../context/ToastContext';
+import { useAdminPendingLists } from '../hooks/useAdminPendingCounts';
 import type { AdminPendingExamResult } from '../types/examResult';
 import { formatResultDateTime } from '../utils/examResultFormat';
-import { notifyPendingResultApprovalsChanged } from '../hooks/usePendingResultApprovalsCount';
 import '../components/GradeTable.css';
 import './ExamResultsPage.css';
 
 export function ResultApprovalsPage() {
   const { showToast } = useToast();
+  const { loadPendingResultApprovals } = useAdminPendingLists();
   const [approvals, setApprovals] = useState<AdminPendingExamResult[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchApprovals = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await examApi.getPendingResultApprovals();
-      setApprovals(response.data);
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Failed to load pending approvals.');
-      setApprovals([]);
-    } finally {
-      setLoading(false);
-      notifyPendingResultApprovalsChanged();
-    }
-  }, [showToast]);
+  const fetchApprovals = useCallback(
+    async (force = false) => {
+      setLoading(true);
+      try {
+        const data = await loadPendingResultApprovals(force);
+        setApprovals(data);
+      } catch (err) {
+        showToast('error', err instanceof Error ? err.message : 'Failed to load pending approvals.');
+        setApprovals([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadPendingResultApprovals, showToast],
+  );
 
   useEffect(() => {
     fetchApprovals();
@@ -40,7 +42,7 @@ export function ResultApprovalsPage() {
         title="Pending Approvals"
         description="Review and approve exam result submissions from teachers."
         actions={
-          <button type="button" className="btn btn--ghost" onClick={fetchApprovals} disabled={loading}>
+          <button type="button" className="btn btn--ghost" onClick={() => fetchApprovals(true)} disabled={loading}>
             Refresh
           </button>
         }
