@@ -1,4 +1,5 @@
 import type { StudentExamResultSchedule } from '../types/examResult';
+import type { ApplyReExamRequest, ReExamRequest } from '../types/reExam';
 import type { StudentPortalOverview, StudentPortalProfile } from '../types/studentPortal';
 import type { Grade } from '../types/grade';
 import type { StudentSubject, StudentTeacher } from '../types/student';
@@ -21,4 +22,12 @@ export const studentPortalApi = {
     const qs = examScheduleId != null ? `?examScheduleId=${examScheduleId}` : '';
     return request<StudentExamResultSchedule[]>(`${BASE_URL}/Results${qs}`);
   },
+
+  getReExams: () => request<ReExamRequest[]>(`${BASE_URL}/ReExams`),
+
+  applyForReExam: (data: ApplyReExamRequest) =>
+    request<string>(`${BASE_URL}/ReExams/Apply`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };

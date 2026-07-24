@@ -3,6 +3,7 @@ import type {
   TeacherExamSession,
   TeacherSaveExamResultsRequest,
 } from '../types/examResult';
+import type { ReExamRequest, TeacherSubmitReExamMarksRequest } from '../types/reExam';
 import type {
   TeacherPortalOverview,
   TeacherPortalProfile,
@@ -38,6 +39,16 @@ export const teacherPortalApi = {
 
   submitExamResults: (data: TeacherSaveExamResultsRequest) =>
     request<string>(`${BASE_URL}/ExamResults/Submit`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getReExams: () => request<ReExamRequest[]>(`${BASE_URL}/ReExams`),
+
+  getReExamById: (id: number) => request<ReExamRequest>(`${BASE_URL}/ReExams/${id}`),
+
+  submitReExamMarks: (id: number, data: TeacherSubmitReExamMarksRequest) =>
+    request<string>(`${BASE_URL}/ReExams/${id}/Submit`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),

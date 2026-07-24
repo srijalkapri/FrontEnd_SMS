@@ -27,6 +27,7 @@ const teacherNav: NavItem[] = [
   { to: '/teacher/students', label: 'My Students', icon: 'student' },
   { to: '/teacher/subjects', label: 'My Subjects', icon: 'book' },
   { to: '/teacher/exams', label: 'Exam Results', icon: 'exam' },
+  { to: '/teacher/re-exams', label: 'Re-Exams', icon: 'exam' },
 ];
 
 const teacherSettingsNav: NavItem[] = [
@@ -40,6 +41,7 @@ const studentNav: NavItem[] = [
   { to: '/student/subjects', label: 'My Subjects', icon: 'book' },
   { to: '/student/teachers', label: 'My Teachers', icon: 'users' },
   { to: '/student/results', label: 'My Results', icon: 'exam' },
+  { to: '/student/re-exams', label: 'My Re-Exams', icon: 'exam' },
 ];
 
 const studentSettingsNav: NavItem[] = [

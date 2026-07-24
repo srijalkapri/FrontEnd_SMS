@@ -18,10 +18,13 @@ import { LoginPage } from './pages/LoginPage';
 import { PendingUsersPage } from './pages/PendingUsersPage';
 import { PromotionPage } from './pages/PromotionPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ReExamApprovalsPage } from './pages/ReExamApprovalsPage';
+import { ReExamDetailPage } from './pages/ReExamDetailPage';
 import { ExamResultsLookupPage } from './pages/ExamResultsLookupPage';
 import { ResultApprovalDetailPage } from './pages/ResultApprovalDetailPage';
 import { ResultApprovalsPage } from './pages/ResultApprovalsPage';
 import { StudentReportPage } from './pages/StudentReportPage';
+import { StudentReExamsPage } from './pages/student/StudentReExamsPage';
 import { StudentResultsPage } from './pages/student/StudentResultsPage';
 import { StudentOverviewPage } from './pages/student/StudentOverviewPage';
 import { StudentGradePage } from './pages/student/StudentGradePage';
@@ -31,6 +34,8 @@ import { StudentTeachersPage } from './pages/student/StudentTeachersPage';
 import { StudentsPage } from './pages/StudentsPage';
 import { SubjectsPage } from './pages/SubjectsPage';
 import { TeacherReportPage } from './pages/TeacherReportPage';
+import { TeacherReExamDetailPage } from './pages/teacher/TeacherReExamDetailPage';
+import { TeacherReExamsPage } from './pages/teacher/TeacherReExamsPage';
 import { TeacherExamResultsPage } from './pages/teacher/TeacherExamResultsPage';
 import { TeacherExamSessionsPage } from './pages/teacher/TeacherExamSessionsPage';
 import { TeacherClassesPage } from './pages/teacher/TeacherClassesPage';
@@ -67,6 +72,8 @@ function App() {
                   <Route path="/exams/result-approvals" element={<ResultApprovalsPage />} />
                   <Route path="/exams/result-approvals/:batchId" element={<ResultApprovalDetailPage />} />
                   <Route path="/exams/results" element={<ExamResultsLookupPage />} />
+                  <Route path="/exams/re-exams" element={<ReExamApprovalsPage />} />
+                  <Route path="/exams/re-exams/:id" element={<ReExamDetailPage />} />
                   <Route path="/exams/:id" element={<ExamScheduleDetailPage />} />
                   <Route path="/reports/students" element={<StudentReportPage />} />
                   <Route path="/reports/teachers" element={<TeacherReportPage />} />
@@ -83,6 +90,8 @@ function App() {
                   <Route path="/teacher/classes" element={<TeacherClassesPage />} />
                   <Route path="/teacher/students" element={<TeacherStudentsPage />} />
                   <Route path="/teacher/subjects" element={<TeacherSubjectsPage />} />
+                  <Route path="/teacher/re-exams" element={<TeacherReExamsPage />} />
+                  <Route path="/teacher/re-exams/:id" element={<TeacherReExamDetailPage />} />
                   <Route path="/teacher/exams" element={<TeacherExamSessionsPage />} />
                   <Route path="/teacher/exams/:examSessionId" element={<TeacherExamResultsPage />} />
                   <Route path="/teacher/settings/appearance" element={<AppearancePage />} />
@@ -97,6 +106,7 @@ function App() {
                   <Route path="/student/grade" element={<StudentGradePage />} />
                   <Route path="/student/subjects" element={<StudentSubjectsPage />} />
                   <Route path="/student/teachers" element={<StudentTeachersPage />} />
+                  <Route path="/student/re-exams" element={<StudentReExamsPage />} />
                   <Route path="/student/results" element={<StudentResultsPage />} />
                   <Route path="/student/settings/appearance" element={<AppearancePage />} />
                   <Route path="*" element={<Navigate to="/student" replace />} />

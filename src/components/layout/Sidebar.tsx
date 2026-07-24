@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { usePendingReExamsCount } from '../../hooks/usePendingReExamsCount';
 import { usePendingResultApprovalsCount } from '../../hooks/usePendingResultApprovalsCount';
 import { usePendingUsersCount } from '../../hooks/usePendingUsersCount';
 import { useSignOut } from '../../hooks/useSignOut';
@@ -39,6 +40,7 @@ const navGroups: NavGroup[] = [
       { to: '/exams', label: 'Exam Schedules', icon: 'exam' },
       { to: '/exams/result-approvals', label: 'Result Approvals', icon: 'exam' },
       { to: '/exams/results', label: 'Exam Results', icon: 'exam' },
+      { to: '/exams/re-exams', label: 'Re-Exam Approvals', icon: 'exam' },
     ],
   },
   {
@@ -146,6 +148,7 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   const { signOut, signingOut } = useSignOut(onNavigate);
   const pendingUsersCount = usePendingUsersCount();
   const pendingResultApprovalsCount = usePendingResultApprovalsCount();
+  const pendingReExamsCount = usePendingReExamsCount();
 
   return (
     <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>
@@ -202,6 +205,14 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
                         aria-label={`${pendingResultApprovalsCount} pending result approvals`}
                       >
                         {pendingResultApprovalsCount > 99 ? '99+' : pendingResultApprovalsCount}
+                      </span>
+                    )}
+                    {item.to === '/exams/re-exams' && pendingReExamsCount > 0 && (
+                      <span
+                        className="sidebar__badge"
+                        aria-label={`${pendingReExamsCount} pending re-exam approvals`}
+                      >
+                        {pendingReExamsCount > 99 ? '99+' : pendingReExamsCount}
                       </span>
                     )}
                   </NavLink>

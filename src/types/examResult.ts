@@ -83,11 +83,20 @@ export interface TeacherSaveExamResultsRequest {
 }
 
 export interface StudentExamResultSubject {
+  examSessionId: number;
+  examResultItemId: number;
   subjectName: string;
   marksObtained: number | null;
   totalMarks: number;
   isAbsent: boolean;
   remarks: string | null;
+  canApplyReExam: boolean;
+  reExamStatus: string | null;
+  reExamRequestId: number | null;
+  isReExamResult: boolean;
+  originalMarksObtained: number | null;
+  originalTotalMarks: number | null;
+  originalIsAbsent: boolean | null;
 }
 
 export interface StudentExamResultSchedule {

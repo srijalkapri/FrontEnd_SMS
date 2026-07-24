@@ -13,6 +13,7 @@ import type {
   AdminStudentMarksRecord,
   ReviewExamResultsRequest,
 } from '../types/examResult';
+import type { ReExamRequest, ReviewReExamRequest } from '../types/reExam';
 import type { PaginationQuery, PagedResult } from '../types/pagination';
 import { buildPaginationQueryString } from '../utils/paginationQuery';
 import { request } from './apiClient';
@@ -116,4 +117,34 @@ export const examApi = {
     const qs = examScheduleId != null ? `?examScheduleId=${examScheduleId}` : '';
     return request<AdminStudentMarksRecord>(`${BASE_URL}/Results/ByStudent/${studentId}${qs}`);
   },
+
+  getPendingReExams: () => request<ReExamRequest[]>(`${BASE_URL}/ReExams/Pending`),
+
+  getPendingReExamMarks: () => request<ReExamRequest[]>(`${BASE_URL}/ReExams/Marks/Pending`),
+
+  getReExamById: (id: number) => request<ReExamRequest>(`${BASE_URL}/ReExams/${id}`),
+
+  approveReExam: (id: number, data: ReviewReExamRequest) =>
+    request<string>(`${BASE_URL}/ReExams/${id}/Approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  rejectReExam: (id: number, data: ReviewReExamRequest) =>
+    request<string>(`${BASE_URL}/ReExams/${id}/Reject`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  approveReExamMarks: (id: number, data: ReviewReExamRequest) =>
+    request<string>(`${BASE_URL}/ReExams/${id}/ApproveMarks`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  rejectReExamMarks: (id: number, data: ReviewReExamRequest) =>
+    request<string>(`${BASE_URL}/ReExams/${id}/RejectMarks`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
