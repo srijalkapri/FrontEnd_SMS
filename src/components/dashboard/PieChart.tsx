@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { ChartDatum } from '../../utils/dashboardCharts';
-import { buildPieSlices, describePieSlice, lightenColor, polarToCartesian } from '../../utils/chartGeometry';
+import { buildPieSlices, lightenColor, polarToCartesian } from '../../utils/chartGeometry';
 import { AnimatedNumber } from './AnimatedNumber';
 import './Dashboard.css';
 
@@ -13,39 +13,90 @@ interface PieChartProps {
   centerValue?: string | number;
 }
 
+function describeArc(
+  cx: number,
+  cy: number,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+): string {
+  const span = endAngle - startAngle;
+  if (span >= 359.99) {
+    const top = polarToCartesian(cx, cy, radius, 0);
+    return `M ${top.x} ${top.y} A ${radius} ${radius} 0 1 1 ${top.x - 0.01} ${top.y} A ${radius} ${radius} 0 1 1 ${top.x} ${top.y}`;
+  }
+
+  const start = polarToCartesian(cx, cy, radius, endAngle);
+  const end = polarToCartesian(cx, cy, radius, startAngle);
+  const largeArc = span <= 180 ? '0' : '1';
+  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y}`;
+}
+
 export function PieChart({
   data,
-  size = 220,
+  size = 240,
   formatLabel,
-  centerLabel,
+  centerLabel = 'total',
   centerValue,
 }: PieChartProps) {
   const uid = useId().replace(/:/g, '');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const slices = buildPieSlices(data);
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const slices = useMemo(() => buildPieSlices(data, 3.5), [data]);
+  const total = useMemo(() => data.reduce((sum, item) => sum + item.value, 0), [data]);
+  const leadingIndex = useMemo(() => {
+    if (slices.length === 0) return -1;
+    let best = 0;
+    for (let i = 1; i < slices.length; i += 1) {
+      if (slices[i].value > slices[best].value) best = i;
+    }
+    return best;
+  }, [slices]);
+
   if (total === 0) return null;
 
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size / 2 - 8;
-  const orbitRadius = radius + 4;
+  const ringWidth = Math.max(18, size * 0.11);
+  const radius = size / 2 - ringWidth / 2 - 10;
+  const trackRadius = radius;
+  const active = activeIndex != null ? slices[activeIndex] : null;
+  const displayValue =
+    active != null
+      ? active.value
+      : typeof centerValue === 'number'
+        ? centerValue
+        : centerValue ?? total;
+  const displayLabel = active
+    ? formatLabel
+      ? formatLabel(active.label)
+      : active.label
+    : centerLabel;
+  const displayPercent = active?.percent;
 
   return (
-    <div className="dashboard-pie-chart dashboard-pie-chart--animate">
+    <div className="dashboard-pie-chart dashboard-pie-chart--advanced dashboard-pie-chart--animate">
       <div className="dashboard-pie-chart__visual">
+        <span className="dashboard-pie-chart__aura" aria-hidden="true" />
         <span className="dashboard-pie-chart__pulse" aria-hidden="true" />
+
         <svg
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
           className="dashboard-pie-chart__svg"
           role="img"
-          aria-label="Pie chart"
+          aria-label="Distribution chart"
         >
           <defs>
-            <filter id={`pieGlow-${uid}`} x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
+            <filter id={`pieGlow-${uid}`} x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id={`pieSoftGlow-${uid}`} x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -60,7 +111,7 @@ export function PieChart({
                 x2="100%"
                 y2="100%"
               >
-                <stop offset="0%" stopColor={lightenColor(slice.color ?? '#6366f1', 0.15)} />
+                <stop offset="0%" stopColor={lightenColor(slice.color ?? '#6366f1', 0.22)} />
                 <stop offset="100%" stopColor={slice.color ?? '#6366f1'} />
               </linearGradient>
             ))}
@@ -69,27 +120,39 @@ export function PieChart({
           <circle
             cx={cx}
             cy={cy}
-            r={orbitRadius}
+            r={radius + ringWidth / 2 + 6}
             fill="none"
             stroke="var(--color-border)"
             strokeWidth="1"
-            strokeDasharray="3 7"
+            strokeDasharray="2 8"
             className="dashboard-pie-chart__orbit"
-            opacity="0.45"
+            opacity="0.4"
+          />
+
+          <circle
+            cx={cx}
+            cy={cy}
+            r={trackRadius}
+            fill="none"
+            stroke="color-mix(in srgb, var(--color-border) 70%, transparent)"
+            strokeWidth={ringWidth}
+            className="dashboard-pie-chart__track"
           />
 
           {slices.map((slice, index) => {
-            const sliceSpan = slice.endAngle - slice.startAngle;
-            const midAngle = slice.startAngle + sliceSpan / 2;
-            const pop = polarToCartesian(0, 0, activeIndex === index ? 7 : 0, midAngle);
-            const isDimmed = activeIndex !== null && activeIndex !== index;
+            const midAngle = (slice.startAngle + slice.endAngle) / 2;
+            const isActive = activeIndex === index;
+            const isDimmed = activeIndex !== null && !isActive;
+            const pop = polarToCartesian(0, 0, isActive ? 5 : 0, midAngle);
+            const labelPos = polarToCartesian(cx, cy, radius, midAngle);
+            const showCallout = slice.percent >= 12;
 
             return (
               <g
                 key={slice.label}
                 className={[
                   'dashboard-pie-chart__slice-pop',
-                  activeIndex === index ? 'dashboard-pie-chart__slice-pop--active' : '',
+                  isActive ? 'dashboard-pie-chart__slice-pop--active' : '',
                   isDimmed ? 'dashboard-pie-chart__slice-pop--dimmed' : '',
                 ]
                   .filter(Boolean)
@@ -104,104 +167,135 @@ export function PieChart({
                 onMouseEnter={() => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(null)}
               >
-                <g
-                  className="dashboard-pie-chart__slice-wrap"
+                <path
+                  d={describeArc(cx, cy, radius, slice.startAngle, slice.endAngle)}
+                  fill="none"
+                  stroke={`url(#pieGrad-${uid}-${index})`}
+                  strokeWidth={isActive ? ringWidth + 4 : ringWidth}
+                  strokeLinecap="round"
+                  pathLength={1}
+                  className="dashboard-pie-chart__arc"
+                  filter={`url(#${isActive ? `pieSoftGlow-${uid}` : `pieGlow-${uid}`})`}
                   style={
                     {
-                      transformOrigin: `${cx}px ${cy}px`,
-                      animationDelay: `${index * 0.1}s`,
+                      animationDelay: `${0.12 + index * 0.14}s`,
                     } as CSSProperties
                   }
-                  transform={`rotate(${slice.startAngle}, ${cx}, ${cy})`}
-                >
-                  <path
-                    d={describePieSlice(cx, cy, radius, 0, sliceSpan)}
-                    fill={`url(#pieGrad-${uid}-${index})`}
-                    className="dashboard-pie-chart__slice"
-                    filter={`url(#pieGlow-${uid})`}
-                  />
-                </g>
+                />
+
+                {showCallout && (
+                  <g
+                    className="dashboard-pie-chart__callout"
+                    style={{ animationDelay: `${0.55 + index * 0.1}s` } as CSSProperties}
+                  >
+                    <circle
+                      cx={labelPos.x}
+                      cy={labelPos.y}
+                      r={isActive ? 11 : 9}
+                      fill="var(--color-bg-card, #fff)"
+                      stroke={slice.color}
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={labelPos.x}
+                      y={labelPos.y + 3.5}
+                      textAnchor="middle"
+                      className="dashboard-pie-chart__callout-text"
+                      fill={slice.color}
+                    >
+                      {slice.percent}%
+                    </text>
+                  </g>
+                )}
               </g>
             );
           })}
-
-          <circle
-            cx={cx}
-            cy={cy}
-            r={radius * 0.38}
-            className="dashboard-pie-chart__center-hole"
-          />
         </svg>
 
-        {(centerValue !== undefined || centerLabel) && (
+        <div className="dashboard-pie-chart__center" style={{ width: size, height: size }}>
           <div
-            className="dashboard-pie-chart__center"
-            style={{ width: size, height: size }}
+            key={active ? active.label : 'total'}
+            className={`dashboard-pie-chart__center-stack${active ? ' dashboard-pie-chart__center-stack--focus' : ''}`}
           >
-            {centerValue !== undefined && (
-              typeof centerValue === 'number' ? (
-                <AnimatedNumber
-                  value={centerValue}
-                  className="dashboard-pie-chart__center-value"
-                />
-              ) : (
-                <span className="dashboard-pie-chart__center-value">{centerValue}</span>
-              )
+            {typeof displayValue === 'number' ? (
+              <AnimatedNumber value={displayValue} className="dashboard-pie-chart__center-value" />
+            ) : (
+              <span className="dashboard-pie-chart__center-value">{displayValue}</span>
             )}
-            {centerLabel && (
-              <span className="dashboard-pie-chart__center-label">{centerLabel}</span>
+            <span className="dashboard-pie-chart__center-label">{displayLabel}</span>
+            {displayPercent != null && (
+              <span className="dashboard-pie-chart__center-meta">{displayPercent}% of total</span>
             )}
           </div>
-        )}
+        </div>
       </div>
 
-      <div className="dashboard-pie-chart__legend">
-        {slices.map((slice, index) => (
-          <div
-            key={slice.label}
-            className={[
-              'dashboard-legend-item',
-              'dashboard-legend-item--pie',
-              activeIndex === index ? 'dashboard-legend-item--active' : '',
-              activeIndex !== null && activeIndex !== index
-                ? 'dashboard-legend-item--dimmed'
-                : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            style={{ animationDelay: `${0.25 + index * 0.08}s` }}
-            onMouseEnter={() => setActiveIndex(index)}
-            onMouseLeave={() => setActiveIndex(null)}
-          >
-            <span
-              className="dashboard-legend-item__dot dashboard-legend-item__dot--pop"
-              style={{
-                background: slice.color,
-                boxShadow: `0 0 8px ${slice.color}66`,
-                animationDelay: `${0.3 + index * 0.08}s`,
-              }}
-            />
-            <span className="dashboard-legend-item__label">
-              {formatLabel ? formatLabel(slice.label) : slice.label}
-            </span>
-            <span className="dashboard-legend-item__bar-track">
-              <span
-                className="dashboard-legend-item__bar-fill dashboard-legend-item__bar-fill--grow"
-                style={
-                  {
-                    '--bar-target': `${slice.percent}%`,
-                    background: slice.color,
-                    animationDelay: `${0.35 + index * 0.08}s`,
-                  } as CSSProperties
-                }
-              />
-            </span>
-            <span className="dashboard-legend-item__value">
-              <AnimatedNumber value={slice.value} duration={700} />
-              <span className="dashboard-legend-item__pct">({slice.percent}%)</span>
-            </span>
-          </div>
-        ))}
+      <div className="dashboard-pie-chart__legend dashboard-pie-chart__legend--rich">
+        {slices.map((slice, index) => {
+          const label = formatLabel ? formatLabel(slice.label) : slice.label;
+          const isActive = activeIndex === index;
+          const isLeading = index === leadingIndex;
+
+          return (
+            <button
+              key={slice.label}
+              type="button"
+              className={[
+                'dashboard-pie-legend-card',
+                isActive ? 'dashboard-pie-legend-card--active' : '',
+                activeIndex !== null && !isActive ? 'dashboard-pie-legend-card--dimmed' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              style={
+                {
+                  '--slice-color': slice.color ?? '#6366f1',
+                  animationDelay: `${0.35 + index * 0.08}s`,
+                } as CSSProperties
+              }
+              onMouseEnter={() => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(null)}
+              onFocus={() => setActiveIndex(index)}
+              onBlur={() => setActiveIndex(null)}
+            >
+              <span className="dashboard-pie-legend-card__accent" />
+              <span className="dashboard-pie-legend-card__top">
+                <span className="dashboard-pie-legend-card__identity">
+                  <span
+                    className="dashboard-pie-legend-card__dot"
+                    style={{ background: slice.color, boxShadow: `0 0 10px ${slice.color}88` }}
+                  />
+                  <span className="dashboard-pie-legend-card__label">{label}</span>
+                </span>
+                {isLeading && <span className="dashboard-pie-legend-card__badge">Leading</span>}
+              </span>
+
+              <span className="dashboard-pie-legend-card__stats">
+                <span className="dashboard-pie-legend-card__value">
+                  <AnimatedNumber value={slice.value} duration={750} />
+                </span>
+                <span className="dashboard-pie-legend-card__pct">{slice.percent}%</span>
+              </span>
+
+              <span className="dashboard-pie-legend-card__bar">
+                <span
+                  className="dashboard-pie-legend-card__bar-fill"
+                  style={
+                    {
+                      '--bar-target': `${slice.percent}%`,
+                      background: `linear-gradient(90deg, ${lightenColor(slice.color ?? '#6366f1', 0.2)}, ${slice.color})`,
+                      animationDelay: `${0.45 + index * 0.08}s`,
+                    } as CSSProperties
+                  }
+                />
+              </span>
+
+              <span className="dashboard-pie-legend-card__hint">
+                {slice.value === 1 ? '1 entry' : `${slice.value} entries`} · share of {total}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

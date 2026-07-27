@@ -311,12 +311,16 @@
   width: 100%;
 }
 
-/* ── Pie chart ── */
+/* ── Advanced pie / donut chart ── */
 .dashboard-pie-chart {
   display: flex;
   align-items: center;
   gap: 1.5rem;
   flex-wrap: wrap;
+}
+
+.dashboard-pie-chart--advanced {
+  gap: 1.75rem;
 }
 
 .dashboard-pie-chart--animate {
@@ -328,15 +332,32 @@
   position: relative;
 }
 
+.dashboard-pie-chart__aura {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(
+    from 210deg,
+    color-mix(in srgb, #10b981 16%, transparent),
+    color-mix(in srgb, #3b82f6 14%, transparent),
+    color-mix(in srgb, #6366f1 12%, transparent),
+    color-mix(in srgb, #10b981 16%, transparent)
+  );
+  filter: blur(18px);
+  opacity: 0.55;
+  animation: pieAuraSpin 14s linear infinite;
+}
+
 .dashboard-pie-chart__pulse {
   position: absolute;
-  inset: 8%;
+  inset: 18%;
   border-radius: 50%;
   pointer-events: none;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--color-accent, #6366f1) 18%, transparent) 0%,
-    transparent 70%
+    color-mix(in srgb, var(--color-primary) 16%, transparent) 0%,
+    transparent 72%
   );
   animation: pieAmbientPulse 3.2s ease-in-out infinite;
 }
@@ -344,13 +365,19 @@
 .dashboard-pie-chart__svg {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.22));
   display: block;
+  overflow: visible;
 }
 
 .dashboard-pie-chart__orbit {
   transform-origin: center;
-  animation: pieOrbitSpin 18s linear infinite;
+  transform-box: fill-box;
+  animation: pieOrbitSpin 22s linear infinite;
+}
+
+.dashboard-pie-chart__track {
+  opacity: 0.55;
 }
 
 .dashboard-pie-chart__slice-pop {
@@ -360,26 +387,26 @@
 }
 
 .dashboard-pie-chart__slice-pop--dimmed {
-  opacity: 0.42;
+  opacity: 0.38;
 }
 
-.dashboard-pie-chart__slice-wrap {
-  animation: pieSliceSweep 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+.dashboard-pie-chart__arc {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: pieArcDraw 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: stroke-width 0.25s ease;
 }
 
-.dashboard-pie-chart__slice {
-  transition: filter 0.25s ease;
+.dashboard-pie-chart__callout {
+  opacity: 0;
+  animation: pieCalloutIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: none;
 }
 
-.dashboard-pie-chart__slice-pop:hover .dashboard-pie-chart__slice,
-.dashboard-pie-chart__slice-pop--active .dashboard-pie-chart__slice {
-  filter: brightness(1.12) drop-shadow(0 0 10px var(--slice-color));
-}
-
-.dashboard-pie-chart__center-hole {
-  fill: var(--color-bg-card, #141b2e);
-  animation: pieCenterHoleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-  transform-origin: center;
+.dashboard-pie-chart__callout-text {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  font-family: inherit;
 }
 
 .dashboard-pie-chart__center {
@@ -391,22 +418,49 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  animation: pieCenterPop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s both;
+}
+
+.dashboard-pie-chart__center-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.75rem;
+  min-width: 5.5rem;
+  border-radius: 50%;
+  animation: pieCenterPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.dashboard-pie-chart__center-stack--focus {
+  animation: pieCenterFocus 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .dashboard-pie-chart__center-value {
-  font-size: 1.375rem;
+  font-size: 1.625rem;
   font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--color-text);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .dashboard-pie-chart__center-label {
   font-size: 0.625rem;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-top: 0.125rem;
+  letter-spacing: 0.08em;
+  margin-top: 0.2rem;
+  max-width: 6.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-pie-chart__center-meta {
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 .dashboard-pie-chart__legend {
@@ -414,35 +468,142 @@
   flex-direction: column;
   gap: 0.625rem;
   flex: 1;
-  min-width: 160px;
+  min-width: 170px;
+}
+
+.dashboard-pie-chart__legend--rich {
+  gap: 0.7rem;
+  min-width: 190px;
+}
+
+.dashboard-pie-legend-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  padding: 0.7rem 0.8rem 0.7rem 0.95rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+  animation: chartLegendSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dashboard-pie-legend-card:hover,
+.dashboard-pie-legend-card--active {
+  transform: translateX(3px);
+  border-color: color-mix(in srgb, var(--slice-color) 45%, var(--color-border));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--slice-color) 16%, transparent);
+}
+
+.dashboard-pie-legend-card--dimmed {
+  opacity: 0.48;
+}
+
+.dashboard-pie-legend-card__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--slice-color);
+}
+
+.dashboard-pie-legend-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dashboard-pie-legend-card__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.dashboard-pie-legend-card__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dashboard-pie-legend-card__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-pie-legend-card__badge {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--slice-color);
+  background: color-mix(in srgb, var(--slice-color) 14%, transparent);
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+}
+
+.dashboard-pie-legend-card__stats {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dashboard-pie-legend-card__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.dashboard-pie-legend-card__pct {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--slice-color);
+}
+
+.dashboard-pie-legend-card__bar {
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-border) 55%, transparent);
+}
+
+.dashboard-pie-legend-card__bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  animation: legendBarGrow 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.dashboard-pie-legend-card__hint {
+  font-size: 0.6875rem;
+  color: var(--color-text-subtle);
 }
 
 .dashboard-legend-item--pie {
   animation: chartLegendSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  padding: 0.2rem 0.35rem;
-  margin: -0.2rem -0.35rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.2s ease, opacity 0.25s ease, transform 0.2s ease;
-}
-
-.dashboard-legend-item--pie:hover,
-.dashboard-legend-item--active {
-  background: color-mix(in srgb, var(--color-border) 35%, transparent);
-  transform: translateX(2px);
-}
-
-.dashboard-legend-item--dimmed {
-  opacity: 0.45;
 }
 
 .dashboard-legend-item__dot--pop {
   animation: dotPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.dashboard-legend-item--active .dashboard-legend-item__dot--pop {
-  transform: scale(1.25);
 }
 
 .dashboard-legend-item__bar-fill--grow {
@@ -794,6 +955,26 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+@keyframes pieAuraSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pieArcDraw {
+  from { stroke-dashoffset: 1; opacity: 0.35; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes pieCalloutIn {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pieCenterFocus {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes pieCenterHoleIn {
@@ -1332,285 +1513,22 @@
   }
 }
 
-/* ── People balance (students vs teachers) ── */
-.people-balance {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  position: relative;
-  z-index: 1;
-}
-
-.people-balance--animate {
-  animation: chartFadeIn 0.45s ease both;
-}
-
-.people-balance__meters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.875rem;
-}
-
-.people-balance__meter {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-md, 0.75rem);
-  border: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
-  padding: 1rem 1rem 0.875rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  min-height: 9.5rem;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.people-balance__meter:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-}
-
-.people-balance__meter--students {
-  --tone: #10b981;
-  border-color: color-mix(in srgb, #10b981 28%, var(--color-border));
-}
-
-.people-balance__meter--teachers {
-  --tone: #3b82f6;
-  border-color: color-mix(in srgb, #3b82f6 28%, var(--color-border));
-}
-
-.people-balance__meter-fill {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--fill, 0%);
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--tone) 22%, transparent) 100%
-  );
-  pointer-events: none;
-  animation: peopleFillRise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
-}
-
-.people-balance__meter--teachers .people-balance__meter-fill {
-  animation-delay: 0.28s;
-}
-
-.people-balance__meter-body {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.people-balance__icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  display: grid;
-  place-items: center;
-  color: var(--tone);
-  background: color-mix(in srgb, var(--tone) 14%, transparent);
-  animation: iconPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-}
-
-.people-balance__meter--teachers .people-balance__icon {
-  animation-delay: 0.32s;
-}
-
-.people-balance__icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.people-balance__meter-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
-
-.people-balance__role {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.people-balance__count {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--color-text);
-}
-
-.people-balance__pct {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--tone);
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--tone) 12%, transparent);
-  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s both;
-}
-
-.people-balance__meter--teachers .people-balance__pct {
-  animation-delay: 0.55s;
-}
-
-.people-balance__link {
-  position: relative;
-  z-index: 1;
-  align-self: flex-start;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--tone);
-  opacity: 0.85;
-  transition: opacity 0.2s ease;
-}
-
-.people-balance__link:hover {
-  opacity: 1;
-}
-
-.people-balance__bar-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.people-balance__bar {
-  display: flex;
-  height: 0.75rem;
-  border-radius: 999px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--color-border) 55%, transparent);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
-}
-
-.people-balance__bar-seg {
-  display: block;
-  height: 100%;
-  width: 0;
-  flex-shrink: 0;
-  animation: peopleBarGrow 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.people-balance__bar-seg--students {
-  background: linear-gradient(90deg, #34d399, #10b981);
-  animation-delay: 0.2s;
-  box-shadow: 0 0 12px color-mix(in srgb, #10b981 45%, transparent);
-}
-
-.people-balance__bar-seg--teachers {
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
-  animation-delay: 0.35s;
-  box-shadow: 0 0 12px color-mix(in srgb, #3b82f6 45%, transparent);
-}
-
-.people-balance__bar-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  animation: chartFadeIn 0.45s ease 0.5s both;
-}
-
-.people-balance__insight {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.people-balance__insight-pill {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 0.65rem;
-  border: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-bg-elevated, var(--color-bg-card)) 90%, transparent);
-  min-width: 5.5rem;
-  animation: pillSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.people-balance__insight-pill:nth-child(1) { animation-delay: 0.4s; }
-.people-balance__insight-pill:nth-child(2) { animation-delay: 0.48s; }
-.people-balance__insight-pill:nth-child(3) { animation-delay: 0.56s; }
-
-.people-balance__insight-pill--ratio {
-  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
-}
-
-.people-balance__insight-pill--accent {
-  border-color: color-mix(in srgb, #10b981 28%, var(--color-border));
-  background: color-mix(in srgb, #10b981 8%, var(--color-bg-card));
-}
-
-.people-balance__insight-label {
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-subtle);
-  font-weight: 600;
-}
-
-.people-balance__insight-value {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
-}
-
-@keyframes peopleFillRise {
-  from {
-    height: 0;
-    opacity: 0.4;
-  }
-  to {
-    height: var(--fill, 0%);
-    opacity: 1;
-  }
-}
-
-@keyframes peopleBarGrow {
-  from {
-    width: 0;
-    opacity: 0.5;
-  }
-  to {
-    width: var(--seg-width, 0%);
-    opacity: 1;
-  }
-}
-
-@media (max-width: 640px) {
-  .people-balance__meters {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .dashboard-bar-chart__fill,
   .dashboard-vbar-chart__fill,
   .dashboard-pie-chart--animate,
+  .dashboard-pie-chart__aura,
   .dashboard-pie-chart__pulse,
   .dashboard-pie-chart__orbit,
   .dashboard-pie-chart__slice-pop,
-  .dashboard-pie-chart__slice-wrap,
-  .dashboard-pie-chart__center-hole,
-  .dashboard-pie-chart__center,
+  .dashboard-pie-chart__arc,
+  .dashboard-pie-chart__callout,
+  .dashboard-pie-chart__center-stack,
+  .dashboard-pie-legend-card,
+  .dashboard-pie-legend-card__bar-fill,
   .dashboard-legend-item--pie,
   .dashboard-legend-item__dot--pop,
   .dashboard-legend-item__bar-fill--grow,
-  .dashboard-pie-chart__slice,
   .dashboard-donut__slice,
   .dashboard-line-chart__line,
   .dashboard-line-chart__dot,
@@ -1628,31 +1546,21 @@
   .dashboard-enrollment__grade-card--animate,
   .dashboard-enrollment__grade-icon--animate,
   .dashboard-enrollment__grade-fill--animate,
-  .dashboard-enrollment__grade-badge--animate,
-  .people-balance--animate,
-  .people-balance__meter-fill,
-  .people-balance__icon,
-  .people-balance__pct,
-  .people-balance__bar-seg,
-  .people-balance__bar-labels,
-  .people-balance__insight-pill {
+  .dashboard-enrollment__grade-badge--animate {
     animation: none;
     transition: none;
+  }
+
+  .dashboard-pie-chart__arc {
+    stroke-dashoffset: 0;
   }
 
   .dashboard-enrollment__grade-fill--animate {
     width: var(--fill-pct, 0%);
   }
 
-  .dashboard-legend-item__bar-fill--grow {
+  .dashboard-legend-item__bar-fill--grow,
+  .dashboard-pie-legend-card__bar-fill {
     width: var(--bar-target, 0%);
-  }
-
-  .people-balance__meter-fill {
-    height: var(--fill, 0%);
-  }
-
-  .people-balance__bar-seg {
-    width: var(--seg-width, 0%);
   }
 }

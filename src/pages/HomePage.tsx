@@ -8,7 +8,6 @@ import { teacherApi } from '../api/teacherApi';
 import { ChartCard } from '../components/dashboard/ChartCard';
 import { DashboardKpi } from '../components/dashboard/DashboardKpi';
 import { EnrollmentChart } from '../components/dashboard/EnrollmentChart';
-import { PeopleBalanceChart } from '../components/dashboard/PeopleBalanceChart';
 import { PieChart } from '../components/dashboard/PieChart';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useAdminPendingCounts } from '../hooks/useAdminPendingCounts';
@@ -86,6 +85,17 @@ export function HomePage() {
   const enrollmentByGrade = useMemo(
     () => buildEnrollmentByGrade(grades, students),
     [grades, students],
+  );
+
+  const peopleOverview = useMemo(
+    () =>
+      withChartColors(
+        [
+          { label: 'Students', value: stats.students, color: '#10b981' },
+          { label: 'Teachers', value: stats.teachers, color: '#3b82f6' },
+        ].filter((item) => item.value > 0),
+      ),
+    [stats.students, stats.teachers],
   );
 
   const pendingChartData = useMemo(
@@ -172,12 +182,17 @@ export function HomePage() {
           <EnrollmentChart data={enrollmentByGrade} totalStudents={stats.students} />
         </ChartCard>
 
-        {!loading && (stats.students > 0 || stats.teachers > 0) && (
+        {peopleOverview.length > 0 && (
           <ChartCard
-            title="People composition"
-            subtitle={`${stats.students + stats.teachers} people across students and faculty`}
+            title="Students vs teachers"
+            subtitle={`${stats.students + stats.teachers} people in the system`}
           >
-            <PeopleBalanceChart students={stats.students} teachers={stats.teachers} />
+            <PieChart
+              data={peopleOverview}
+              centerValue={stats.students + stats.teachers}
+              centerLabel="people"
+              size={248}
+            />
           </ChartCard>
         )}
       </section>
