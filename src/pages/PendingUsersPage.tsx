@@ -166,13 +166,19 @@ export function PendingUsersPage() {
     const payload = buildApprovePayload();
     if (!payload) return;
 
+    const approvedId = approvingUser.id;
+    const approvedName = approvingUser.fullName;
+    const approvedRole = selectedRole;
+
     setActionLoading(true);
     try {
-      await authApi.approveUser(approvingUser.id, payload);
-      showToast('success', `${approvingUser.fullName} approved as ${selectedRole}.`);
+      await authApi.approveUser(approvedId, payload);
+      showToast('success', `${approvedName} approved as ${approvedRole}.`);
       setApprovingUser(null);
       resetApproveForm();
-      await fetchPendingUsers();
+      // Drop immediately, then bypass the pending-users cache so the list stays in sync.
+      setUsers((prev) => prev.filter((user) => user.id !== approvedId));
+      await fetchPendingUsers(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to approve user.';
       showToast('error', message);
@@ -184,12 +190,16 @@ export function PendingUsersPage() {
   async function handleReject() {
     if (!rejectingUser) return;
 
+    const rejectedId = rejectingUser.id;
+    const rejectedName = rejectingUser.fullName;
+
     setActionLoading(true);
     try {
-      await authApi.rejectUser(rejectingUser.id);
-      showToast('success', `${rejectingUser.fullName}'s registration was rejected.`);
+      await authApi.rejectUser(rejectedId);
+      showToast('success', `${rejectedName}'s registration was rejected.`);
       setRejectingUser(null);
-      await fetchPendingUsers();
+      setUsers((prev) => prev.filter((user) => user.id !== rejectedId));
+      await fetchPendingUsers(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to reject user.';
       showToast('error', message);
