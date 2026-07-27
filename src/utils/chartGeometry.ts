@@ -47,7 +47,13 @@ export function describeDonutSlice(
 }
 
 export function buildPieSlices(
-  data: { label: string; value: number; color?: string }[],
+  data: {
+    label: string;
+    value: number;
+    color?: string;
+    details?: string[];
+    detailsLabel?: string;
+  }[],
   gapDeg = 2,
 ) {
   const positive = data.filter((item) => item.value > 0);

@@ -11,6 +11,8 @@ interface PieChartProps {
   formatLabel?: (label: string) => string;
   centerLabel?: string;
   centerValue?: string | number;
+  /** Unit word for hover copy, e.g. "subject" → "2 subjects". */
+  valueUnit?: string;
 }
 
 function describeArc(
@@ -32,12 +34,19 @@ function describeArc(
   return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y}`;
 }
 
+function pluralize(count: number, unit: string): string {
+  if (count === 1) return `1 ${unit}`;
+  if (unit.endsWith('s')) return `${count} ${unit}`;
+  return `${count} ${unit}s`;
+}
+
 export function PieChart({
   data,
   size = 240,
   formatLabel,
   centerLabel = 'total',
   centerValue,
+  valueUnit = 'entry',
 }: PieChartProps) {
   const uid = useId().replace(/:/g, '');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -60,18 +69,18 @@ export function PieChart({
   const radius = size / 2 - ringWidth / 2 - 10;
   const trackRadius = radius;
   const active = activeIndex != null ? slices[activeIndex] : null;
+  const activeLabel = active
+    ? formatLabel
+      ? formatLabel(active.label)
+      : active.label
+    : null;
   const displayValue =
     active != null
       ? active.value
       : typeof centerValue === 'number'
         ? centerValue
         : centerValue ?? total;
-  const displayLabel = active
-    ? formatLabel
-      ? formatLabel(active.label)
-      : active.label
-    : centerLabel;
-  const displayPercent = active?.percent;
+  const displayLabel = activeLabel ?? centerLabel;
 
   return (
     <div className="dashboard-pie-chart dashboard-pie-chart--advanced dashboard-pie-chart--animate">
@@ -144,8 +153,6 @@ export function PieChart({
             const isActive = activeIndex === index;
             const isDimmed = activeIndex !== null && !isActive;
             const pop = polarToCartesian(0, 0, isActive ? 5 : 0, midAngle);
-            const labelPos = polarToCartesian(cx, cy, radius, midAngle);
-            const showCallout = slice.percent >= 12;
 
             return (
               <g
@@ -167,6 +174,13 @@ export function PieChart({
                 onMouseEnter={() => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(null)}
               >
+                <title>
+                  {[
+                    formatLabel ? formatLabel(slice.label) : slice.label,
+                    `${slice.percent}%`,
+                    ...(slice.details ?? []),
+                  ].join(' · ')}
+                </title>
                 <path
                   d={describeArc(cx, cy, radius, slice.startAngle, slice.endAngle)}
                   fill="none"
@@ -182,31 +196,6 @@ export function PieChart({
                     } as CSSProperties
                   }
                 />
-
-                {showCallout && (
-                  <g
-                    className="dashboard-pie-chart__callout"
-                    style={{ animationDelay: `${0.55 + index * 0.1}s` } as CSSProperties}
-                  >
-                    <circle
-                      cx={labelPos.x}
-                      cy={labelPos.y}
-                      r={isActive ? 11 : 9}
-                      fill="var(--color-bg-card, #fff)"
-                      stroke={slice.color}
-                      strokeWidth="2"
-                    />
-                    <text
-                      x={labelPos.x}
-                      y={labelPos.y + 3.5}
-                      textAnchor="middle"
-                      className="dashboard-pie-chart__callout-text"
-                      fill={slice.color}
-                    >
-                      {slice.percent}%
-                    </text>
-                  </g>
-                )}
               </g>
             );
           })}
@@ -223,11 +212,40 @@ export function PieChart({
               <span className="dashboard-pie-chart__center-value">{displayValue}</span>
             )}
             <span className="dashboard-pie-chart__center-label">{displayLabel}</span>
-            {displayPercent != null && (
-              <span className="dashboard-pie-chart__center-meta">{displayPercent}% of total</span>
-            )}
           </div>
         </div>
+
+        {active && activeLabel && (
+          <div
+            className="dashboard-chart-tooltip"
+            role="tooltip"
+            style={{ '--slice-color': active.color ?? '#6366f1' } as CSSProperties}
+          >
+            <div className="dashboard-chart-tooltip__head">
+              <span
+                className="dashboard-chart-tooltip__dot"
+                style={{ background: active.color }}
+              />
+              <strong className="dashboard-chart-tooltip__title">{activeLabel}</strong>
+              <span className="dashboard-chart-tooltip__pct">{active.percent}%</span>
+            </div>
+            <p className="dashboard-chart-tooltip__meta">
+              {pluralize(active.value, valueUnit)} · {active.percent}% of {total}
+            </p>
+            {active.details && active.details.length > 0 && (
+              <div className="dashboard-chart-tooltip__details">
+                <span className="dashboard-chart-tooltip__details-label">
+                  {active.detailsLabel ?? 'Includes'}
+                </span>
+                <ul className="dashboard-chart-tooltip__list">
+                  {active.details.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="dashboard-pie-chart__legend dashboard-pie-chart__legend--rich">
@@ -274,7 +292,6 @@ export function PieChart({
                 <span className="dashboard-pie-legend-card__value">
                   <AnimatedNumber value={slice.value} duration={750} />
                 </span>
-                <span className="dashboard-pie-legend-card__pct">{slice.percent}%</span>
               </span>
 
               <span className="dashboard-pie-legend-card__bar">
@@ -291,8 +308,18 @@ export function PieChart({
               </span>
 
               <span className="dashboard-pie-legend-card__hint">
-                {slice.value === 1 ? '1 entry' : `${slice.value} entries`} · share of {total}
+                {isActive
+                  ? `${slice.percent}% of total`
+                  : pluralize(slice.value, valueUnit)}
               </span>
+
+              {isActive && slice.details && slice.details.length > 0 && (
+                <ul className="dashboard-pie-legend-card__details">
+                  {slice.details.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              )}
             </button>
           );
         })}

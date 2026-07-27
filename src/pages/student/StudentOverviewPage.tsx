@@ -13,7 +13,7 @@ import type { StudentExamResultSchedule } from '../../types/examResult';
 import type { ReExamRequest } from '../../types/reExam';
 import type { StudentPortalOverview } from '../../types/studentPortal';
 import {
-  groupCountByField,
+  groupByFieldWithDetails,
   subjectScorePercent,
   truncateLabel,
   withChartColors,
@@ -94,7 +94,12 @@ export function StudentOverviewPage() {
   const reExamStatusData = useMemo(
     () =>
       withChartColors(
-        groupCountByField(reExams, (item) => getReExamStatusLabel(item.status)),
+        groupByFieldWithDetails(
+          reExams,
+          (item) => getReExamStatusLabel(item.status),
+          (item) => item.subjectName || item.examTitle || `#${item.id}`,
+          'Subjects',
+        ),
       ),
     [reExams],
   );
@@ -227,6 +232,7 @@ export function StudentOverviewPage() {
               data={reExamStatusData}
               centerValue={reExams.length}
               centerLabel="requests"
+              valueUnit="request"
             />
           </ChartCard>
         ) : (

@@ -197,6 +197,7 @@ export function HomePage() {
               centerValue={stats.students + stats.teachers}
               centerLabel="people"
               size={248}
+              valueUnit="person"
             />
           </ChartCard>
         )}
@@ -212,6 +213,7 @@ export function HomePage() {
               data={pendingChartData}
               centerValue={totalPendingActions}
               centerLabel="pending"
+              valueUnit="item"
             />
           </ChartCard>
         ) : (

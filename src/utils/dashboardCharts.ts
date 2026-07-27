@@ -2,6 +2,10 @@ export interface ChartDatum {
   label: string;
   value: number;
   color?: string;
+  /** Items revealed on hover (e.g. subject names for a grade slice). */
+  details?: string[];
+  /** Heading above the details list in the hover tooltip. */
+  detailsLabel?: string;
 }
 
 export function subjectScorePercent(
@@ -21,6 +25,32 @@ export function groupCountByField<T>(items: T[], getKey: (item: T) => string): C
   }
   return Array.from(counts.entries())
     .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+}
+
+/** Group items by a key and keep a detail string for each item (shown on chart hover). */
+export function groupByFieldWithDetails<T>(
+  items: T[],
+  getKey: (item: T) => string,
+  getDetail: (item: T) => string,
+  detailsLabel?: string,
+): ChartDatum[] {
+  const groups = new Map<string, { count: number; details: string[] }>();
+  for (const item of items) {
+    const key = getKey(item) || 'Unknown';
+    const entry = groups.get(key) ?? { count: 0, details: [] };
+    entry.count += 1;
+    const detail = getDetail(item).trim();
+    if (detail) entry.details.push(detail);
+    groups.set(key, entry);
+  }
+  return Array.from(groups.entries())
+    .map(([label, entry]) => ({
+      label,
+      value: entry.count,
+      details: entry.details,
+      detailsLabel,
+    }))
     .sort((a, b) => b.value - a.value);
 }
 
@@ -58,6 +88,8 @@ export function withChartColors(data: ChartDatum[]): ChartDatum[] {
   return data.map((item, index) => ({
     ...item,
     color: item.color ?? CHART_PALETTE[index % CHART_PALETTE.length],
+    details: item.details,
+    detailsLabel: item.detailsLabel,
   }));
 }
 

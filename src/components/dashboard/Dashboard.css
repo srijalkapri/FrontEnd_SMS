@@ -487,6 +487,133 @@
   color: var(--color-primary);
 }
 
+.dashboard-chart-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 0.35rem;
+  z-index: 5;
+  transform: translateX(-50%);
+  width: min(15.5rem, calc(100% - 1rem));
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--slice-color) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--slice-color) 18%, transparent);
+  pointer-events: none;
+  animation: pieCenterFocus 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dashboard-chart-tooltip__head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.dashboard-chart-tooltip__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--slice-color) 55%, transparent);
+}
+
+.dashboard-chart-tooltip__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-chart-tooltip__pct {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--slice-color);
+}
+
+.dashboard-chart-tooltip__meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.dashboard-chart-tooltip__details {
+  margin-top: 0.55rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+}
+
+.dashboard-chart-tooltip__details-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.dashboard-chart-tooltip__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-height: 7.5rem;
+  overflow: auto;
+}
+
+.dashboard-chart-tooltip__list li {
+  position: relative;
+  padding-left: 0.7rem;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  line-height: 1.35;
+}
+
+.dashboard-chart-tooltip__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--slice-color);
+}
+
+.dashboard-pie-legend-card__details {
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dashboard-pie-legend-card__details li {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  padding-left: 0.55rem;
+  position: relative;
+}
+
+.dashboard-pie-legend-card__details li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--slice-color);
+  font-weight: 700;
+}
+
 .dashboard-pie-chart__legend {
   display: flex;
   flex-direction: column;
@@ -661,6 +788,11 @@
   flex-wrap: wrap;
 }
 
+.dashboard-donut__visual {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .dashboard-donut__ring {
   flex-shrink: 0;
   filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.2));
@@ -669,11 +801,17 @@
 .dashboard-donut__slice {
   transform-origin: center;
   animation: pieSliceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
 }
 
-.dashboard-donut__slice:hover {
+.dashboard-donut__slice:hover,
+.dashboard-donut__slice--active {
   transform: scale(1.03);
+}
+
+.dashboard-donut__slice--dimmed {
+  opacity: 0.4;
 }
 
 .dashboard-donut__center-value {
@@ -695,6 +833,27 @@
   gap: 0.5rem;
   flex: 1;
   min-width: 140px;
+}
+
+.dashboard-legend-item--interactive {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.35rem;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-legend-item--interactive:hover,
+.dashboard-legend-item--active {
+  background: color-mix(in srgb, var(--color-bg-hover) 80%, transparent);
+}
+
+.dashboard-legend-item--dimmed {
+  opacity: 0.45;
 }
 
 /* ── Shared legend ── */

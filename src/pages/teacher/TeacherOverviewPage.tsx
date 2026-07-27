@@ -11,7 +11,7 @@ import { useToast } from '../../context/ToastContext';
 import type { TeacherExamSession } from '../../types/examResult';
 import type { ReExamRequest } from '../../types/reExam';
 import type { TeacherPortalOverview } from '../../types/teacherPortal';
-import { countByStatus, groupCountByField, withChartColors } from '../../utils/dashboardCharts';
+import { groupByFieldWithDetails, groupCountByField, withChartColors } from '../../utils/dashboardCharts';
 import { getReExamStatusLabel } from '../../utils/reExamStatus';
 import '../HomePage.css';
 import '../PortalPages.css';
@@ -63,7 +63,16 @@ export function TeacherOverviewPage() {
   const statusChartData = useMemo(
     () =>
       withChartColors(
-        countByStatus(examSessions, (session) => session.resultStatus, EXAM_STATUS_ORDER),
+        groupByFieldWithDetails(
+          examSessions,
+          (session) => session.resultStatus ?? 'Not started',
+          (session) =>
+            `${session.subjectName}${session.gradeName ? ` (${session.gradeName})` : ''}`,
+          'Sessions',
+        ).sort(
+          (a, b) =>
+            EXAM_STATUS_ORDER.indexOf(a.label) - EXAM_STATUS_ORDER.indexOf(b.label),
+        ),
       ),
     [examSessions],
   );
@@ -79,7 +88,12 @@ export function TeacherOverviewPage() {
   const reExamChartData = useMemo(
     () =>
       withChartColors(
-        groupCountByField(reExams, (item) => getReExamStatusLabel(item.status)),
+        groupByFieldWithDetails(
+          reExams,
+          (item) => getReExamStatusLabel(item.status),
+          (item) => item.studentName || item.examTitle || `#${item.id}`,
+          'Requests',
+        ),
       ),
     [reExams],
   );
@@ -87,7 +101,12 @@ export function TeacherOverviewPage() {
   const subjectsByGrade = useMemo(
     () =>
       withChartColors(
-        groupCountByField(overview?.subjects ?? [], (s) => s.gradeName),
+        groupByFieldWithDetails(
+          overview?.subjects ?? [],
+          (s) => s.gradeName,
+          (s) => s.subjectName,
+          'Subjects taught',
+        ),
       ),
     [overview?.subjects],
   );
@@ -148,7 +167,7 @@ export function TeacherOverviewPage() {
           emptyMessage="No exam sessions yet"
           emptyHint="Exam sessions appear when schedules are published for your subjects."
         >
-          <DonutChart data={statusChartData} size={220} />
+          <DonutChart data={statusChartData} size={220} valueUnit="session" />
         </ChartCard>
 
         <ChartCard
@@ -168,19 +187,24 @@ export function TeacherOverviewPage() {
       </section>
 
       <section className="dashboard-grid dashboard-grid--2">
-        {subjectsByGrade.length > 0 && (
-          <ChartCard
-            title="Subjects by grade"
-            subtitle="Your teaching assignments distribution"
-            linkTo="/teacher/subjects"
-          >
+        <ChartCard
+          title="Subjects by grade"
+          subtitle="Your teaching assignments distribution"
+          linkTo="/teacher/subjects"
+          linkLabel="View subjects"
+          empty={!loading && subjectsByGrade.length === 0}
+          emptyMessage="No subject assignments yet"
+          emptyHint="Subjects appear here once you are assigned to grade subjects."
+        >
+          {subjectsByGrade.length > 0 && (
             <PieChart
               data={subjectsByGrade}
-              centerValue={overview?.subjects.length ?? 0}
+              centerValue={overview?.subjects.length ?? subjectsByGrade.reduce((sum, item) => sum + item.value, 0)}
               centerLabel="subjects"
+              valueUnit="subject"
             />
-          </ChartCard>
-        )}
+          )}
+        </ChartCard>
 
         {reExamChartData.length > 0 ? (
           <ChartCard
@@ -189,7 +213,12 @@ export function TeacherOverviewPage() {
             linkTo="/teacher/re-exams"
             linkLabel="View re-exams"
           >
-            <PieChart data={reExamChartData} centerValue={reExams.length} centerLabel="total" />
+            <PieChart
+              data={reExamChartData}
+              centerValue={reExams.length}
+              centerLabel="total"
+              valueUnit="request"
+            />
           </ChartCard>
         ) : (
           <ChartCard
