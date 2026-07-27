@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { ChartDatum } from '../../utils/dashboardCharts';
 import { AnimatedNumber } from './AnimatedNumber';
@@ -15,12 +16,42 @@ function gradeInitial(label: string): string {
 }
 
 export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
+  const [activeGrade, setActiveGrade] = useState<string | null>(null);
   const enrolledGrades = data.filter((item) => item.value > 0);
   const emptyGrades = data.filter((item) => item.value === 0);
+  const sortedEnrolled = useMemo(
+    () => [...enrolledGrades].sort((a, b) => b.value - a.value || a.label.localeCompare(b.label)),
+    [enrolledGrades],
+  );
   const largestGrade = enrolledGrades.reduce(
     (best, item) => (item.value > best.value ? item : best),
     enrolledGrades[0] ?? { label: '—', value: 0, color: '#6366f1' },
   );
+  const secondLargest = sortedEnrolled[1];
+  const averagePerActiveGrade = enrolledGrades.length > 0 ? totalStudents / enrolledGrades.length : 0;
+  const concentrationScore =
+    totalStudents > 0
+      ? Math.round(
+          enrolledGrades.reduce((sum, grade) => {
+            const share = grade.value / totalStudents;
+            return sum + share * share;
+          }, 0) * 100,
+        )
+      : 0;
+  const topShare =
+    totalStudents > 0 && largestGrade.value > 0
+      ? Math.round((largestGrade.value / totalStudents) * 100)
+      : 0;
+  const topGap =
+    totalStudents > 0 && secondLargest
+      ? Math.max(0, Math.round(((largestGrade.value - secondLargest.value) / totalStudents) * 100))
+      : topShare;
+  const balanceLabel =
+    topShare >= 70 ? 'Top-heavy distribution' : topShare >= 50 ? 'Moderate concentration' : 'Balanced spread';
+  const occupancyLabel =
+    data.length > 0
+      ? `${Math.round((enrolledGrades.length / data.length) * 100)}% grade occupancy`
+      : 'No occupancy';
 
   if (data.length === 0) {
     return (
@@ -52,10 +83,14 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
               <div className="dashboard-enrollment__stack" role="img" aria-label="Enrollment distribution">
                 {enrolledGrades.map((item, index) => {
                   const widthPct = (item.value / totalStudents) * 100;
+                  const isActive = activeGrade === item.label;
+                  const isDimmed = activeGrade !== null && activeGrade !== item.label;
                   return (
                     <div
                       key={item.label}
-                      className="dashboard-enrollment__stack-segment"
+                      className={`dashboard-enrollment__stack-segment${
+                        isActive ? ' dashboard-enrollment__stack-segment--active' : ''
+                      }${isDimmed ? ' dashboard-enrollment__stack-segment--dimmed' : ''}`}
                       style={{
                         width: `${widthPct}%`,
                         background: `linear-gradient(180deg, ${item.color}dd, ${item.color})`,
@@ -63,6 +98,8 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
                         '--segment-index': index,
                       } as CSSProperties}
                       title={`${item.label}: ${item.value} student${item.value === 1 ? '' : 's'} (${Math.round(widthPct)}%)`}
+                      onMouseEnter={() => setActiveGrade(item.label)}
+                      onMouseLeave={() => setActiveGrade(null)}
                     >
                       {widthPct >= 18 && (
                         <span
@@ -80,13 +117,38 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
                 {enrolledGrades.map((item, index) => (
                   <span
                     key={item.label}
-                    className="dashboard-enrollment__stack-key dashboard-enrollment__stack-key--animate"
+                    className={`dashboard-enrollment__stack-key dashboard-enrollment__stack-key--animate${
+                      activeGrade === item.label ? ' dashboard-enrollment__stack-key--active' : ''
+                    }${activeGrade !== null && activeGrade !== item.label ? ' dashboard-enrollment__stack-key--dimmed' : ''}`}
                     style={{ animationDelay: `${0.5 + index * 0.08}s` }}
+                    onMouseEnter={() => setActiveGrade(item.label)}
+                    onMouseLeave={() => setActiveGrade(null)}
                   >
                     <span className="dashboard-enrollment__stack-dot" style={{ background: item.color }} />
                     {item.label} ({Math.round((item.value / totalStudents) * 100)}%)
                   </span>
                 ))}
+              </div>
+              <div className="dashboard-enrollment__insights-rail">
+                <div className="dashboard-enrollment__insight-card dashboard-enrollment__insight-card--primary">
+                  <span className="dashboard-enrollment__insight-label">Lead share</span>
+                  <span className="dashboard-enrollment__insight-value">{topShare}%</span>
+                  <span className="dashboard-enrollment__insight-meta">{balanceLabel}</span>
+                </div>
+                <div className="dashboard-enrollment__insight-card">
+                  <span className="dashboard-enrollment__insight-label">Avg per active grade</span>
+                  <span className="dashboard-enrollment__insight-value">
+                    {Math.round(averagePerActiveGrade * 10) / 10}
+                  </span>
+                  <span className="dashboard-enrollment__insight-meta">
+                    {enrolledGrades.length} active grade{enrolledGrades.length === 1 ? '' : 's'}
+                  </span>
+                </div>
+                <div className="dashboard-enrollment__insight-card">
+                  <span className="dashboard-enrollment__insight-label">Concentration score</span>
+                  <span className="dashboard-enrollment__insight-value">{concentrationScore}</span>
+                  <span className="dashboard-enrollment__insight-meta">0 balanced · 100 concentrated</span>
+                </div>
               </div>
             </>
           ) : (
@@ -102,6 +164,12 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
             { value: emptyGrades.length, label: 'Empty grades', accent: false, delay: 0.28 },
             ...(largestGrade.value > 0
               ? [{ value: largestGrade.label, label: `Top grade (${largestGrade.value})`, accent: true, delay: 0.36 }]
+              : []),
+            ...(largestGrade.value > 0
+              ? [{ value: `${topGap}%`, label: 'Lead over next', accent: false, delay: 0.44 }]
+              : []),
+            ...(data.length > 0
+              ? [{ value: occupancyLabel, label: 'Coverage', accent: false, delay: 0.52 }]
               : []),
           ].map((pill) => (
             <div
@@ -129,18 +197,25 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
           const sharePct = totalStudents > 0 ? Math.round((item.value / totalStudents) * 100) : 0;
           const isEmpty = item.value === 0;
           const cardDelay = 0.25 + index * 0.1;
+          const isActive = activeGrade === item.label;
+          const isDimmed = activeGrade !== null && activeGrade !== item.label;
+          const rank = sortedEnrolled.findIndex((grade) => grade.label === item.label) + 1;
 
           return (
             <article
               key={item.label}
               className={`dashboard-enrollment__grade-card dashboard-enrollment__grade-card--animate${
                 isEmpty ? ' dashboard-enrollment__grade-card--empty' : ''
+              }${isActive ? ' dashboard-enrollment__grade-card--active' : ''}${
+                isDimmed ? ' dashboard-enrollment__grade-card--dimmed' : ''
               }`}
               style={{
                 '--grade-accent': item.color,
                 '--card-delay': `${cardDelay}s`,
                 animationDelay: `${cardDelay}s`,
               } as CSSProperties}
+              onMouseEnter={() => setActiveGrade(item.label)}
+              onMouseLeave={() => setActiveGrade(null)}
             >
               <div
                 className="dashboard-enrollment__grade-icon dashboard-enrollment__grade-icon--animate"
@@ -150,7 +225,14 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
               </div>
               <div className="dashboard-enrollment__grade-body">
                 <div className="dashboard-enrollment__grade-header">
-                  <h4 className="dashboard-enrollment__grade-name">{item.label}</h4>
+                  <h4 className="dashboard-enrollment__grade-name">
+                    {item.label}
+                    {!isEmpty && rank > 0 && (
+                      <span className="dashboard-enrollment__grade-rank">
+                        #{rank}
+                      </span>
+                    )}
+                  </h4>
                   <span className="dashboard-enrollment__grade-count">
                     <AnimatedNumber value={item.value} duration={800 + index * 80} />
                     <span className="dashboard-enrollment__grade-count-unit">
@@ -174,7 +256,11 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
                       className="dashboard-enrollment__grade-badge dashboard-enrollment__grade-badge--animate"
                       style={{ animationDelay: `${cardDelay + 0.35}s` }}
                     >
-                      {item.value === largestGrade.value && enrolledGrades.length > 1 ? 'Largest' : 'Enrolled'}
+                      {item.value === largestGrade.value && enrolledGrades.length > 1
+                        ? 'Largest'
+                        : item.value >= averagePerActiveGrade
+                          ? 'Above avg'
+                          : 'Enrolled'}
                     </span>
                   )}
                 </div>

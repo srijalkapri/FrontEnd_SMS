@@ -1149,6 +1149,7 @@
   transform-origin: left center;
   animation: stackGrow 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   overflow: hidden;
+  transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
 }
 
 .dashboard-enrollment__stack-segment::after {
@@ -1167,6 +1168,15 @@
 
 .dashboard-enrollment__stack-segment:not(:last-child) {
   border-right: 2px solid var(--color-bg-card);
+}
+
+.dashboard-enrollment__stack-segment--active {
+  filter: brightness(1.08) saturate(1.1);
+  transform: translateY(-1px);
+}
+
+.dashboard-enrollment__stack-segment--dimmed {
+  opacity: 0.42;
 }
 
 .dashboard-enrollment__stack-label {
@@ -1195,6 +1205,8 @@
   gap: 0.375rem;
   font-size: 0.75rem;
   color: var(--color-text-muted);
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  cursor: default;
 }
 
 .dashboard-enrollment__stack-key--animate {
@@ -1206,6 +1218,57 @@
   height: 0.5rem;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.dashboard-enrollment__stack-key--active {
+  color: var(--color-text);
+  transform: translateX(2px);
+}
+
+.dashboard-enrollment__stack-key--dimmed {
+  opacity: 0.45;
+}
+
+.dashboard-enrollment__insights-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.dashboard-enrollment__insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0.625rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
+  background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
+  animation: pillSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dashboard-enrollment__insight-card--primary {
+  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-bg-card));
+}
+
+.dashboard-enrollment__insight-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-subtle);
+}
+
+.dashboard-enrollment__insight-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.1;
+}
+
+.dashboard-enrollment__insight-meta {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
 }
 
 .dashboard-enrollment__highlights {
@@ -1271,6 +1334,15 @@
   border-color: color-mix(in srgb, var(--grade-accent, var(--color-primary)) 45%, var(--color-border));
 }
 
+.dashboard-enrollment__grade-card--active {
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--grade-accent, var(--color-primary)) 22%, transparent);
+  border-color: color-mix(in srgb, var(--grade-accent, var(--color-primary)) 60%, var(--color-border));
+}
+
+.dashboard-enrollment__grade-card--dimmed {
+  opacity: 0.46;
+}
+
 .dashboard-enrollment__grade-card--empty {
   opacity: 0.72;
   border-style: dashed;
@@ -1325,6 +1397,19 @@
   font-size: 0.9375rem;
   font-weight: 600;
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dashboard-enrollment__grade-rank {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--grade-accent, var(--color-primary));
+  background: color-mix(in srgb, var(--grade-accent, var(--color-primary)) 16%, transparent);
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
 }
 
 .dashboard-enrollment__grade-count {
@@ -1492,6 +1577,10 @@
     flex-wrap: wrap;
   }
 
+  .dashboard-enrollment__insights-rail {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-enrollment__pill {
     flex: 1;
     min-width: 100px;
@@ -1542,6 +1631,8 @@
   .dashboard-enrollment__stack-segment::after,
   .dashboard-enrollment__stack-label,
   .dashboard-enrollment__stack-key--animate,
+  .dashboard-enrollment__stack-key,
+  .dashboard-enrollment__insight-card,
   .dashboard-enrollment__pill--animate,
   .dashboard-enrollment__grade-card--animate,
   .dashboard-enrollment__grade-icon--animate,
