@@ -1,0 +1,131 @@
+.auth-card--animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card--success {
+  border-color: color-mix(in srgb, #10b981 40%, var(--color-border));
+  box-shadow: 0 0 32px rgba(16, 185, 129, 0.15), var(--shadow-lg);
+}
+
+.auth-card__overlay--loading {
+  animation: authOverlayIn 0.3s ease both;
+}
+
+.auth-card__overlay--success {
+  background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
+  animation: authOverlayIn 0.3s ease both;
+}
+
+.auth-card__loader-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card__loader-ring::before {
+  content: '';
+  position: absolute;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--color-primary);
+  border-right-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  animation: authSpin 0.9s linear infinite;
+}
+
+.auth-card__overlay-title--success {
+  color: #10b981;
+}
+
+.auth-card__success-check {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.auth-card__success-check svg {
+  width: 100%;
+  height: 100%;
+}
+
+.auth-card__success-circle {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 2;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: authSuccessCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.1s forwards;
+}
+
+.auth-card__success-path {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: authSuccessPath 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.55s forwards;
+}
+
+.auth-card__success-burst {
+  position: absolute;
+  width: 4rem;
+  height: 4rem;
+  pointer-events: none;
+}
+
+.auth-card__success-burst span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  border-radius: 50%;
+  background: #10b981;
+  opacity: 0;
+}
+
+.auth-card__success-burst span:nth-child(1) { animation: authBurst1 0.7s ease 0.5s both; }
+.auth-card__success-burst span:nth-child(2) { animation: authBurst2 0.7s ease 0.53s both; }
+.auth-card__success-burst span:nth-child(3) { animation: authBurst3 0.7s ease 0.56s both; }
+.auth-card__success-burst span:nth-child(4) { animation: authBurst4 0.7s ease 0.59s both; }
+.auth-card__success-burst span:nth-child(5) { animation: authBurst5 0.7s ease 0.62s both; }
+.auth-card__success-burst span:nth-child(6) { animation: authBurst6 0.7s ease 0.65s both; }
+.auth-card__success-burst span:nth-child(7) { animation: authBurst7 0.7s ease 0.68s both; }
+.auth-card__success-burst span:nth-child(8) { animation: authBurst8 0.7s ease 0.71s both; }
+
+@keyframes authBurst1 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(0,-32px) scale(1); } }
+@keyframes authBurst2 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(22px,-22px) scale(1); } }
+@keyframes authBurst3 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(32px,0) scale(1); } }
+@keyframes authBurst4 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(22px,22px) scale(1); } }
+@keyframes authBurst5 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(0,32px) scale(1); } }
+@keyframes authBurst6 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(-22px,22px) scale(1); } }
+@keyframes authBurst7 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(-32px,0) scale(1); } }
+@keyframes authBurst8 { 0% { opacity:0; transform:translate(0,0) scale(0); } 40% { opacity:1; } 100% { opacity:0; transform:translate(-22px,-22px) scale(1); } }
+
+@keyframes authOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes authSuccessCircle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes authSuccessPath {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card__success-circle,
+  .auth-card__success-path,
+  .auth-card__success-burst span,
+  .auth-card__loader-ring::before {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

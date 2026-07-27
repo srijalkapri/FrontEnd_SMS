@@ -4,10 +4,18 @@
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background:
-    radial-gradient(circle at top right, var(--color-primary-muted), transparent 45%),
-    var(--color-bg);
+  background: transparent;
   position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.auth-layout .page-transition {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .auth-layout__theme {

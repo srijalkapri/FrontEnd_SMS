@@ -1,0 +1,93 @@
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-backdrop__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  animation: authOrbFloat 12s ease-in-out infinite;
+}
+
+.auth-backdrop__orb--1 {
+  width: 320px;
+  height: 320px;
+  top: -80px;
+  right: -60px;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+  animation-delay: 0s;
+}
+
+.auth-backdrop__orb--2 {
+  width: 280px;
+  height: 280px;
+  bottom: -60px;
+  left: -40px;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  animation-delay: -4s;
+}
+
+.auth-backdrop__orb--3 {
+  width: 200px;
+  height: 200px;
+  top: 40%;
+  left: 55%;
+  background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+  animation-delay: -7s;
+  opacity: 0.35;
+}
+
+.auth-backdrop__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
+  opacity: 0.4;
+  animation: authGridPulse 8s ease-in-out infinite;
+}
+
+.auth-backdrop__spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary);
+  animation: authSparkFloat 6s ease-in-out infinite;
+  animation-delay: calc(var(--spark-i) * -0.75s);
+  top: calc(10% + (var(--spark-i) * 9%));
+  left: calc(8% + (var(--spark-i) * 10%));
+  opacity: 0.5;
+}
+
+@keyframes authOrbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-20px, 16px) scale(1.05); }
+  66% { transform: translate(14px, -12px) scale(0.95); }
+}
+
+@keyframes authGridPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes authSparkFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+  50% { transform: translateY(-18px) scale(1.4); opacity: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-backdrop__orb,
+  .auth-backdrop__grid,
+  .auth-backdrop__spark {
+    animation: none;
+  }
+}

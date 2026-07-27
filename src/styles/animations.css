@@ -1,0 +1,498 @@
+/* ═══════════════════════════════════════════════════════════════
+   Global UI animations — applied app-wide via layout + selectors
+   Respects prefers-reduced-motion at the bottom
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Route / page entrance ── */
+.page-transition {
+  animation: pageEnter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  width: 100%;
+}
+
+.page-transition--auth {
+  animation: authPageEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 4rem);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Page header animations live in PageHeader.css ── */
+
+@keyframes headerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes headerTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes headerDescIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes headerActionsIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes badgePop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Page sections (staggered after header) ── */
+.page-content > *:not(.page-header) {
+  animation: sectionSlideUp 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.1s;
+}
+
+.page-content > .page-header ~ *:nth-child(2) { animation-delay: 0.1s; }
+.page-content > .page-header ~ *:nth-child(3) { animation-delay: 0.17s; }
+.page-content > .page-header ~ *:nth-child(4) { animation-delay: 0.24s; }
+.page-content > .page-header ~ *:nth-child(5) { animation-delay: 0.31s; }
+.page-content > .page-header ~ *:nth-child(6) { animation-delay: 0.38s; }
+.page-content > .page-header ~ *:nth-child(7) { animation-delay: 0.45s; }
+.page-content > .page-header ~ *:nth-child(8) { animation-delay: 0.52s; }
+
+@keyframes sectionSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dashboard grids — stagger child cards/charts */
+.dashboard-grid > * {
+  animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dashboard-grid > *:nth-child(1) { animation-delay: 0.12s; }
+.dashboard-grid > *:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-grid > *:nth-child(3) { animation-delay: 0.28s; }
+.dashboard-grid > *:nth-child(4) { animation-delay: 0.36s; }
+
+@keyframes cardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Cards ── */
+.card {
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 25%, var(--color-border));
+}
+
+/* ── Stat / KPI cards ── */
+.home-stat-card,
+.portal-stat-card,
+.dashboard-kpi {
+  animation: statCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.home-stats__grid > *:nth-child(1),
+.portal-stats > *:nth-child(1),
+.dashboard-grid--3 > .dashboard-kpi:nth-child(1) { animation-delay: 0.14s; }
+
+.home-stats__grid > *:nth-child(2),
+.portal-stats > *:nth-child(2),
+.dashboard-grid--3 > .dashboard-kpi:nth-child(2) { animation-delay: 0.21s; }
+
+.home-stats__grid > *:nth-child(3),
+.portal-stats > *:nth-child(3),
+.dashboard-grid--3 > .dashboard-kpi:nth-child(3) { animation-delay: 0.28s; }
+
+.home-stats__grid > *:nth-child(4),
+.dashboard-grid--3 > .dashboard-kpi:nth-child(4) { animation-delay: 0.35s; }
+
+.home-stats__grid > *:nth-child(5) { animation-delay: 0.42s; }
+
+@keyframes statCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.home-stat-card:hover,
+.portal-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.home-link-card {
+  animation: linkCardIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.home-links__grid > *:nth-child(1) { animation-delay: 0.2s; }
+.home-links__grid > *:nth-child(2) { animation-delay: 0.27s; }
+.home-links__grid > *:nth-child(3) { animation-delay: 0.34s; }
+.home-links__grid > *:nth-child(4) { animation-delay: 0.41s; }
+.home-links__grid > *:nth-child(5) { animation-delay: 0.48s; }
+.home-links__grid > *:nth-child(6) { animation-delay: 0.55s; }
+
+@keyframes linkCardIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+@keyframes heroBannerIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Tables ── */
+.grade-table-section {
+  animation: sectionSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.grade-table tbody tr {
+  animation: tableRowIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.grade-table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+.grade-table tbody tr:nth-child(2) { animation-delay: 0.07s; }
+.grade-table tbody tr:nth-child(3) { animation-delay: 0.1s; }
+.grade-table tbody tr:nth-child(4) { animation-delay: 0.13s; }
+.grade-table tbody tr:nth-child(5) { animation-delay: 0.16s; }
+.grade-table tbody tr:nth-child(6) { animation-delay: 0.19s; }
+.grade-table tbody tr:nth-child(7) { animation-delay: 0.22s; }
+.grade-table tbody tr:nth-child(8) { animation-delay: 0.25s; }
+.grade-table tbody tr:nth-child(9) { animation-delay: 0.28s; }
+.grade-table tbody tr:nth-child(10) { animation-delay: 0.31s; }
+.grade-table tbody tr:nth-child(11) { animation-delay: 0.34s; }
+.grade-table tbody tr:nth-child(12) { animation-delay: 0.37s; }
+.grade-table tbody tr:nth-child(n + 13) { animation-delay: 0.4s; }
+
+@keyframes tableRowIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.table-loading,
+.table-empty {
+  animation: fadeInSoft 0.45s ease both;
+}
+
+@keyframes fadeInSoft {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Buttons & inputs ── */
+.btn {
+  transition:
+    transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn--primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn--secondary:active:not(:disabled),
+.btn--ghost:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.form-input,
+.search-input__field,
+select.form-input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.form-input:focus,
+.search-input__field:focus,
+select.form-input:focus {
+  transform: translateY(-1px);
+}
+
+/* ── Modals ── */
+.form-modal-overlay {
+  animation: overlayIn 0.28s ease both !important;
+}
+
+.form-modal {
+  animation: modalPopIn 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Auth pages ── */
+.auth-card {
+  animation: authCardIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both;
+}
+
+.auth-card__logo {
+  animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+.auth-card__header {
+  animation: sectionSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+.auth-card form {
+  animation: sectionSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
+}
+
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes iconPop {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-6deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* ── Sidebar navigation ── */
+.sidebar__link {
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sidebar__link:hover {
+  transform: translateX(3px);
+}
+
+.sidebar__list li {
+  animation: navItemIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sidebar__list li:nth-child(1) { animation-delay: 0.05s; }
+.sidebar__list li:nth-child(2) { animation-delay: 0.08s; }
+.sidebar__list li:nth-child(3) { animation-delay: 0.11s; }
+.sidebar__list li:nth-child(4) { animation-delay: 0.14s; }
+.sidebar__list li:nth-child(5) { animation-delay: 0.17s; }
+.sidebar__list li:nth-child(6) { animation-delay: 0.2s; }
+.sidebar__list li:nth-child(7) { animation-delay: 0.23s; }
+.sidebar__list li:nth-child(8) { animation-delay: 0.26s; }
+.sidebar__list li:nth-child(n + 9) { animation-delay: 0.29s; }
+
+@keyframes navItemIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar__brand {
+  animation: headerSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Portal / misc ── */
+.portal-error {
+  animation: shakeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes shakeIn {
+  0% { opacity: 0; transform: translateX(-6px); }
+  40% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.spinner {
+  animation: spin 0.75s linear infinite;
+}
+
+.exam-result-status {
+  transition: transform 0.15s ease;
+}
+
+.exam-result-status:hover {
+  transform: scale(1.04);
+}
+
+/* Prevent double-animation on deeply animated dashboard widgets */
+.dashboard-enrollment--animate,
+.dashboard-enrollment--animate * {
+  /* enrollment manages its own timeline */
+}
+
+.page-content > .dashboard-enrollment--animate {
+  animation: none;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .page-transition,
+  .page-transition--auth,
+  .page-header,
+  .page-header__badge,
+  .page-header__title,
+  .page-header__description,
+  .page-header__actions,
+  .page-content > *,
+  .dashboard-grid > *,
+  .home-stat-card,
+  .portal-stat-card,
+  .dashboard-kpi,
+  .home-link-card,
+  .grade-table-section,
+  .grade-table tbody tr,
+  .auth-card,
+  .auth-card__logo,
+  .auth-card__header,
+  .auth-card form,
+  .sidebar__list li,
+  .sidebar__brand,
+  .form-modal-overlay,
+  .form-modal {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .dashboard-enrollment__grade-fill--animate {
+    width: var(--fill-pct, 0%);
+  }
+}

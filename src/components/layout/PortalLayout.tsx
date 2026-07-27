@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { PageTransition } from './PageTransition';
 import { PortalSidebar, type PortalKind } from './PortalSidebar';
 import { ThemeToggle } from './ThemeToggle';
 import './AppLayout.css';
@@ -48,7 +49,7 @@ export function PortalLayout({ portal }: PortalLayoutProps) {
           </div>
         </header>
         <main className="app-content">
-          <Outlet />
+          <PageTransition />
         </main>
       </div>
     </div>

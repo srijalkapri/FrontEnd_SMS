@@ -1,0 +1,243 @@
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient-bg__base {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -8%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 68%),
+    radial-gradient(ellipse 60% 45% at 100% 20%, color-mix(in srgb, var(--color-accent-gradient, var(--color-primary)) 10%, transparent), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 80%, color-mix(in srgb, var(--color-primary) 8%, transparent), transparent 50%),
+    var(--color-bg);
+  animation: ambientBaseShift 50s ease-in-out infinite;
+}
+
+/* Large aurora blobs — slow cross-screen drift */
+.ambient-bg__aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.22;
+  will-change: transform;
+}
+
+.ambient-bg__aurora--1 {
+  width: min(70vmax, 900px);
+  height: min(70vmax, 900px);
+  top: -25%;
+  left: -15%;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 65%);
+  animation: ambientAuroraDrift1 48s linear infinite;
+}
+
+.ambient-bg__aurora--2 {
+  width: min(60vmax, 780px);
+  height: min(60vmax, 780px);
+  bottom: -20%;
+  right: -10%;
+  background: radial-gradient(circle, var(--color-accent-gradient, #14b8a6) 0%, transparent 65%);
+  animation: ambientAuroraDrift2 62s linear infinite;
+}
+
+.ambient-bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.4;
+  will-change: transform;
+}
+
+.ambient-bg__orb--1 {
+  width: min(520px, 55vw);
+  height: min(520px, 55vw);
+  top: -12%;
+  right: -8%;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 68%);
+  animation: ambientOrbPath1 38s ease-in-out infinite;
+}
+
+.ambient-bg__orb--2 {
+  width: min(420px, 48vw);
+  height: min(420px, 48vw);
+  bottom: -10%;
+  left: -6%;
+  background: radial-gradient(circle, var(--color-accent-gradient, #14b8a6) 0%, transparent 68%);
+  animation: ambientOrbPath2 44s ease-in-out infinite;
+}
+
+.ambient-bg__orb--3 {
+  width: min(320px, 38vw);
+  height: min(320px, 38vw);
+  top: 38%;
+  left: 42%;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  opacity: 0.24;
+  animation: ambientOrbPath3 52s ease-in-out infinite;
+}
+
+.ambient-bg__orb--4 {
+  width: min(260px, 32vw);
+  height: min(260px, 32vw);
+  top: 12%;
+  left: 18%;
+  background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+  opacity: 0.2;
+  animation: ambientOrbPath4 36s ease-in-out infinite;
+}
+
+.ambient-bg__grid {
+  position: absolute;
+  inset: -40px;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-primary) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 5%, transparent) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.42;
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 45%, black 15%, transparent 78%);
+  animation: ambientGridDrift 30s linear infinite;
+}
+
+.ambient-bg__shine {
+  position: absolute;
+  inset: -80% -60%;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 62%
+  );
+  animation: ambientShineSweep 10s linear infinite;
+}
+
+.ambient-bg__spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 70%, transparent);
+  opacity: 0.35;
+  top: calc(4% + (var(--spark-i) * 7.5%));
+  left: calc(3% + (var(--spark-i) * 8%));
+  animation: ambientSparkDrift 16s linear infinite;
+  animation-delay: calc(var(--spark-i) * -1.4s);
+}
+
+[data-mode='light'] .ambient-bg__base,
+[data-theme='light'] .ambient-bg__base {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -8%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 68%),
+    radial-gradient(ellipse 60% 45% at 100% 15%, color-mix(in srgb, var(--color-accent-gradient, #14b8a6) 12%, transparent), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 85%, color-mix(in srgb, var(--color-primary) 6%, transparent), transparent 50%),
+    var(--color-bg);
+}
+
+[data-mode='light'] .ambient-bg__orb,
+[data-theme='light'] .ambient-bg__orb {
+  opacity: 0.3;
+}
+
+[data-mode='light'] .ambient-bg__aurora,
+[data-theme='light'] .ambient-bg__aurora {
+  opacity: 0.18;
+}
+
+[data-mode='light'] .ambient-bg__grid,
+[data-theme='light'] .ambient-bg__grid {
+  opacity: 0.32;
+}
+
+[data-mode='light'] .ambient-bg__shine,
+[data-theme='light'] .ambient-bg__shine {
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 62%
+  );
+}
+
+/* Continuous cross-screen motion */
+@keyframes ambientBaseShift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2%, 1.5%) scale(1.02); }
+}
+
+@keyframes ambientAuroraDrift1 {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(28vw, 18vh); }
+  50% { transform: translate(12vw, 42vh); }
+  75% { transform: translate(-18vw, 22vh); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes ambientAuroraDrift2 {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-22vw, -16vh); }
+  50% { transform: translate(-38vw, 8vh); }
+  75% { transform: translate(-10vw, -28vh); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes ambientOrbPath1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(-32vw, 28vh) scale(1.06); }
+  40% { transform: translate(-18vw, 48vh) scale(0.94); }
+  60% { transform: translate(14vw, 32vh) scale(1.04); }
+  80% { transform: translate(26vw, 8vh) scale(0.98); }
+}
+
+@keyframes ambientOrbPath2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(24vw, -20vh) scale(1.05); }
+  40% { transform: translate(42vw, -8vh) scale(0.96); }
+  60% { transform: translate(28vw, 18vh) scale(1.08); }
+  80% { transform: translate(8vw, 30vh) scale(0.97); }
+}
+
+@keyframes ambientOrbPath3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-28vw, -22vh) scale(1.1); }
+  66% { transform: translate(22vw, 26vh) scale(0.92); }
+}
+
+@keyframes ambientOrbPath4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(36vw, 12vh) scale(1.07); }
+  50% { transform: translate(20vw, -24vh) scale(0.95); }
+  75% { transform: translate(-16vw, -10vh) scale(1.03); }
+}
+
+@keyframes ambientGridDrift {
+  from { background-position: 0 0; }
+  to { background-position: 40px 40px; }
+}
+
+@keyframes ambientShineSweep {
+  from { transform: translateX(-45%) translateY(-10%) rotate(-12deg); opacity: 0.4; }
+  to { transform: translateX(45%) translateY(10%) rotate(-12deg); opacity: 0.4; }
+}
+
+@keyframes ambientSparkDrift {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+  25% { transform: translate(18vw, -12vh) scale(1.4); opacity: 0.65; }
+  50% { transform: translate(32vw, 8vh) scale(1); opacity: 0.25; }
+  75% { transform: translate(12vw, 22vh) scale(1.3); opacity: 0.55; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bg__base,
+  .ambient-bg__aurora,
+  .ambient-bg__orb,
+  .ambient-bg__grid,
+  .ambient-bg__shine,
+  .ambient-bg__spark {
+    animation: none;
+  }
+}

@@ -215,3 +215,89 @@
 .auth-card__footer a:hover {
   text-decoration: underline;
 }
+
+/* ── Login fun animations ── */
+.auth-card__logo--float {
+  animation: authLogoFloat 4s ease-in-out infinite;
+}
+
+.auth-card__header--stagger > * {
+  animation: authStaggerIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-card__header--stagger .auth-card__logo { animation-delay: 0.05s; }
+.auth-card__header--stagger .auth-card__title { animation-delay: 0.12s; }
+.auth-card__header--stagger .auth-card__subtitle { animation-delay: 0.19s; }
+
+.auth-form--stagger .auth-form__field:nth-child(1) { animation: authStaggerIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both; }
+.auth-form--stagger .auth-form__field:nth-child(2) { animation: authStaggerIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both; }
+.auth-form--stagger .auth-form__submit { animation: authStaggerIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.38s both; }
+
+.auth-card__footer--stagger {
+  animation: authStaggerIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.46s both;
+}
+
+.auth-form__input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px var(--color-primary-muted), 0 4px 12px rgba(99, 102, 241, 0.12);
+}
+
+.auth-form__submit--fun {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-primary), #7c3aed, var(--color-primary));
+  background-size: 200% 200%;
+  animation: authBtnGradient 4s ease infinite;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-form__submit--fun:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
+}
+
+.auth-form__submit--fun:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.auth-form__submit--fun::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: authBtnShimmer 3s ease-in-out infinite;
+}
+
+@keyframes authLogoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes authStaggerIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes authBtnGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes authBtnShimmer {
+  0%, 70%, 100% { transform: translateX(-120%); }
+  35% { transform: translateX(120%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card__logo--float,
+  .auth-form__submit--fun,
+  .auth-form__submit--fun::after {
+    animation: none;
+  }
+}

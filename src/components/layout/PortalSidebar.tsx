@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSignOut } from '../../hooks/useSignOut';
 import { ThemeToggle } from './ThemeToggle';
+import { SidebarAmbient } from './SidebarAmbient';
 import '../../pages/AuthPages.css';
 import './Sidebar.css';
 
@@ -112,6 +113,7 @@ export function PortalSidebar({ portal, mobileOpen = false, onNavigate }: Portal
 
   return (
     <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>
+      <SidebarAmbient />
       <NavLink
         to={homeRoute}
         onClick={onNavigate}

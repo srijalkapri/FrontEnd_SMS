@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { PageTransition } from './PageTransition';
 import { ThemeToggle } from './ThemeToggle';
 import './AuthLayout.css';
 
@@ -8,7 +8,7 @@ export function AuthLayout() {
       <div className="auth-layout__theme">
         <ThemeToggle />
       </div>
-      <Outlet />
+      <PageTransition variant="auth" />
     </div>
   );
 }

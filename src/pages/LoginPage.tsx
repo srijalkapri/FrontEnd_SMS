@@ -1,9 +1,10 @@
 import { FormEvent, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AuthCardShell } from '../components/auth/AuthCardShell';
+import { AuthCardShell, type AuthCardStatus } from '../components/auth/AuthCardShell';
 import { AuthSubmitButton } from '../components/auth/AuthSubmitButton';
 import { PasswordInput } from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
+import { sleep } from '../context/SessionOverlayContext';
 import { useToast } from '../context/ToastContext';
 import { runWithSlowNotice, withTimeout } from '../utils/asyncRequest';
 import { getHomeRouteForRole, isPathAllowedForRole, parseUserRole } from '../utils/roles';
@@ -18,13 +19,13 @@ export function LoginPage() {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<AuthCardStatus>('idle');
   const [slowNotice, setSlowNotice] = useState(false);
   const slowToastShown = useRef(false);
 
   if (isLoading) {
     return (
-      <AuthCardShell busy overlayTitle="Checking session…">
+      <AuthCardShell status="loading" overlayTitle="Checking session…">
         <div className="auth-card__header">
           <p className="auth-card__subtitle">Please wait</p>
         </div>
@@ -49,7 +50,7 @@ export function LoginPage() {
       return;
     }
 
-    setSubmitting(true);
+    setStatus('loading');
     setSlowNotice(false);
     slowToastShown.current = false;
 
@@ -75,31 +76,37 @@ export function LoginPage() {
           'error',
           `Signed in, but role "${loggedInUser.role || 'unknown'}" is not supported.`,
         );
-        setSubmitting(false);
+        setStatus('idle');
         return;
       }
 
+      setStatus('success');
       showToast('success', 'Login successful.');
+      await sleep(1100);
       navigate(destination, { replace: true });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Login failed. Please try again.';
       showToast('error', message);
-      setSubmitting(false);
+      setStatus('idle');
       setSlowNotice(false);
     }
   }
 
+  const submitting = status === 'loading' || status === 'success';
+
   return (
     <AuthCardShell
-      busy={submitting}
+      status={status}
       overlayTitle="Signing in…"
       overlayHint={
         slowNotice ? 'Server is waking up. This can take up to a minute on first request.' : undefined
       }
+      successTitle="You're in!"
+      successHint="Taking you to your dashboard…"
     >
-      <div className="auth-card__header">
-        <div className="auth-card__logo" aria-hidden="true">
+      <div className="auth-card__header auth-card__header--stagger">
+        <div className="auth-card__logo auth-card__logo--float" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path
               strokeLinecap="round"
@@ -112,15 +119,15 @@ export function LoginPage() {
         <p className="auth-card__subtitle">Sign in to your portal</p>
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit} aria-busy={submitting}>
-        <div className="form-group">
+      <form className="auth-form auth-form--stagger" onSubmit={handleSubmit} aria-busy={submitting}>
+        <div className="form-group auth-form__field">
           <label className="form-label" htmlFor="username">
             Username
           </label>
           <input
             id="username"
             type="text"
-            className="form-input"
+            className="form-input auth-form__input"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             autoComplete="username"
@@ -129,7 +136,7 @@ export function LoginPage() {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group auth-form__field">
           <label className="form-label" htmlFor="password">
             Password
           </label>
@@ -143,10 +150,15 @@ export function LoginPage() {
           />
         </div>
 
-        <AuthSubmitButton loading={submitting} loadingLabel="Signing in…" label="Sign in" />
+        <AuthSubmitButton
+          loading={status === 'loading'}
+          loadingLabel="Signing in…"
+          label="Sign in"
+          className="auth-form__submit auth-form__submit--fun"
+        />
       </form>
 
-      <p className="auth-card__footer">
+      <p className="auth-card__footer auth-card__footer--stagger">
         Need an account? <Link to="/register">Create one</Link>
       </p>
     </AuthCardShell>

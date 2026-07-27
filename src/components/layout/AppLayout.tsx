@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AdminPendingCountsProvider } from '../../hooks/useAdminPendingCounts';
+import { PageTransition } from './PageTransition';
 import { Sidebar } from './Sidebar';
 import { ThemeToggle } from './ThemeToggle';
 import './AppLayout.css';
@@ -40,7 +41,7 @@ export function AppLayout() {
           </div>
         </header>
         <main className="app-content">
-          <Outlet />
+          <PageTransition />
         </main>
       </div>
     </div>

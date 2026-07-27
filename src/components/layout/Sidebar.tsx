@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useAdminPendingCounts } from '../../hooks/useAdminPendingCounts';
 import { useSignOut } from '../../hooks/useSignOut';
 import { ThemeToggle } from './ThemeToggle';
+import { SidebarAmbient } from './SidebarAmbient';
 import '../../pages/AuthPages.css';
 import './Sidebar.css';
 
@@ -149,6 +150,7 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
 
   return (
     <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>
+      <SidebarAmbient />
       <NavLink
         to="/"
         onClick={onNavigate}

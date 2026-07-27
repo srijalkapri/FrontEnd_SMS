@@ -1,0 +1,138 @@
+.sidebar-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sidebar-ambient__base {
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(ellipse 120% 40% at 50% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 100% 35% at 50% 100%, color-mix(in srgb, var(--color-accent-gradient, var(--color-primary)) 12%, transparent), transparent 65%);
+  animation: sidebarAmbientBaseShift 42s ease-in-out infinite;
+}
+
+.sidebar-ambient__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(52px);
+  opacity: 0.45;
+  will-change: transform;
+}
+
+.sidebar-ambient__orb--1 {
+  width: 180px;
+  height: 180px;
+  top: -40px;
+  left: -30px;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 68%);
+  animation: sidebarAmbientOrb1 28s ease-in-out infinite;
+}
+
+.sidebar-ambient__orb--2 {
+  width: 140px;
+  height: 140px;
+  top: 45%;
+  right: -50px;
+  background: radial-gradient(circle, var(--color-accent-gradient, #14b8a6) 0%, transparent 68%);
+  animation: sidebarAmbientOrb2 34s ease-in-out infinite;
+}
+
+.sidebar-ambient__orb--3 {
+  width: 120px;
+  height: 120px;
+  bottom: 8%;
+  left: -20px;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  opacity: 0.28;
+  animation: sidebarAmbientOrb3 38s ease-in-out infinite;
+}
+
+.sidebar-ambient__grid {
+  position: absolute;
+  inset: -20px;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.4;
+  mask-image: linear-gradient(to bottom, black 5%, black 95%, transparent);
+  animation: sidebarAmbientGridDrift 24s linear infinite;
+}
+
+.sidebar-ambient__shine {
+  position: absolute;
+  inset: -100% -50%;
+  background: linear-gradient(
+    180deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 58%
+  );
+  animation: sidebarAmbientShine 12s linear infinite;
+}
+
+[data-mode='light'] .sidebar-ambient__orb,
+[data-theme='light'] .sidebar-ambient__orb {
+  opacity: 0.32;
+}
+
+[data-mode='light'] .sidebar-ambient__grid,
+[data-theme='light'] .sidebar-ambient__grid {
+  opacity: 0.28;
+}
+
+[data-mode='light'] .sidebar-ambient__shine,
+[data-theme='light'] .sidebar-ambient__shine {
+  background: linear-gradient(
+    180deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 58%
+  );
+}
+
+@keyframes sidebarAmbientBaseShift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3%); }
+}
+
+@keyframes sidebarAmbientOrb1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, 35vh) scale(1.08); }
+  50% { transform: translate(-10px, 55vh) scale(0.94); }
+  75% { transform: translate(15px, 75vh) scale(1.05); }
+}
+
+@keyframes sidebarAmbientOrb2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-25px, -28vh) scale(1.06); }
+  66% { transform: translate(10px, 30vh) scale(0.96); }
+}
+
+@keyframes sidebarAmbientOrb3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -40vh) scale(1.1); }
+}
+
+@keyframes sidebarAmbientGridDrift {
+  from { background-position: 0 0; }
+  to { background-position: 0 28px; }
+}
+
+@keyframes sidebarAmbientShine {
+  from { transform: translateY(-40%); opacity: 0.3; }
+  to { transform: translateY(40%); opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-ambient__base,
+  .sidebar-ambient__orb,
+  .sidebar-ambient__grid,
+  .sidebar-ambient__shine {
+    animation: none;
+  }
+}

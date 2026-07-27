@@ -2,9 +2,11 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { RoleRoute } from './components/auth/RoleRoute';
 import { AppLayout } from './components/layout/AppLayout';
+import { AmbientBackground } from './components/layout/AmbientBackground';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { PortalLayout } from './components/layout/PortalLayout';
 import { AuthProvider } from './context/AuthContext';
+import { SessionOverlayProvider } from './context/SessionOverlayContext';
 import { AppearancePage } from './pages/AppearancePage';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
@@ -49,8 +51,10 @@ import './App.css';
 function App() {
   return (
     <ThemeProvider>
+      <AmbientBackground />
       <ToastProvider>
         <AuthProvider>
+          <SessionOverlayProvider>
           <Routes>
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<LoginPage />} />
@@ -114,6 +118,7 @@ function App() {
               </Route>
             </Route>
           </Routes>
+          </SessionOverlayProvider>
         </AuthProvider>
       </ToastProvider>
     </ThemeProvider>
