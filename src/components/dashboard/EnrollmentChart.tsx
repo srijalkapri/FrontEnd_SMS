@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
-import type { ChartDatum } from '../../utils/dashboardCharts';
+import { allocatePercentages, type ChartDatum } from '../../utils/dashboardCharts';
 import { AnimatedNumber } from './AnimatedNumber';
 import './Dashboard.css';
 
 interface EnrollmentChartProps {
   data: ChartDatum[];
-  totalStudents: number;
+  /** Optional fallback; school total is derived from enrollment data when possible. */
+  totalStudents?: number;
 }
 
 /** Class 10 → "10", Grade A → "A", otherwise first 2 chars. */
@@ -24,6 +25,18 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
   const enrolledGrades = useMemo(() => data.filter((item) => item.value > 0), [data]);
   const emptyGrades = useMemo(() => data.filter((item) => item.value === 0), [data]);
 
+  /** Always derive from the grade rows so % matches what is shown. */
+  const schoolTotal = useMemo(
+    () => data.reduce((sum, item) => sum + item.value, 0),
+    [data],
+  );
+  const displayTotal = schoolTotal > 0 ? schoolTotal : (totalStudents ?? 0);
+
+  const shareByLabel = useMemo(() => {
+    const percents = allocatePercentages(data.map((item) => item.value));
+    return new Map(data.map((item, index) => [item.label, percents[index]]));
+  }, [data]);
+
   const largestGrade = useMemo(
     () =>
       enrolledGrades.reduce(
@@ -34,7 +47,7 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
   );
 
   const averagePerActive =
-    enrolledGrades.length > 0 ? totalStudents / enrolledGrades.length : 0;
+    enrolledGrades.length > 0 ? schoolTotal / enrolledGrades.length : 0;
 
   if (data.length === 0) {
     return (
@@ -52,7 +65,7 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
     <div className="dashboard-enrollment dashboard-enrollment--animate">
       <div className="dashboard-enrollment__summary">
         <div className="dashboard-enrollment__summary-total">
-          <AnimatedNumber value={totalStudents} className="dashboard-enrollment__summary-value" />
+          <AnimatedNumber value={displayTotal} className="dashboard-enrollment__summary-value" />
           <span className="dashboard-enrollment__summary-label">Total enrolled</span>
         </div>
 
@@ -77,7 +90,7 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
       <div className="dashboard-enrollment__distribution">
         <p className="dashboard-enrollment__section-title">Distribution across grades</p>
 
-        {totalStudents > 0 ? (
+        {schoolTotal > 0 ? (
           <>
             <div
               className="dashboard-enrollment__bar"
@@ -85,7 +98,8 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
               aria-label="Enrollment distribution"
             >
               {enrolledGrades.map((item, index) => {
-                const widthPct = (item.value / totalStudents) * 100;
+                const widthPct = (item.value / schoolTotal) * 100;
+                const sharePct = shareByLabel.get(item.label) ?? 0;
                 const isActive = activeGrade === item.label;
                 const isDimmed = activeGrade !== null && !isActive;
 
@@ -106,7 +120,7 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
                         animationDelay: `${0.1 + index * 0.1}s`,
                       } as CSSProperties
                     }
-                    title={`${item.label}: ${item.value} (${Math.round(widthPct)}%)`}
+                    title={`${item.label}: ${item.value} (${sharePct}%)`}
                     onMouseEnter={() => setActiveGrade(item.label)}
                     onMouseLeave={() => setActiveGrade(null)}
                   />
@@ -116,7 +130,7 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
 
             <div className="dashboard-enrollment__legend">
               {enrolledGrades.map((item) => {
-                const pct = Math.round((item.value / totalStudents) * 100);
+                const pct = shareByLabel.get(item.label) ?? 0;
                 const isActive = activeGrade === item.label;
                 const isDimmed = activeGrade !== null && !isActive;
 
@@ -156,13 +170,16 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
 
       <div className="dashboard-enrollment__grades">
         {data.map((item, index) => {
-          const sharePct = totalStudents > 0 ? Math.round((item.value / totalStudents) * 100) : 0;
+          const sharePct = shareByLabel.get(item.label) ?? 0;
           const isEmpty = item.value === 0;
           const isLargest = !isEmpty && item.value === largestGrade.value && enrolledGrades.length > 1;
           const isAboveAvg = !isEmpty && item.value >= averagePerActive;
           const isActive = activeGrade === item.label;
           const isDimmed = activeGrade !== null && !isActive;
           const delay = 0.2 + index * 0.08;
+          // Fill relative to largest class so bars are comparable; label still shows school share.
+          const fillPct =
+            largestGrade.value > 0 ? Math.round((item.value / largestGrade.value) * 100) : 0;
 
           return (
             <article
@@ -200,7 +217,7 @@ export function EnrollmentChart({ data, totalStudents }: EnrollmentChartProps) {
                     className="dashboard-enrollment__grade-fill"
                     style={
                       {
-                        '--fill-pct': `${sharePct}%`,
+                        '--fill-pct': `${fillPct}%`,
                         animationDelay: `${delay + 0.15}s`,
                       } as CSSProperties
                     }

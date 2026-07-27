@@ -1,3 +1,5 @@
+import { allocatePercentages } from './dashboardCharts';
+
 export function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: number) {
   const angleRad = ((angleDeg - 90) * Math.PI) / 180;
   return {
@@ -48,28 +50,28 @@ export function buildPieSlices(
   data: { label: string; value: number; color?: string }[],
   gapDeg = 2,
 ) {
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const positive = data.filter((item) => item.value > 0);
+  const total = positive.reduce((sum, item) => sum + item.value, 0);
   if (total === 0) return [];
 
+  const percents = allocatePercentages(positive.map((item) => item.value));
   let currentAngle = 0;
-  const sliceCount = data.filter((d) => d.value > 0).length;
+  const sliceCount = positive.length;
   const totalGap = sliceCount > 1 ? gapDeg * sliceCount : 0;
   const available = 360 - totalGap;
 
-  return data
-    .filter((item) => item.value > 0)
-    .map((item) => {
-      const sliceAngle = (item.value / total) * available;
-      const startAngle = currentAngle;
-      const endAngle = currentAngle + sliceAngle;
-      currentAngle = endAngle + (sliceCount > 1 ? gapDeg : 0);
-      return {
-        ...item,
-        startAngle,
-        endAngle,
-        percent: Math.round((item.value / total) * 100),
-      };
-    });
+  return positive.map((item, index) => {
+    const sliceAngle = (item.value / total) * available;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + sliceAngle;
+    currentAngle = endAngle + (sliceCount > 1 ? gapDeg : 0);
+    return {
+      ...item,
+      startAngle,
+      endAngle,
+      percent: percents[index],
+    };
+  });
 }
 
 export function scoreColor(percent: number): string {

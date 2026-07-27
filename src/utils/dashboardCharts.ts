@@ -93,35 +93,60 @@ export function scaleMaxForTicks(max: number, desiredSteps = 4): number {
 }
 
 export interface GradeLike {
+  id: number;
   className: string;
   level?: number;
+}
+
+/**
+ * Round share percentages so they always sum to 100.
+ * Uses the largest-remainder method (floor first, then give leftover points
+ * to the largest fractional parts).
+ */
+export function allocatePercentages(values: number[]): number[] {
+  const total = values.reduce((sum, value) => sum + value, 0);
+  if (total <= 0) return values.map(() => 0);
+
+  const exact = values.map((value) => (value / total) * 100);
+  const floored = exact.map((value) => Math.floor(value));
+  let leftover = 100 - floored.reduce((sum, value) => sum + value, 0);
+
+  const order = exact
+    .map((value, index) => ({ index, fraction: value - floored[index] }))
+    .sort((a, b) => b.fraction - a.fraction || values[b.index] - values[a.index]);
+
+  const result = [...floored];
+  for (let i = 0; i < leftover; i += 1) {
+    result[order[i].index] += 1;
+  }
+  return result;
 }
 
 /** Build enrollment counts for every grade, including grades with zero students. */
 export function buildEnrollmentByGrade(
   grades: GradeLike[],
-  students: { gradeName: string }[],
+  students: { gradeId: number; gradeName?: string }[],
 ): ChartDatum[] {
-  const counts = new Map<string, number>();
+  const countsById = new Map<number, number>();
   for (const student of students) {
-    const key = student.gradeName?.trim() || 'Unassigned';
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    if (student.gradeId == null || Number.isNaN(student.gradeId)) continue;
+    countsById.set(student.gradeId, (countsById.get(student.gradeId) ?? 0) + 1);
   }
 
   const sortedGrades = [...grades].sort(
     (a, b) => (a.level ?? 0) - (b.level ?? 0) || a.className.localeCompare(b.className),
   );
 
+  const knownIds = new Set(sortedGrades.map((grade) => grade.id));
   const data: ChartDatum[] = sortedGrades.map((grade, index) => ({
     label: grade.className,
-    value: counts.get(grade.className) ?? 0,
+    value: countsById.get(grade.id) ?? 0,
     color: CHART_PALETTE[index % CHART_PALETTE.length],
   }));
 
-  const knownGradeNames = new Set(sortedGrades.map((g) => g.className));
   let unassigned = 0;
-  for (const [name, count] of counts.entries()) {
-    if (!knownGradeNames.has(name)) {
+  for (const [gradeId, count] of countsById.entries()) {
+    if (!knownIds.has(gradeId)) {
       unassigned += count;
     }
   }

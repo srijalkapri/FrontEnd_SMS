@@ -87,6 +87,11 @@ export function HomePage() {
     [grades, students],
   );
 
+  const enrollmentTotal = useMemo(
+    () => enrollmentByGrade.reduce((sum, item) => sum + item.value, 0),
+    [enrollmentByGrade],
+  );
+
   const peopleOverview = useMemo(
     () =>
       withChartColors(
@@ -172,14 +177,14 @@ export function HomePage() {
       <section className="dashboard-grid dashboard-grid--2">
         <ChartCard
           title="Enrollment by grade"
-          subtitle={`${stats.students} enrolled student${stats.students === 1 ? '' : 's'} · ${stats.grades} grade${stats.grades === 1 ? '' : 's'} in system`}
+          subtitle={`${enrollmentTotal} enrolled student${enrollmentTotal === 1 ? '' : 's'} · ${stats.grades} grade${stats.grades === 1 ? '' : 's'} in system`}
           linkTo="/students"
           linkLabel="Manage students"
-          empty={!loading && stats.students === 0 && grades.length === 0}
+          empty={!loading && enrollmentTotal === 0 && grades.length === 0}
           emptyMessage="No grades or students yet"
           emptyHint="Create grades first, then enroll students."
         >
-          <EnrollmentChart data={enrollmentByGrade} totalStudents={stats.students} />
+          <EnrollmentChart data={enrollmentByGrade} totalStudents={enrollmentTotal} />
         </ChartCard>
 
         {peopleOverview.length > 0 && (

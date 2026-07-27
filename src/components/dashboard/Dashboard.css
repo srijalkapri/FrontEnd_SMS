@@ -1270,8 +1270,10 @@
 }
 
 .dashboard-enrollment__legend-name {
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text);
 }
 
@@ -1320,8 +1322,10 @@
   display: grid;
   place-items: center;
   border-radius: var(--radius-md);
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
   color: white;
   background: linear-gradient(
     145deg,
@@ -1354,8 +1358,10 @@
 
 .dashboard-enrollment__grade-name {
   margin: 0;
+  font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text);
 }
 
