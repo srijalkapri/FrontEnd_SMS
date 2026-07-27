@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
+import { AuthCardShell } from '../components/auth/AuthCardShell';
 import { PasswordInput } from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -21,11 +22,11 @@ export function RegisterPage() {
 
   if (isLoading) {
     return (
-      <div className="auth-card">
+      <AuthCardShell status="loading" overlayTitle="Checking session…">
         <div className="auth-card__header">
           <p className="auth-card__subtitle">Checking session…</p>
         </div>
-      </div>
+      </AuthCardShell>
     );
   }
 
@@ -73,7 +74,7 @@ export function RegisterPage() {
 
   if (submitted) {
     return (
-      <div className="auth-card">
+      <AuthCardShell>
         <div className="auth-card__header">
           <div className="auth-card__logo" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -93,12 +94,12 @@ export function RegisterPage() {
         <Link to="/login" className="auth-form__submit auth-form__submit--link">
           Back to sign in
         </Link>
-      </div>
+      </AuthCardShell>
     );
   }
 
   return (
-    <div className="auth-card">
+    <AuthCardShell>
       <div className="auth-card__header">
         <div className="auth-card__logo" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -121,7 +122,7 @@ export function RegisterPage() {
           <input
             id="fullName"
             type="text"
-            className="form-input"
+            className="form-input auth-form__input"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             autoComplete="name"
@@ -137,7 +138,7 @@ export function RegisterPage() {
           <input
             id="email"
             type="email"
-            className="form-input"
+            className="form-input auth-form__input"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
@@ -153,7 +154,7 @@ export function RegisterPage() {
           <input
             id="username"
             type="text"
-            className="form-input"
+            className="form-input auth-form__input"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             autoComplete="username"
@@ -198,6 +199,6 @@ export function RegisterPage() {
       <p className="auth-card__footer">
         Already have an account? <Link to="/login">Sign in</Link>
       </p>
-    </div>
+    </AuthCardShell>
   );
 }

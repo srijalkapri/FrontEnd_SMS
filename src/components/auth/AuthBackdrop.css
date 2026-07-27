@@ -91,3 +91,28 @@
     animation: none;
   }
 }
+
+@media (max-width: 480px) {
+  .auth-backdrop__orb--1 {
+    width: 220px;
+    height: 220px;
+  }
+
+  .auth-backdrop__orb--2 {
+    width: 180px;
+    height: 180px;
+  }
+
+  .auth-backdrop__orb--3 {
+    width: 140px;
+    height: 140px;
+  }
+
+  .auth-backdrop__grid {
+    background-size: 32px 32px;
+  }
+
+  .auth-backdrop__spark {
+    display: none;
+  }
+}

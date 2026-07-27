@@ -1,12 +1,18 @@
 .auth-layout {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding:
+    max(1.5rem, env(safe-area-inset-top, 0px))
+    max(1rem, env(safe-area-inset-right, 0px))
+    max(1.5rem, env(safe-area-inset-bottom, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
   background: transparent;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   z-index: 1;
 }
 
@@ -14,12 +20,39 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  max-width: 420px;
   display: flex;
   justify-content: center;
 }
 
 .auth-layout__theme {
   position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+  z-index: 2;
+}
+
+@media (max-width: 480px) {
+  .auth-layout {
+    padding:
+      max(1rem, env(safe-area-inset-top, 0px))
+      max(0.75rem, env(safe-area-inset-right, 0px))
+      max(1rem, env(safe-area-inset-bottom, 0px))
+      max(0.75rem, env(safe-area-inset-left, 0px));
+    align-items: flex-start;
+  }
+
+  .auth-layout .page-transition {
+    margin-block: auto;
+  }
+}
+
+@media (max-height: 720px) {
+  .auth-layout {
+    align-items: flex-start;
+  }
+
+  .auth-layout .page-transition {
+    margin-block: auto;
+  }
 }
