@@ -187,9 +187,29 @@
   }
 }
 
+@media (max-width: 720px) {
+  .home-stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 640px) {
   .home-stats__grid,
   .home-links__grid {
     grid-template-columns: 1fr;
+  }
+
+  .home-page {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .home-stats__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .home-links__grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

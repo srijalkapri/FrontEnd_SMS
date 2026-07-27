@@ -121,9 +121,23 @@
   margin-top: 0.625rem;
   font-size: 0.9375rem;
   color: var(--color-text-muted);
-  max-width: 560px;
+  max-width: min(42rem, 100%);
   line-height: 1.65;
   animation: pageHeaderDescIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
+}
+
+@media (min-width: 1400px) {
+  .page-header {
+    padding: 1.85rem 2.25rem;
+  }
+
+  .page-header__description {
+    max-width: min(48rem, 100%);
+  }
+
+  .page-header__title {
+    font-size: 1.75rem;
+  }
 }
 
 .page-header__stats {

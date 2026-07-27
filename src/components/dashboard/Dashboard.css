@@ -2,6 +2,7 @@
 .dashboard-grid {
   display: grid;
   gap: 1.25rem;
+  width: 100%;
 }
 
 .dashboard-grid--2 {
@@ -12,6 +13,25 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+@media (min-width: 1400px) {
+  .dashboard-grid {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .dashboard-grid--2,
+  .dashboard-grid--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-grid {
+    gap: 1rem;
+  }
+}
+
 /* ── Chart cards ── */
 .dashboard-chart-card {
   display: flex;
@@ -20,6 +40,9 @@
   min-height: 0;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  container-type: inline-size;
+  container-name: chart-card;
 }
 
 .dashboard-chart-card::before {
@@ -317,6 +340,7 @@
   align-items: center;
   gap: 1.5rem;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .dashboard-pie-chart--advanced {
@@ -473,7 +497,25 @@
 
 .dashboard-pie-chart__legend--rich {
   gap: 0.7rem;
-  min-width: 190px;
+  min-width: min(190px, 100%);
+}
+
+@container chart-card (max-width: 560px) {
+  .dashboard-pie-chart,
+  .dashboard-donut {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dashboard-pie-chart__legend,
+  .dashboard-pie-chart__legend--rich {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-enrollment__grades {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dashboard-pie-legend-card {
@@ -1470,29 +1512,30 @@
     flex-direction: column;
   }
 
-  .dashboard-enrollment__summary-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-grid--2,
-  .dashboard-grid--3 {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-bar-chart__row {
-    grid-template-columns: minmax(0, 5.5rem) 1fr auto;
-  }
-
   .dashboard-pie-chart,
   .dashboard-donut {
     flex-direction: column;
     align-items: center;
   }
+
+  .dashboard-bar-chart__row {
+    grid-template-columns: minmax(0, 5.5rem) 1fr auto;
+  }
 }
 
 @media (max-width: 640px) {
   .dashboard-enrollment__summary-stats {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .dashboard-enrollment__stat {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .dashboard-pie-chart__legend--rich {
+    min-width: 0;
+    width: 100%;
   }
 }
 
