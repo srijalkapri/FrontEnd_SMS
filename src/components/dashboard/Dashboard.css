@@ -1040,7 +1040,7 @@
   min-height: 2px;
 }
 
-/* ── Enrollment panel (advanced) ── */
+/* ── Enrollment panel ── */
 .dashboard-enrollment {
   display: flex;
   flex-direction: column;
@@ -1051,406 +1051,282 @@
   animation: enrollmentEnter 0.45s ease both;
 }
 
-.dashboard-enrollment__kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.625rem;
-}
-
-.dashboard-enrollment__kpi {
+.dashboard-enrollment__summary {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  background: var(--color-bg-card);
-  animation: pillSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.dashboard-enrollment__kpi--accent {
-  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
   background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-card)),
-    var(--color-bg-card)
+    135deg,
+    color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-card)),
+    var(--color-bg-card) 60%
   );
 }
 
-.dashboard-enrollment__kpi-label {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--color-text-subtle);
+.dashboard-enrollment__summary-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
-.dashboard-enrollment__kpi-value {
-  font-size: 1.35rem;
+.dashboard-enrollment__summary-value {
+  font-size: 2rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--color-text);
+  letter-spacing: -0.04em;
   line-height: 1;
-}
-
-.dashboard-enrollment__kpi--accent .dashboard-enrollment__kpi-value {
   background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
-  background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: heroGradientShift 4s ease infinite;
 }
 
-.dashboard-enrollment__stage {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 1.1rem 1.15rem 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background:
-    radial-gradient(ellipse 70% 80% at 0% 0%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 55%),
-    var(--color-bg-card);
-  animation: heroSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.dashboard-enrollment__stage-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.dashboard-enrollment__stage-title {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text);
-}
-
-.dashboard-enrollment__stage-sub {
-  margin: 0.2rem 0 0;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-.dashboard-enrollment__stage-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.dashboard-enrollment__chip {
+.dashboard-enrollment__summary-label {
+  margin-top: 0.35rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  padding: 0.25rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-bg-card) 90%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   color: var(--color-text-muted);
-  animation: badgePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  text-align: center;
 }
 
-.dashboard-enrollment__chip--primary {
-  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
-  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-  color: var(--color-primary);
+.dashboard-enrollment__summary-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.dashboard-enrollment__race {
+.dashboard-enrollment__stat {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.2rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  min-width: 7rem;
+  flex: 1 1 7rem;
 }
 
-.dashboard-enrollment__race-row {
-  display: grid;
-  grid-template-columns: 2rem 2.4rem minmax(5.5rem, 8rem) 1fr auto auto;
-  align-items: center;
-  gap: 0.65rem;
-  width: 100%;
-  padding: 0.55rem 0.65rem;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
-  background: color-mix(in srgb, var(--color-bg-elevated, var(--color-bg-card)) 80%, transparent);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background 0.2s ease;
-  animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+.dashboard-enrollment__stat--accent {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-card));
 }
 
-.dashboard-enrollment__race-row:hover,
-.dashboard-enrollment__race-row--active {
-  transform: translateX(3px);
-  border-color: color-mix(in srgb, var(--grade-accent) 45%, var(--color-border));
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--grade-accent) 16%, transparent);
-  background: color-mix(in srgb, var(--grade-accent) 8%, var(--color-bg-card));
-}
-
-.dashboard-enrollment__race-row--dimmed {
-  opacity: 0.42;
-}
-
-.dashboard-enrollment__race-row--empty {
-  opacity: 0.78;
-  border-style: dashed;
-  border-color: var(--color-border);
-}
-
-.dashboard-enrollment__race-rank {
-  font-size: 0.75rem;
+.dashboard-enrollment__stat strong {
+  font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--color-text-subtle);
-}
-
-.dashboard-enrollment__race-badge {
-  width: 2.35rem;
-  height: 2.35rem;
-  display: grid;
-  place-items: center;
-  border-radius: 0.65rem;
-  font-size: 0.8125rem;
-  font-weight: 800;
-  color: white;
-  background: linear-gradient(145deg, var(--grade-accent), color-mix(in srgb, var(--grade-accent) 70%, #000));
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--grade-accent) 35%, transparent);
-  animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-.dashboard-enrollment__race-row--empty .dashboard-enrollment__race-badge {
-  background: color-mix(in srgb, var(--color-text-subtle) 28%, var(--color-bg-card));
-  color: var(--color-text-muted);
-  box-shadow: none;
-}
-
-.dashboard-enrollment__race-name {
-  font-size: 0.875rem;
-  font-weight: 600;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.dashboard-enrollment__race-track {
-  position: relative;
-  height: 0.7rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-border) 55%, transparent);
-  overflow: visible;
-  min-width: 0;
-}
-
-.dashboard-enrollment__race-fill {
-  display: block;
-  height: 100%;
-  width: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--grade-accent), color-mix(in srgb, var(--grade-accent) 70%, white));
-  box-shadow: 0 0 12px color-mix(in srgb, var(--grade-accent) 40%, transparent);
-  animation: enrollmentRaceGrow 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.dashboard-enrollment__race-float {
-  position: absolute;
-  top: -1.55rem;
-  right: 0;
+.dashboard-enrollment__stat span {
   font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--grade-accent);
-  background: var(--color-bg-card);
-  border: 1px solid color-mix(in srgb, var(--grade-accent) 35%, var(--color-border));
-  border-radius: 999px;
-  padding: 0.1rem 0.45rem;
-  white-space: nowrap;
-  animation: pieCenterFocus 0.28s ease both;
-  pointer-events: none;
+  color: var(--color-text-subtle);
 }
 
-.dashboard-enrollment__race-stats {
-  display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
-  min-width: 4.5rem;
-  justify-content: flex-end;
-}
-
-.dashboard-enrollment__race-count {
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--color-text);
-}
-
-.dashboard-enrollment__race-share {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--grade-accent);
-}
-
-.dashboard-enrollment__race-status {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--grade-accent);
-  background: color-mix(in srgb, var(--grade-accent) 14%, transparent);
-  border-radius: 999px;
-  padding: 0.2rem 0.45rem;
-  white-space: nowrap;
-}
-
-.dashboard-enrollment__race-row--empty .dashboard-enrollment__race-status {
-  color: var(--color-text-muted);
-  background: color-mix(in srgb, var(--color-border) 50%, transparent);
-}
-
-.dashboard-enrollment__focus {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 3rem;
-  padding: 0.7rem 0.85rem;
-  border-radius: var(--radius-md);
-  border: 1px dashed var(--color-border);
-  background: color-mix(in srgb, var(--color-border) 18%, transparent);
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.dashboard-enrollment__focus--live {
-  border-style: solid;
-  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
-  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-card));
-}
-
-.dashboard-enrollment__focus-swatch {
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 10px currentColor;
-}
-
-.dashboard-enrollment__focus-copy {
+.dashboard-enrollment__distribution {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-  flex: 1;
+  gap: 0.65rem;
 }
 
-.dashboard-enrollment__focus-copy strong {
-  font-size: 0.875rem;
-  color: var(--color-text);
-}
-
-.dashboard-enrollment__focus-copy span {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-.dashboard-enrollment__focus-delta {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  white-space: nowrap;
-}
-
-.dashboard-enrollment__focus-idle {
+.dashboard-enrollment__section-title {
   margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-subtle);
+}
+
+.dashboard-enrollment__bar {
+  display: flex;
+  height: 1.5rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-border) 45%, transparent);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-enrollment__bar--empty {
+  align-items: center;
+  justify-content: center;
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
 
-.dashboard-enrollment__cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.85rem;
+.dashboard-enrollment__bar-seg {
+  min-width: 6px;
+  transform-origin: left center;
+  animation: stackGrow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
 }
 
-.dashboard-enrollment__card {
+.dashboard-enrollment__bar-seg:not(:last-child) {
+  border-right: 2px solid var(--color-bg-card);
+}
+
+.dashboard-enrollment__bar-seg--active {
+  filter: brightness(1.08);
+}
+
+.dashboard-enrollment__bar-seg--dimmed {
+  opacity: 0.35;
+}
+
+.dashboard-enrollment__legend {
   display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  padding: 1rem 1.05rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dashboard-enrollment__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.dashboard-enrollment__legend-item--active {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-card));
+}
+
+.dashboard-enrollment__legend-item--dimmed {
+  opacity: 0.45;
+}
+
+.dashboard-enrollment__legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dashboard-enrollment__legend-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.dashboard-enrollment__legend-meta {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.dashboard-enrollment__grades {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.dashboard-enrollment__grade {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-card);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-  animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cardSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.dashboard-enrollment__card:hover,
-.dashboard-enrollment__card--active {
+.dashboard-enrollment__grade:hover,
+.dashboard-enrollment__grade--active {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--grade-accent) 50%, var(--color-border));
-  box-shadow: 0 10px 26px color-mix(in srgb, var(--grade-accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--grade-accent, var(--color-primary)) 45%, var(--color-border));
+  box-shadow: var(--shadow-md);
 }
 
-.dashboard-enrollment__card--dimmed {
+.dashboard-enrollment__grade--dimmed {
   opacity: 0.45;
 }
 
-.dashboard-enrollment__card--empty {
+.dashboard-enrollment__grade--empty {
   border-style: dashed;
-  opacity: 0.8;
+  opacity: 0.78;
 }
 
-.dashboard-enrollment__card-top {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.7rem;
-  align-items: center;
-}
-
-.dashboard-enrollment__card-badge {
+.dashboard-enrollment__grade-badge {
   width: 2.5rem;
   height: 2.5rem;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  border-radius: 0.7rem;
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 800;
   color: white;
-  background: linear-gradient(145deg, var(--grade-accent), color-mix(in srgb, var(--grade-accent) 70%, #000));
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--grade-accent) 35%, transparent);
+  background: linear-gradient(
+    145deg,
+    var(--grade-accent, #6366f1),
+    color-mix(in srgb, var(--grade-accent, #6366f1) 70%, #000)
+  );
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--grade-accent, #6366f1) 35%, transparent);
 }
 
-.dashboard-enrollment__card--empty .dashboard-enrollment__card-badge {
+.dashboard-enrollment__grade--empty .dashboard-enrollment__grade-badge {
   background: color-mix(in srgb, var(--color-text-subtle) 28%, var(--color-bg-card));
   color: var(--color-text-muted);
   box-shadow: none;
 }
 
-.dashboard-enrollment__card-titles h4 {
+.dashboard-enrollment__grade-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dashboard-enrollment__grade-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dashboard-enrollment__grade-name {
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
-.dashboard-enrollment__card-titles p {
-  margin: 0.15rem 0 0;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-.dashboard-enrollment__card-count {
+.dashboard-enrollment__grade-count {
   text-align: right;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
-  color: var(--grade-accent);
+  color: var(--grade-accent, var(--color-primary));
 }
 
-.dashboard-enrollment__card-count span {
+.dashboard-enrollment__grade-count span {
   display: block;
   margin-top: 0.15rem;
   font-size: 0.625rem;
@@ -1460,23 +1336,26 @@
   color: var(--color-text-subtle);
 }
 
-.dashboard-enrollment__card-meter {
+.dashboard-enrollment__grade-track {
   height: 0.45rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-border) 55%, transparent);
+  background: color-mix(in srgb, var(--color-border) 50%, transparent);
   overflow: hidden;
 }
 
-.dashboard-enrollment__card-meter-fill {
-  display: block;
+.dashboard-enrollment__grade-fill {
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--grade-accent), color-mix(in srgb, var(--grade-accent) 75%, white));
-  animation: gradeFillGrow 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  background: linear-gradient(
+    90deg,
+    var(--grade-accent, #6366f1),
+    color-mix(in srgb, var(--grade-accent, #6366f1) 75%, white)
+  );
+  animation: gradeFillGrow 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.dashboard-enrollment__card-foot {
+.dashboard-enrollment__grade-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1485,19 +1364,15 @@
   color: var(--color-text-muted);
 }
 
-.dashboard-enrollment__card-tag {
+.dashboard-enrollment__grade-tag {
   font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
-  color: var(--grade-accent);
-  background: color-mix(in srgb, var(--grade-accent) 14%, transparent);
-}
-
-.dashboard-enrollment__empty-side--animate {
-  animation: chartFadeIn 0.5s ease both;
+  color: var(--grade-accent, var(--color-primary));
+  background: color-mix(in srgb, var(--grade-accent, var(--color-primary)) 14%, transparent);
 }
 
 .dashboard-enrollment__empty-side {
@@ -1591,31 +1466,12 @@
 }
 
 @media (max-width: 960px) {
-  .dashboard-enrollment__kpi-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .dashboard-enrollment__summary {
+    flex-direction: column;
   }
 
-  .dashboard-enrollment__race-row {
-    grid-template-columns: 1.75rem 2.1rem minmax(4.5rem, 1fr) auto;
-    grid-template-areas:
-      'rank badge name status'
-      'track track track track'
-      'stats stats stats stats';
-  }
-
-  .dashboard-enrollment__race-rank { grid-area: rank; }
-  .dashboard-enrollment__race-badge { grid-area: badge; }
-  .dashboard-enrollment__race-name { grid-area: name; }
-  .dashboard-enrollment__race-status { grid-area: status; justify-self: end; }
-  .dashboard-enrollment__race-track { grid-area: track; }
-  .dashboard-enrollment__race-stats { grid-area: stats; justify-content: flex-start; }
-
-  .dashboard-enrollment__focus {
-    flex-wrap: wrap;
-  }
-
-  .dashboard-enrollment__focus-delta {
-    width: 100%;
+  .dashboard-enrollment__summary-stats {
+    grid-template-columns: 1fr;
   }
 
   .dashboard-grid--2,
@@ -1631,6 +1487,12 @@
   .dashboard-donut {
     flex-direction: column;
     align-items: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-enrollment__summary-stats {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1656,17 +1518,9 @@
   .dashboard-gauge__arc,
   .dashboard-bar-chart__row,
   .dashboard-enrollment--animate,
-  .dashboard-enrollment__kpi,
-  .dashboard-enrollment__kpi--accent .dashboard-enrollment__kpi-value,
-  .dashboard-enrollment__stage,
-  .dashboard-enrollment__chip,
-  .dashboard-enrollment__race-row,
-  .dashboard-enrollment__race-badge,
-  .dashboard-enrollment__race-fill,
-  .dashboard-enrollment__race-float,
-  .dashboard-enrollment__card,
-  .dashboard-enrollment__card-meter-fill,
-  .dashboard-enrollment__empty-side--animate {
+  .dashboard-enrollment__bar-seg,
+  .dashboard-enrollment__grade,
+  .dashboard-enrollment__grade-fill {
     animation: none;
     transition: none;
   }
@@ -1675,11 +1529,7 @@
     stroke-dashoffset: 0;
   }
 
-  .dashboard-enrollment__race-fill {
-    width: var(--bar-width, 0%);
-  }
-
-  .dashboard-enrollment__card-meter-fill {
+  .dashboard-enrollment__grade-fill {
     width: var(--fill-pct, 0%);
   }
 
