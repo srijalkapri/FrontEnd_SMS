@@ -34,6 +34,14 @@ export function AuthCardShell({
         isBusy ? ' auth-card--busy' : ''
       }${resolvedStatus === 'success' ? ' auth-card--success' : ''}`}
     >
+      <div className="auth-card__ambient" aria-hidden="true">
+        <span className="auth-card__ambient-orb auth-card__ambient-orb--1" />
+        <span className="auth-card__ambient-orb auth-card__ambient-orb--2" />
+        <span className="auth-card__ambient-orb auth-card__ambient-orb--3" />
+        <span className="auth-card__ambient-grid" />
+        <span className="auth-card__ambient-shine" />
+      </div>
+
       {resolvedStatus === 'loading' && (
         <div className="auth-card__overlay auth-card__overlay--loading" role="status" aria-live="polite">
           <div className="auth-card__loader-ring" aria-hidden="true">
@@ -62,7 +70,9 @@ export function AuthCardShell({
         </div>
       )}
 
+      <div className="auth-card__body">
       {children}
+      </div>
     </div>
   );
 }

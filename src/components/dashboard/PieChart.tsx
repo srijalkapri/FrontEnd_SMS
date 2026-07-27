@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import type { ChartDatum } from '../../utils/dashboardCharts';
-import { buildPieSlices, describePieSlice, lightenColor } from '../../utils/chartGeometry';
+import { buildPieSlices, describePieSlice, lightenColor, polarToCartesian } from '../../utils/chartGeometry';
 import { AnimatedNumber } from './AnimatedNumber';
 import './Dashboard.css';
 
@@ -21,6 +21,7 @@ export function PieChart({
   centerValue,
 }: PieChartProps) {
   const uid = useId().replace(/:/g, '');
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const slices = buildPieSlices(data);
   const total = data.reduce((sum, item) => sum + item.value, 0);
   if (total === 0) return null;
@@ -28,10 +29,12 @@ export function PieChart({
   const cx = size / 2;
   const cy = size / 2;
   const radius = size / 2 - 8;
+  const orbitRadius = radius + 4;
 
   return (
     <div className="dashboard-pie-chart dashboard-pie-chart--animate">
       <div className="dashboard-pie-chart__visual">
+        <span className="dashboard-pie-chart__pulse" aria-hidden="true" />
         <svg
           width={size}
           height={size}
@@ -63,12 +66,43 @@ export function PieChart({
             ))}
           </defs>
 
+          <circle
+            cx={cx}
+            cy={cy}
+            r={orbitRadius}
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth="1"
+            strokeDasharray="3 7"
+            className="dashboard-pie-chart__orbit"
+            opacity="0.45"
+          />
+
           {slices.map((slice, index) => {
             const sliceSpan = slice.endAngle - slice.startAngle;
+            const midAngle = slice.startAngle + sliceSpan / 2;
+            const pop = polarToCartesian(0, 0, activeIndex === index ? 7 : 0, midAngle);
+            const isDimmed = activeIndex !== null && activeIndex !== index;
+
             return (
               <g
                 key={slice.label}
-                transform={`rotate(${slice.startAngle}, ${cx}, ${cy})`}
+                className={[
+                  'dashboard-pie-chart__slice-pop',
+                  activeIndex === index ? 'dashboard-pie-chart__slice-pop--active' : '',
+                  isDimmed ? 'dashboard-pie-chart__slice-pop--dimmed' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                style={
+                  {
+                    '--pop-x': `${pop.x}px`,
+                    '--pop-y': `${pop.y}px`,
+                    '--slice-color': slice.color ?? '#6366f1',
+                  } as CSSProperties
+                }
+                onMouseEnter={() => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(null)}
               >
                 <g
                   className="dashboard-pie-chart__slice-wrap"
@@ -76,9 +110,9 @@ export function PieChart({
                     {
                       transformOrigin: `${cx}px ${cy}px`,
                       animationDelay: `${index * 0.1}s`,
-                      '--slice-color': slice.color ?? '#6366f1',
                     } as CSSProperties
                   }
+                  transform={`rotate(${slice.startAngle}, ${cx}, ${cy})`}
                 >
                   <path
                     d={describePieSlice(cx, cy, radius, 0, sliceSpan)}
@@ -125,8 +159,19 @@ export function PieChart({
         {slices.map((slice, index) => (
           <div
             key={slice.label}
-            className="dashboard-legend-item dashboard-legend-item--pie"
+            className={[
+              'dashboard-legend-item',
+              'dashboard-legend-item--pie',
+              activeIndex === index ? 'dashboard-legend-item--active' : '',
+              activeIndex !== null && activeIndex !== index
+                ? 'dashboard-legend-item--dimmed'
+                : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             style={{ animationDelay: `${0.25 + index * 0.08}s` }}
+            onMouseEnter={() => setActiveIndex(index)}
+            onMouseLeave={() => setActiveIndex(null)}
           >
             <span
               className="dashboard-legend-item__dot dashboard-legend-item__dot--pop"
@@ -152,7 +197,7 @@ export function PieChart({
               />
             </span>
             <span className="dashboard-legend-item__value">
-              {slice.value}
+              <AnimatedNumber value={slice.value} duration={700} />
               <span className="dashboard-legend-item__pct">({slice.percent}%)</span>
             </span>
           </div>

@@ -1,6 +1,14 @@
 .auth-card--animated {
   position: relative;
   overflow: hidden;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.auth-card--animated:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--color-primary) 20%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent) inset;
 }
 
 .auth-card--success {
@@ -13,7 +21,9 @@
 }
 
 .auth-card__overlay--success {
-  background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
+  background: color-mix(in srgb, var(--color-bg-card) 60%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   animation: authOverlayIn 0.3s ease both;
 }
 
