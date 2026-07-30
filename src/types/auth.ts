@@ -36,6 +36,30 @@ export interface RegisterRequest {
   email: string;
 }
 
+export interface AdminCreateStudentRequest {
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+  phoneNo: string;
+  gradeId: number;
+}
+
+export interface AdminCreateTeacherRequest {
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+  phoneNo: string;
+}
+
+export interface AdminCreateAdminRequest {
+  username: string;
+  password: string;
+  fullName: string;
+  email: string;
+}
+
 export interface PendingUser {
   id: number;
   username: string;

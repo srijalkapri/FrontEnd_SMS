@@ -4,6 +4,19 @@
   justify-content: space-between;
   gap: 2rem;
   margin-bottom: 1.75rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  position: relative;
+  isolation: auto;
+  box-shadow: none;
+  transition: none;
+  animation: pageHeaderIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.page-header--framed {
   padding: 1.75rem 2rem;
   background: color-mix(in srgb, var(--color-bg-card) 78%, transparent);
   backdrop-filter: blur(14px);
@@ -11,16 +24,14 @@
   border: 1px solid color-mix(in srgb, var(--color-primary) 22%, var(--color-border));
   border-radius: var(--radius-xl);
   overflow: hidden;
-  position: relative;
   isolation: isolate;
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.06),
     0 0 0 1px color-mix(in srgb, var(--color-primary) 8%, transparent) inset;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
-  animation: pageHeaderIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.page-header::before {
+.page-header--framed::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -41,7 +52,7 @@
   z-index: 0;
 }
 
-.page-header:hover {
+.page-header--framed:hover {
   transform: translateY(-2px);
   box-shadow:
     0 12px 40px rgba(99, 102, 241, 0.12),
@@ -127,7 +138,7 @@
 }
 
 @media (min-width: 1400px) {
-  .page-header {
+  .page-header--framed {
     padding: 1.85rem 2.25rem;
   }
 
@@ -239,7 +250,7 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.page-header:hover .page-header__icon {
+.page-header--framed:hover .page-header__icon {
   transform: scale(1.05);
   box-shadow:
     0 12px 32px var(--color-primary-glow),
@@ -339,6 +350,10 @@
   .page-header {
     flex-direction: column;
     align-items: flex-start;
+    padding: 0;
+  }
+
+  .page-header--framed {
     padding: 1.5rem;
   }
 
@@ -380,7 +395,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-header:hover {
+  .page-header--framed:hover {
     transform: none;
   }
 

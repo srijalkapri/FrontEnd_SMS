@@ -114,6 +114,7 @@ export function TeacherOverviewPage() {
   return (
     <div className="page-content portal-page">
       <PageHeader
+        framed
         badge="Teacher Portal"
         title={overview ? `Welcome, ${overview.profile.name}` : 'Teacher Dashboard'}
         description="Monitor your classes, exam marking progress, and re-exam workload."

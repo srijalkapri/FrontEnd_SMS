@@ -1,15 +1,13 @@
 @import './styles/animations.css';
 
-/* Glass surfaces — ambient background shows through */
+/* Surface cards — solid fills so overlays don't create dark glass slabs */
 .grade-table-section,
 .dashboard-chart-card,
 .dashboard-kpi,
 .home-stat-card,
 .home-link-card,
 .portal-stat-card {
-  background: color-mix(in srgb, var(--color-bg-card) 86%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--color-bg-card);
 }
 
 *,
@@ -173,7 +171,6 @@ h6,
 .card__title,
 .page-header__title,
 .sidebar__title,
-.form-modal__title,
 .modal__title,
 .home-section__title,
 .home-link-card__title,

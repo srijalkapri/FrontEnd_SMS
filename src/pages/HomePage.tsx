@@ -118,6 +118,7 @@ export function HomePage() {
   return (
     <div className="page-content home-page">
       <PageHeader
+        framed
         badge="Live overview"
         title="School Management"
         titleAccent="Portal"

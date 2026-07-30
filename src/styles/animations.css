@@ -21,11 +21,9 @@
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -313,16 +311,16 @@ select.form-input {
 .form-input:focus,
 .search-input__field:focus,
 select.form-input:focus {
-  transform: translateY(-1px);
+  outline: none;
 }
 
 /* ── Modals ── */
 .form-modal-overlay {
-  animation: overlayIn 0.28s ease both !important;
+  animation: overlayIn 0.2s ease both !important;
 }
 
 .form-modal {
-  animation: modalPopIn 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+  animation: modalPopIn 0.22s ease-out both !important;
 }
 
 @keyframes overlayIn {
@@ -333,11 +331,11 @@ select.form-input:focus {
 @keyframes modalPopIn {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.94);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 

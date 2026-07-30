@@ -63,27 +63,12 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.875rem 1.25rem;
-    background: var(--color-bg-elevated);
-    border-bottom: 1px solid var(--color-border);
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
     position: sticky;
     top: 0;
     z-index: 150;
-  }
-
-  .mobile-topbar__theme {
-    margin-left: auto;
-    width: auto;
-  }
-
-  .mobile-topbar__theme .theme-toggle {
-    width: auto;
-    margin-bottom: 0;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .mobile-topbar__theme .theme-toggle__label {
-    display: none;
   }
 
   .mobile-topbar__menu {
@@ -94,7 +79,9 @@
     height: 2.25rem;
     border-radius: var(--radius-sm);
     color: var(--color-text);
-    background: var(--color-bg-hover);
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 16%, var(--color-border));
+    cursor: pointer;
   }
 
   .mobile-topbar__menu svg {
@@ -126,6 +113,6 @@
   }
 
   .mobile-topbar {
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 1rem;
   }
 }

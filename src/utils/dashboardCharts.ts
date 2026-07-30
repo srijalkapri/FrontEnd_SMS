@@ -188,3 +188,49 @@ export function buildEnrollmentByGrade(
 
   return data;
 }
+
+/** Build subject × exam grouped bars from published student exam schedules. */
+export function buildSubjectExamComparison(
+  exams: Array<{
+    examTitle: string;
+    subjects: Array<{
+      subjectName: string;
+      marksObtained: number | null;
+      totalMarks: number;
+      isAbsent: boolean;
+    }>;
+  }>,
+  options?: { maxExams?: number },
+): {
+  categories: string[];
+  series: Array<{ name: string; color: string; values: (number | null)[] }>;
+} {
+  const maxExams = options?.maxExams ?? 3;
+  const selected = [...exams].slice(0, maxExams).reverse();
+
+  const subjectSet = new Set<string>();
+  for (const exam of selected) {
+    for (const subject of exam.subjects) {
+      if (subject.subjectName) subjectSet.add(subject.subjectName);
+    }
+  }
+
+  const categories = Array.from(subjectSet).sort((a, b) => a.localeCompare(b));
+
+  const series = selected.map((exam, index) => {
+    const bySubject = new Map(
+      exam.subjects.map((subject) => [
+        subject.subjectName,
+        subjectScorePercent(subject.marksObtained, subject.totalMarks, subject.isAbsent),
+      ]),
+    );
+
+    return {
+      name: exam.examTitle,
+      color: CHART_PALETTE[index % CHART_PALETTE.length],
+      values: categories.map((subject) => bySubject.get(subject) ?? null),
+    };
+  });
+
+  return { categories, series };
+}

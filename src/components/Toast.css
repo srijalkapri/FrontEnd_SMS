@@ -1,10 +1,11 @@
 .toast-container {
   position: fixed;
-  top: 1.25rem;
   right: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  top: auto;
   z-index: 1100;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 0.75rem;
   width: min(100% - 2rem, 380px);
   pointer-events: none;
@@ -143,10 +144,12 @@
 
 @keyframes toastEnter {
   from {
-    transform: translateY(-12px) scale(0.96);
+    transform: translateY(12px) scale(0.96);
+    opacity: 0;
   }
   to {
     transform: translateY(0) scale(1);
+    opacity: 1;
   }
 }
 
@@ -171,7 +174,7 @@
 @keyframes toastExit {
   to {
     opacity: 0;
-    transform: translateY(-8px) scale(0.96);
+    transform: translateY(10px) scale(0.96);
   }
 }
 
@@ -186,11 +189,10 @@
 
 @media (max-width: 768px) {
   .toast-container {
-    top: auto;
-    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     left: 1rem;
     right: 1rem;
     width: auto;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 
   .toast {
@@ -202,34 +204,14 @@
   }
 }
 
-@media (min-width: 769px) {
-  .toast-container {
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast--exit,
+  .toast__progress {
     animation: none;
   }
 
   .toast {
-    animation:
-      toastEnterDesktop 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      toastLifetimeOpacity var(--toast-duration, 4500ms) linear forwards;
-  }
-
-  .toast--exit {
-    animation: toastExitDesktop 0.25s ease-in forwards;
-  }
-}
-
-@keyframes toastEnterDesktop {
-  from {
-    transform: translateX(16px);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes toastExitDesktop {
-  to {
-    opacity: 0;
-    transform: translateX(16px);
+    opacity: 1;
   }
 }

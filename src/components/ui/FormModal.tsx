@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import './FormModal.css';
 
 interface FormModalProps {
@@ -20,7 +21,7 @@ export function FormModal({
 }: FormModalProps) {
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="form-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
       <div
         className={`form-modal form-modal--${size}`}
@@ -48,6 +49,7 @@ export function FormModal({
         </div>
         <div className="form-modal__body">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

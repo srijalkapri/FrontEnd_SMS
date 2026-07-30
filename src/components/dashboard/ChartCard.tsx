@@ -4,7 +4,8 @@ import './Dashboard.css';
 
 interface ChartCardProps {
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
+  headerExtra?: ReactNode;
   linkTo?: string;
   linkLabel?: string;
   empty?: boolean;
@@ -16,6 +17,7 @@ interface ChartCardProps {
 export function ChartCard({
   title,
   subtitle,
+  headerExtra,
   linkTo,
   linkLabel = 'View all',
   empty = false,
@@ -26,9 +28,10 @@ export function ChartCard({
   return (
     <section className="card dashboard-chart-card">
       <div className="dashboard-chart-card__header">
-        <div>
+        <div className="dashboard-chart-card__heading">
           <h2 className="dashboard-chart-card__title">{title}</h2>
-          {subtitle && <p className="dashboard-chart-card__subtitle">{subtitle}</p>}
+          {subtitle && <div className="dashboard-chart-card__subtitle">{subtitle}</div>}
+          {headerExtra}
         </div>
         {linkTo && !empty && (
           <Link to={linkTo} className="dashboard-chart-card__link">

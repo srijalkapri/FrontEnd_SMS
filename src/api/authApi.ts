@@ -1,4 +1,7 @@
 import type {
+  AdminCreateAdminRequest,
+  AdminCreateStudentRequest,
+  AdminCreateTeacherRequest,
   ApproveUserRequest,
   AuthUser,
   LoginRequest,
@@ -50,5 +53,23 @@ export const authApi = {
   rejectUser: (userId: number) =>
     request<null>(`${BASE_URL}/Reject/${userId}`, {
       method: 'POST',
+    }),
+
+  adminCreateStudent: (data: AdminCreateStudentRequest) =>
+    request<null>(`${BASE_URL}/AdminCreateStudent`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  adminCreateTeacher: (data: AdminCreateTeacherRequest) =>
+    request<null>(`${BASE_URL}/AdminCreateTeacher`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  adminCreateAdmin: (data: AdminCreateAdminRequest) =>
+    request<null>(`${BASE_URL}/AdminCreateAdmin`, {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
 };

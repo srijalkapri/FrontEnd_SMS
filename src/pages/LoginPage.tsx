@@ -6,6 +6,7 @@ import { PasswordInput } from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
 import { sleep } from '../context/SessionOverlayContext';
 import { useToast } from '../context/ToastContext';
+import { useTopProgress } from '../context/TopProgressContext';
 import { runWithSlowNotice, withTimeout } from '../utils/asyncRequest';
 import { getHomeRouteForRole, isPathAllowedForRole, parseUserRole } from '../utils/roles';
 import './AuthPages.css';
@@ -13,6 +14,7 @@ import './AuthPages.css';
 export function LoginPage() {
   const { login, isAuthenticated, isLoading, user } = useAuth();
   const { showToast } = useToast();
+  const { start: startProgress, done: doneProgress } = useTopProgress();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
@@ -53,6 +55,7 @@ export function LoginPage() {
     setStatus('loading');
     setSlowNotice(false);
     slowToastShown.current = false;
+    startProgress();
 
     try {
       const loggedInUser = await runWithSlowNotice(
@@ -77,12 +80,14 @@ export function LoginPage() {
           `Signed in, but role "${loggedInUser.role || 'unknown'}" is not supported.`,
         );
         setStatus('idle');
+        doneProgress();
         return;
       }
 
       setStatus('success');
       showToast('success', 'Login successful.');
       await sleep(1100);
+      doneProgress();
       navigate(destination, { replace: true });
     } catch (error) {
       const message =
@@ -90,6 +95,7 @@ export function LoginPage() {
       showToast('error', message);
       setStatus('idle');
       setSlowNotice(false);
+      doneProgress();
     }
   }
 

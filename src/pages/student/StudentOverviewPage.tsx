@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { studentPortalApi } from '../../api/studentPortalApi';
 import { ChartCard } from '../../components/dashboard/ChartCard';
 import { DashboardKpi } from '../../components/dashboard/DashboardKpi';
-import { LineChart } from '../../components/dashboard/LineChart';
 import { PieChart } from '../../components/dashboard/PieChart';
 import { RadialGauge } from '../../components/dashboard/RadialGauge';
 import { VerticalBarChart } from '../../components/dashboard/VerticalBarChart';
@@ -15,7 +14,6 @@ import type { StudentPortalOverview } from '../../types/studentPortal';
 import {
   groupByFieldWithDetails,
   subjectScorePercent,
-  truncateLabel,
   withChartColors,
 } from '../../utils/dashboardCharts';
 import { getReExamStatusLabel } from '../../utils/reExamStatus';
@@ -30,6 +28,8 @@ export function StudentOverviewPage() {
   const [reExams, setReExams] = useState<ReExamRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [selectedExamScheduleId, setSelectedExamScheduleId] = useState<number | null>(null);
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
@@ -56,15 +56,30 @@ export function StudentOverviewPage() {
     fetchDashboard();
   }, [fetchDashboard]);
 
+  useEffect(() => {
+    if (results.length === 0) {
+      setSelectedExamScheduleId(null);
+      return;
+    }
+
+    setSelectedExamScheduleId((current) =>
+      current != null && results.some((exam) => exam.examScheduleId === current)
+        ? current
+        : results[0].examScheduleId,
+    );
+  }, [results]);
+
   const latestExam = results[0] ?? null;
+  const selectedExam =
+    results.find((exam) => exam.examScheduleId === selectedExamScheduleId) ?? latestExam;
   const activeReExams = reExams.filter(
     (item) => !['MarksApproved', 'Rejected', 'MarksRejected'].includes(item.status),
   );
 
   const subjectChartData = useMemo(() => {
-    if (!latestExam) return [];
+    if (!selectedExam) return [];
     return withChartColors(
-      latestExam.subjects
+      selectedExam.subjects
         .map((subject) => {
           const percent = subjectScorePercent(
             subject.marksObtained,
@@ -72,13 +87,13 @@ export function StudentOverviewPage() {
             subject.isAbsent,
           );
           if (percent == null) return null;
-          return { label: truncateLabel(subject.subjectName, 10), value: percent };
+          return { label: subject.subjectName, value: percent };
         })
         .filter((item): item is { label: string; value: number } => item != null),
     );
-  }, [latestExam]);
+  }, [selectedExam]);
 
-  const trendChartData = useMemo(
+  const examComparisonData = useMemo(
     () =>
       withChartColors(
         [...results]
@@ -107,6 +122,7 @@ export function StudentOverviewPage() {
   return (
     <div className="page-content portal-page">
       <PageHeader
+        framed
         badge="Student Portal"
         title={overview ? `Welcome, ${overview.profile.name}` : 'Student Dashboard'}
         description="Track your academic progress, exam performance, and re-exam requests."
@@ -190,10 +206,25 @@ export function StudentOverviewPage() {
       <section className="dashboard-grid dashboard-grid--2">
         <ChartCard
           title="Subject performance"
-          subtitle={
-            latestExam
-              ? `${latestExam.examTitle} — score by subject`
-              : 'Your latest published exam breakdown'
+          subtitle="Score by subject for the selected exam"
+          headerExtra={
+            results.length > 0 ? (
+              <label className="dashboard-chart-card__exam-picker">
+                <select
+                  className="dashboard-chart-card__select"
+                  value={selectedExamScheduleId ?? ''}
+                  onChange={(event) => setSelectedExamScheduleId(Number(event.target.value))}
+                  aria-label="Select exam for subject performance"
+                >
+                  {results.map((exam) => (
+                    <option key={exam.examScheduleId} value={exam.examScheduleId}>
+                      {exam.examTitle}
+                      {exam.academicYear ? ` (${exam.academicYear})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null
           }
           linkTo="/student/results"
           linkLabel="View results"
@@ -209,14 +240,18 @@ export function StudentOverviewPage() {
         </ChartCard>
 
         <ChartCard
-          title="Exam score trend"
-          subtitle="Overall percentage across published exams"
+          title="Exam comparison"
+          subtitle="Overall percentage for each published exam"
           linkTo="/student/results"
-          empty={!loading && trendChartData.length === 0}
+          empty={!loading && examComparisonData.length === 0}
           emptyMessage="No exam history yet"
           emptyHint="Complete exams and wait for results to be published."
         >
-          <LineChart data={trendChartData} />
+          <VerticalBarChart
+            data={examComparisonData}
+            mode="percent"
+            maxValue={100}
+          />
         </ChartCard>
       </section>
 

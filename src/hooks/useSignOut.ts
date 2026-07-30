@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sleep, useSessionOverlay } from '../context/SessionOverlayContext';
 import { useToast } from '../context/ToastContext';
+import { useTopProgress } from '../context/TopProgressContext';
 import { runWithSlowNotice, withTimeout } from '../utils/asyncRequest';
 
 export function useSignOut(onNavigate?: () => void) {
   const { logout } = useAuth();
   const { showToast } = useToast();
   const { showLogout, hide } = useSessionOverlay();
+  const { start: startProgress, done: doneProgress } = useTopProgress();
   const navigate = useNavigate();
   const [signingOut, setSigningOut] = useState(false);
   const slowToastShown = useRef(false);
@@ -23,6 +25,7 @@ export function useSignOut(onNavigate?: () => void) {
     setSigningOut(true);
     slowToastShown.current = false;
     showLogout('Signing you out…');
+    startProgress();
 
     try {
       await runWithSlowNotice(withTimeout(logout()), () => {
@@ -35,6 +38,7 @@ export function useSignOut(onNavigate?: () => void) {
       showToast('success', 'Signed out successfully.');
       await sleep(850);
       onNavigate?.();
+      doneProgress();
       navigate('/login', { replace: true });
       await sleep(200);
     } catch (error) {
@@ -43,12 +47,13 @@ export function useSignOut(onNavigate?: () => void) {
       showToast('error', message);
       inFlight.current = false;
       setSigningOut(false);
+      doneProgress();
     } finally {
       hide();
       inFlight.current = false;
       setSigningOut(false);
     }
-  }, [logout, navigate, onNavigate, showToast, showLogout, hide]);
+  }, [logout, navigate, onNavigate, showToast, showLogout, hide, startProgress, doneProgress]);
 
   return { signOut, signingOut };
 }

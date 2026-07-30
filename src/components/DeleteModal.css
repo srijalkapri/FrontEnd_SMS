@@ -1,14 +1,20 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 500;
   padding: 1rem;
   animation: fadeIn 0.2s ease-out;
+}
+
+[data-mode='dark'] .modal-overlay,
+[data-theme='dark'] .modal-overlay {
+  background: rgba(15, 23, 42, 0.35);
 }
 
 .modal {

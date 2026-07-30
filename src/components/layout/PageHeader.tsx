@@ -24,6 +24,7 @@ interface PageHeaderProps {
   icon?: SectionIconName;
   stats?: PageHeaderStat[];
   hideIcon?: boolean;
+  framed?: boolean;
 }
 
 export function PageHeader({
@@ -35,6 +36,7 @@ export function PageHeader({
   icon,
   stats,
   hideIcon = false,
+  framed = false,
 }: PageHeaderProps) {
   const resolvedIcon = icon ?? resolveSectionIcon(title, badge);
   const split = titleAccent
@@ -42,7 +44,7 @@ export function PageHeader({
     : splitSectionTitle(title);
 
   return (
-    <section className="page-header">
+    <section className={`page-header${framed ? ' page-header--framed' : ''}`}>
       <div className="page-header__content">
         {badge && (
           <span className="page-header__badge">

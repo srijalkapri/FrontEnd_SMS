@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import './DeleteModal.css';
 
 interface ConfirmDeleteModalProps {
@@ -24,7 +25,7 @@ export function ConfirmDeleteModal({
 }: ConfirmDeleteModalProps) {
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true">
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal__icon">
@@ -58,6 +59,7 @@ export function ConfirmDeleteModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

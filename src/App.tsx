@@ -10,6 +10,7 @@ import { SessionOverlayProvider } from './context/SessionOverlayContext';
 import { AppearancePage } from './pages/AppearancePage';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
+import { TopProgressProvider } from './context/TopProgressContext';
 import { ExamScheduleDetailPage } from './pages/ExamScheduleDetailPage';
 import { ExamSchedulesPage } from './pages/ExamSchedulesPage';
 import { GradeCurriculumPage } from './pages/GradeCurriculumPage';
@@ -25,6 +26,7 @@ import { ReExamDetailPage } from './pages/ReExamDetailPage';
 import { ExamResultsLookupPage } from './pages/ExamResultsLookupPage';
 import { ResultApprovalDetailPage } from './pages/ResultApprovalDetailPage';
 import { ResultApprovalsPage } from './pages/ResultApprovalsPage';
+import { AdminCreateUsersPage } from './pages/AdminCreateUsersPage';
 import { StudentReportPage } from './pages/StudentReportPage';
 import { StudentReExamsPage } from './pages/student/StudentReExamsPage';
 import { StudentResultsPage } from './pages/student/StudentResultsPage';
@@ -53,6 +55,7 @@ function App() {
     <ThemeProvider>
       <AmbientBackground />
       <ToastProvider>
+        <TopProgressProvider>
         <AuthProvider>
           <SessionOverlayProvider>
           <Routes>
@@ -83,6 +86,7 @@ function App() {
                   <Route path="/reports/teachers" element={<TeacherReportPage />} />
                   <Route path="/settings/appearance" element={<AppearancePage />} />
                   <Route path="/admin/pending-users" element={<PendingUsersPage />} />
+                  <Route path="/admin/create-users" element={<AdminCreateUsersPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>
               </Route>
@@ -120,6 +124,7 @@ function App() {
           </Routes>
           </SessionOverlayProvider>
         </AuthProvider>
+        </TopProgressProvider>
       </ToastProvider>
     </ThemeProvider>
   );
