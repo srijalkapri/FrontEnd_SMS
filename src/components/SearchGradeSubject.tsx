@@ -2,6 +2,8 @@ import { FormEvent, useState } from 'react';
 import type { Grade } from '../types/grade';
 import type { GradeSubject } from '../types/gradeSubject';
 import { getSubjectTypeLabel } from '../utils/subjectType';
+import { SearchFoundPanel } from './ui/SearchFoundPanel';
+import { TableScrollWrapper } from './ui/TableScrollWrapper';
 import './SearchGrade.css';
 import './SearchGradeSubject.css';
 
@@ -23,6 +25,7 @@ export function SearchGradeSubject({
   const [gradeId, setGradeId] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [result, setResult] = useState<GradeSubject | null>(null);
+  const [gradeResults, setGradeResults] = useState<GradeSubject[]>([]);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState('');
 
@@ -39,6 +42,7 @@ export function SearchGradeSubject({
     : gradesFromMappings;
 
   const parsedGradeId = parseInt(gradeId, 10);
+  const selectedGrade = grades.find((grade) => grade.id === parsedGradeId);
   const subjectsForGrade = items.filter(
     (item) => !isNaN(parsedGradeId) && item.gradeId === parsedGradeId,
   );
@@ -51,17 +55,33 @@ export function SearchGradeSubject({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!selected) {
-      setError('Please select a grade and grade subject.');
+    if (!gradeId || isNaN(parsedGradeId)) {
+      setError('Please select a grade.');
       setResult(null);
+      setGradeResults([]);
       setSearched(false);
       return;
     }
 
     setError('');
     setSearched(true);
-    const item = await onSearch(selected.id);
-    setResult(item);
+
+    // Optional subject: return that single mapping.
+    if (subjectId) {
+      if (!selected) {
+        setResult(null);
+        setGradeResults([]);
+        return;
+      }
+      const item = await onSearch(selected.id);
+      setResult(item);
+      setGradeResults([]);
+      return;
+    }
+
+    // Grade only: list every subject mapped to that grade.
+    setResult(null);
+    setGradeResults(subjectsForGrade);
   };
 
   const searchForm = (
@@ -83,6 +103,8 @@ export function SearchGradeSubject({
               setSubjectId('');
               if (error) setError('');
               setSearched(false);
+              setResult(null);
+              setGradeResults([]);
             }}
             disabled={loading || grades.length === 0}
           >
@@ -103,20 +125,22 @@ export function SearchGradeSubject({
             htmlFor={embedded ? 'searchSubjectIdModal' : 'searchSubjectId'}
             className="form-label"
           >
-            Grade Subject
+            Grade subject <span className="form-label__optional">(optional)</span>
           </label>
           <select
             id={embedded ? 'searchSubjectIdModal' : 'searchSubjectId'}
-            className={`form-input ${error && gradeId && !subjectId ? 'form-input--error' : ''}`}
+            className="form-input"
             value={subjectId}
             onChange={(e) => {
               setSubjectId(e.target.value);
               if (error) setError('');
               setSearched(false);
+              setResult(null);
+              setGradeResults([]);
             }}
             disabled={loading || !gradeId || subjectsForGrade.length === 0}
           >
-            <option value="">Select a subject...</option>
+            <option value="">All subjects for this grade</option>
             {subjectsForGrade.map((item) => (
               <option key={item.id} value={item.subjectId}>
                 {item.subjectName}
@@ -166,52 +190,111 @@ export function SearchGradeSubject({
     </form>
   );
 
-  const resultBlock = searched && !loading && (
-    <div className="search-result">
-      {result ? (
-        <div className="search-result__card search-result__card--stacked">
-          <div className="search-result__badge">Found</div>
-          <div className="search-result__details search-result__details--grid">
-            <div className="search-result__field">
-              <span className="search-result__label">Grade</span>
-              <span className="search-result__value">{result.gradeName}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Subject</span>
-              <span className="search-result__value">{result.subjectName}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Subject Type</span>
-              <span
-                className={`teacher-tag ${result.isOptional ? 'teacher-tag--optional' : 'teacher-tag--compulsory'}`}
-              >
-                {getSubjectTypeLabel(result.isOptional)}
+  const singleResultPanel = result ? (
+    <SearchFoundPanel
+      fields={[
+        { label: 'Grade', value: result.gradeName },
+        { label: 'Subject', value: result.subjectName },
+        {
+          label: 'Subject type',
+          value: (
+            <span
+              className={`search-found-tag ${result.isOptional ? 'search-found-tag--warn' : 'search-found-tag--accent'}`}
+            >
+              {getSubjectTypeLabel(result.isOptional)}
+            </span>
+          ),
+        },
+        {
+          label: 'Teachers',
+          fullWidth: true,
+          value:
+            result.teachers.length > 0 ? (
+              <span className="search-found-tags">
+                {result.teachers.map((teacher) => (
+                  <span key={teacher.id} className="search-found-tag">
+                    {teacher.name}
+                  </span>
+                ))}
               </span>
-            </div>
-            <div className="search-result__field search-result__field--full">
-              <span className="search-result__label">Teachers</span>
-              <div className="teacher-tags">
-                {result.teachers.length > 0 ? (
-                  result.teachers.map((teacher) => (
-                    <span key={teacher.id} className="teacher-tag">
-                      {teacher.name}
+            ) : (
+              <span className="search-found__muted">No teachers assigned</span>
+            ),
+        },
+      ]}
+    />
+  ) : null;
+
+  const gradeListPanel =
+    !subjectId && gradeResults.length > 0 ? (
+      <SearchFoundPanel
+        title="Search found"
+        fields={[
+          { label: 'Grade', value: selectedGrade?.name ?? gradeResults[0]?.gradeName ?? '—' },
+          {
+            label: 'Subjects',
+            value: `${gradeResults.length} mapped subject${gradeResults.length === 1 ? '' : 's'}`,
+          },
+        ]}
+      >
+        <span className="search-found__extra-label">Subjects for this grade</span>
+        <TableScrollWrapper>
+          <table className="grade-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Type</th>
+                <th>Teachers</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gradeResults.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.subjectName}</td>
+                  <td>
+                    <span
+                      className={`teacher-tag ${item.isOptional ? 'teacher-tag--optional' : 'teacher-tag--compulsory'}`}
+                    >
+                      {getSubjectTypeLabel(item.isOptional)}
                     </span>
-                  ))
-                ) : (
-                  <span className="search-result__muted">No teachers assigned</span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="search-result__empty">
-          No mapping found
-          {selected ? ` for ${selected.gradeName} — ${selected.subjectName}` : ''}.
-        </div>
-      )}
-    </div>
-  );
+                  </td>
+                  <td>
+                    {item.teachers.length > 0 ? (
+                      <div className="teacher-tags">
+                        {item.teachers.map((teacher) => (
+                          <span key={teacher.id} className="teacher-tag">
+                            {teacher.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="search-found__muted">No teachers assigned</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </TableScrollWrapper>
+      </SearchFoundPanel>
+    ) : null;
+
+  const emptyPanel =
+    searched &&
+    !loading &&
+    !result &&
+    gradeResults.length === 0 ? (
+      <SearchFoundPanel
+        status="empty"
+        emptyMessage={
+          subjectId
+            ? `No mapping found${selected ? ` for ${selected.gradeName} — ${selected.subjectName}` : ''}.`
+            : `No subjects mapped${selectedGrade ? ` to ${selectedGrade.name}` : ' to this grade'}.`
+        }
+      />
+    ) : null;
+
+  const resultBlock = searched && !loading && (singleResultPanel || gradeListPanel || emptyPanel);
 
   if (embedded) {
     return (
@@ -227,7 +310,9 @@ export function SearchGradeSubject({
       <div className="card__header">
         <div>
           <h2 className="card__title">Find Grade Subject</h2>
-          <p className="card__subtitle">Look up a specific grade-subject mapping</p>
+          <p className="card__subtitle">
+            Select a grade to list subjects, or pick a subject for one mapping
+          </p>
         </div>
       </div>
       {searchForm}

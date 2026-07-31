@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import type { Subject } from '../types/subject';
+import { SearchFoundPanel } from './ui/SearchFoundPanel';
 import './SearchGrade.css';
 
 interface SearchSubjectProps {
@@ -108,27 +109,19 @@ export function SearchSubject({
   );
 
   const resultBlock = searched && !loading && (
-    <div className="search-result">
-      {result ? (
-        <div className="search-result__card">
-          <div className="search-result__badge">Found</div>
-          <div className="search-result__details">
-            <div className="search-result__field">
-              <span className="search-result__label">ID</span>
-              <span className="grade-id">#{result.id}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Subject Name</span>
-              <span className="search-result__value">{result.name}</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="search-result__empty">
-          No subject found{selectedName ? ` for ${selectedName}` : ''}.
-        </div>
-      )}
-    </div>
+    result ? (
+      <SearchFoundPanel
+        fields={[
+          { label: 'ID', value: <span className="grade-id">#{result.id}</span> },
+          { label: 'Subject name', value: result.name },
+        ]}
+      />
+    ) : (
+      <SearchFoundPanel
+        status="empty"
+        emptyMessage={`No subject found${selectedName ? ` for ${selectedName}` : ''}.`}
+      />
+    )
   );
 
   if (embedded) {

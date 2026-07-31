@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import type { Teacher, TeacherDetails } from '../types/teacher';
 import { getSubjectTypeLabel } from '../utils/subjectType';
 import './SearchGrade.css';
+import { SearchFoundPanel } from './ui/SearchFoundPanel';
 import { TableScrollWrapper } from './ui/TableScrollWrapper';
 import './SearchGradeSubject.css';
 
@@ -190,104 +191,86 @@ export function SearchTeacher({
   );
 
   const basicResultBlock = searchedBasic && !loading && (
-    <div className="search-result">
-      {basicResult ? (
-        <div className="search-result__card">
-          <div className="search-result__badge">Found</div>
-          <div className="search-result__details">
-            <div className="search-result__field">
-              <span className="search-result__label">ID</span>
-              <span className="grade-id">#{basicResult.id}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Teacher Name</span>
-              <span className="search-result__value">{basicResult.name}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Phone</span>
-              <span className="search-result__value">{basicResult.phoneNo}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Email</span>
+    basicResult ? (
+      <SearchFoundPanel
+        fields={[
+          { label: 'ID', value: <span className="grade-id">#{basicResult.id}</span> },
+          { label: 'Teacher name', value: basicResult.name },
+          { label: 'Phone', value: basicResult.phoneNo },
+          {
+            label: 'Email',
+            value: (
               <a className="contact-link" href={`mailto:${basicResult.email}`}>
                 {basicResult.email}
               </a>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="search-result__empty">
-          No teacher found{selectedName ? ` for ${selectedName}` : ''}.
-        </div>
-      )}
-    </div>
+            ),
+          },
+        ]}
+      />
+    ) : (
+      <SearchFoundPanel
+        status="empty"
+        emptyMessage={`No teacher found${selectedName ? ` for ${selectedName}` : ''}.`}
+      />
+    )
   );
 
   const detailsResultBlock = searchedDetails && !detailsLoading && (
-    <div className="search-result">
-      {detailsResult ? (
-        <div className="search-result__card search-result__card--stacked">
-          <div className="search-result__badge">Details</div>
-          <div className="search-result__details search-result__details--grid">
-            <div className="search-result__field">
-              <span className="search-result__label">ID</span>
-              <span className="grade-id">#{detailsResult.id}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Teacher Name</span>
-              <span className="search-result__value">{detailsResult.name}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Phone</span>
-              <span className="search-result__value">{detailsResult.phoneNo}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Email</span>
+    detailsResult ? (
+      <SearchFoundPanel
+        status="details"
+        fields={[
+          { label: 'ID', value: <span className="grade-id">#{detailsResult.id}</span> },
+          { label: 'Teacher name', value: detailsResult.name },
+          { label: 'Phone', value: detailsResult.phoneNo },
+          {
+            label: 'Email',
+            value: (
               <a className="contact-link" href={`mailto:${detailsResult.email}`}>
                 {detailsResult.email}
               </a>
-            </div>
-            <div className="search-result__field search-result__field--full">
-              <span className="search-result__label">Assigned Grade Subjects</span>
-              {detailsResult.assignedGradeSubjectTeachers.length > 0 ? (
-                <TableScrollWrapper>
-                  <table className="grade-table">
-                    <thead>
-                      <tr>
-                        <th>Grade</th>
-                        <th>Subject</th>
-                        <th>Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detailsResult.assignedGradeSubjectTeachers.map((assignment) => (
-                        <tr key={assignment.id}>
-                          <td>{assignment.gradeName}</td>
-                          <td>{assignment.subjectName}</td>
-                          <td>
-                            <span
-                              className={`teacher-tag ${assignment.isOptional ? 'teacher-tag--optional' : 'teacher-tag--compulsory'}`}
-                            >
-                              {getSubjectTypeLabel(assignment.isOptional)}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-</TableScrollWrapper>
-              ) : (
-                <span className="search-result__muted">No grade subjects assigned</span>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="search-result__empty">
-          No teacher found{selectedName ? ` for ${selectedName}` : ''}.
-        </div>
-      )}
-    </div>
+            ),
+          },
+        ]}
+      >
+        <span className="search-found__extra-label">Assigned grade subjects</span>
+        {detailsResult.assignedGradeSubjectTeachers.length > 0 ? (
+          <TableScrollWrapper>
+            <table className="grade-table">
+              <thead>
+                <tr>
+                  <th>Grade</th>
+                  <th>Subject</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detailsResult.assignedGradeSubjectTeachers.map((assignment) => (
+                  <tr key={assignment.id}>
+                    <td>{assignment.gradeName}</td>
+                    <td>{assignment.subjectName}</td>
+                    <td>
+                      <span
+                        className={`teacher-tag ${assignment.isOptional ? 'teacher-tag--optional' : 'teacher-tag--compulsory'}`}
+                      >
+                        {getSubjectTypeLabel(assignment.isOptional)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScrollWrapper>
+        ) : (
+          <span className="search-found__muted">No grade subjects assigned</span>
+        )}
+      </SearchFoundPanel>
+    ) : (
+      <SearchFoundPanel
+        status="empty"
+        emptyMessage={`No teacher found${selectedName ? ` for ${selectedName}` : ''}.`}
+      />
+    )
   );
 
   if (embedded) {

@@ -10,12 +10,37 @@ import { DashboardKpi } from '../components/dashboard/DashboardKpi';
 import { EnrollmentChart } from '../components/dashboard/EnrollmentChart';
 import { PieChart } from '../components/dashboard/PieChart';
 import { PageHeader } from '../components/layout/PageHeader';
-import { useAdminPendingCounts } from '../hooks/useAdminPendingCounts';
+import { useAdminPendingCounts, useAdminPendingLists } from '../hooks/useAdminPendingCounts';
+import type { PendingUser } from '../types/auth';
+import type { AdminPendingExamResult } from '../types/examResult';
 import type { Grade } from '../types/grade';
+import type { ReExamRequest } from '../types/reExam';
 import type { Student } from '../types/student';
 import { buildEnrollmentByGrade, withChartColors } from '../utils/dashboardCharts';
 import '../components/dashboard/Dashboard.css';
 import './HomePage.css';
+
+const PENDING_DETAIL_LIMIT = 8;
+
+function formatPendingUserDetail(user: PendingUser): string {
+  const name = user.fullName?.trim() || user.username;
+  return user.username && user.username !== name ? `${name} (${user.username})` : name;
+}
+
+function formatResultApprovalDetail(item: AdminPendingExamResult): string {
+  return `${item.subjectName} · ${item.gradeName} · ${item.teacherName}`;
+}
+
+function formatReExamDetail(item: ReExamRequest): string {
+  return `${item.studentName} · ${item.subjectName} (${item.examTitle})`;
+}
+
+function takeDetails(items: string[]): string[] {
+  if (items.length <= PENDING_DETAIL_LIMIT) return items;
+  const visible = items.slice(0, PENDING_DETAIL_LIMIT);
+  visible.push(`+${items.length - PENDING_DETAIL_LIMIT} more`);
+  return visible;
+}
 
 interface DashboardStats {
   grades: number;
@@ -47,7 +72,11 @@ export function HomePage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingUserList, setPendingUserList] = useState<PendingUser[]>([]);
+  const [pendingResultList, setPendingResultList] = useState<AdminPendingExamResult[]>([]);
+  const [pendingReExamList, setPendingReExamList] = useState<ReExamRequest[]>([]);
   const { pendingUsers, pendingResultApprovals, pendingReExams } = useAdminPendingCounts();
+  const { loadPendingUsers, loadPendingResultApprovals, loadPendingReExams } = useAdminPendingLists();
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -78,9 +107,30 @@ export function HomePage() {
     }
   }, []);
 
+  const fetchPendingDetails = useCallback(async () => {
+    try {
+      const [users, results, reExams] = await Promise.all([
+        loadPendingUsers(),
+        loadPendingResultApprovals(),
+        loadPendingReExams(),
+      ]);
+      setPendingUserList(users);
+      setPendingResultList(results);
+      setPendingReExamList([...reExams.requests, ...reExams.marks]);
+    } catch {
+      setPendingUserList([]);
+      setPendingResultList([]);
+      setPendingReExamList([]);
+    }
+  }, [loadPendingUsers, loadPendingResultApprovals, loadPendingReExams]);
+
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
+
+  useEffect(() => {
+    void fetchPendingDetails();
+  }, [fetchPendingDetails, pendingUsers, pendingResultApprovals, pendingReExams]);
 
   const enrollmentByGrade = useMemo(
     () => buildEnrollmentByGrade(grades, students),
@@ -105,12 +155,39 @@ export function HomePage() {
 
   const pendingChartData = useMemo(
     () =>
-      withChartColors([
-        { label: 'Pending users', value: pendingUsers, color: '#f59e0b' },
-        { label: 'Result approvals', value: pendingResultApprovals, color: '#6366f1' },
-        { label: 'Re-exam approvals', value: pendingReExams, color: '#ec4899' },
-      ].filter((item) => item.value > 0)),
-    [pendingUsers, pendingResultApprovals, pendingReExams],
+      withChartColors(
+        [
+          {
+            label: 'Pending users',
+            value: pendingUsers,
+            color: '#f59e0b',
+            details: takeDetails(pendingUserList.map(formatPendingUserDetail)),
+            detailsLabel: 'Awaiting approval',
+          },
+          {
+            label: 'Result approvals',
+            value: pendingResultApprovals,
+            color: '#6366f1',
+            details: takeDetails(pendingResultList.map(formatResultApprovalDetail)),
+            detailsLabel: 'Submitted batches',
+          },
+          {
+            label: 'Re-exam approvals',
+            value: pendingReExams,
+            color: '#ec4899',
+            details: takeDetails(pendingReExamList.map(formatReExamDetail)),
+            detailsLabel: 'Re-exam items',
+          },
+        ].filter((item) => item.value > 0),
+      ),
+    [
+      pendingUsers,
+      pendingResultApprovals,
+      pendingReExams,
+      pendingUserList,
+      pendingResultList,
+      pendingReExamList,
+    ],
   );
 
   const totalPendingActions = pendingUsers + pendingResultApprovals + pendingReExams;
@@ -125,7 +202,15 @@ export function HomePage() {
         description="Monitor grades, subjects, teachers, and students at a glance. Review pending approvals and keep academic operations running smoothly."
         icon="dashboard"
         actions={
-          <button type="button" className="btn btn--ghost" onClick={fetchStats} disabled={loading}>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => {
+              void fetchStats();
+              void fetchPendingDetails();
+            }}
+            disabled={loading}
+          >
             Refresh data
           </button>
         }
@@ -215,6 +300,7 @@ export function HomePage() {
               centerValue={totalPendingActions}
               centerLabel="pending"
               valueUnit="item"
+              showVisual={false}
             />
           </ChartCard>
         ) : (

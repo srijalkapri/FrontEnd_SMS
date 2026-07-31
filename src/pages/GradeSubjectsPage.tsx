@@ -247,7 +247,7 @@ export function GradeSubjectsPage() {
       <FormModal
         open={showSearchModal}
         title="Find Grade Subject"
-        subtitle="Select a grade-subject mapping to look up"
+        subtitle="Select a grade to list its subjects (subject is optional)"
         onClose={() => setShowSearchModal(false)}
       >
         <SearchGradeSubject

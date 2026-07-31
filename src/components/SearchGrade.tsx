@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import type { Grade } from '../types/grade';
+import { SearchFoundPanel } from './ui/SearchFoundPanel';
 import './SearchGrade.css';
 
 interface SearchGradeProps {
@@ -103,27 +104,19 @@ export function SearchGrade({ grades, onSearch, loading, embedded = false }: Sea
   );
 
   const resultBlock = searched && !loading && (
-    <div className="search-result">
-      {result ? (
-        <div className="search-result__card">
-          <div className="search-result__badge">Found</div>
-          <div className="search-result__details">
-            <div className="search-result__field">
-              <span className="search-result__label">ID</span>
-              <span className="grade-id">#{result.id}</span>
-            </div>
-            <div className="search-result__field">
-              <span className="search-result__label">Class Name</span>
-              <span className="search-result__value">{result.className}</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="search-result__empty">
-          No grade found{selectedName ? ` for ${selectedName}` : ''}.
-        </div>
-      )}
-    </div>
+    result ? (
+      <SearchFoundPanel
+        fields={[
+          { label: 'ID', value: <span className="grade-id">#{result.id}</span> },
+          { label: 'Class name', value: result.className },
+        ]}
+      />
+    ) : (
+      <SearchFoundPanel
+        status="empty"
+        emptyMessage={`No grade found${selectedName ? ` for ${selectedName}` : ''}.`}
+      />
+    )
   );
 
   if (embedded) {

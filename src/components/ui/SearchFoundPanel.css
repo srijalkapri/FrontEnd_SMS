@@ -1,0 +1,188 @@
+.search-found {
+  margin-top: 1.25rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  animation: fadeIn 0.25s ease-out;
+}
+
+.search-found__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 70%, var(--color-bg-elevated));
+}
+
+.search-found__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+}
+
+.search-found__fields {
+  margin: 0;
+  padding: 0.15rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-found__row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 9.5rem) minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+  align-items: start;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+  min-width: 0;
+}
+
+.search-found__row:last-child {
+  border-bottom: none;
+}
+
+.search-found__row--full {
+  grid-template-columns: minmax(7rem, 9.5rem) minmax(0, 1fr);
+}
+
+.search-found__label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.search-found__value {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.search-found__value .grade-id,
+.search-found__value .contact-link {
+  font-weight: 600;
+}
+
+.search-found__muted {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.search-found__extra {
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.search-found__extra-label {
+  display: block;
+  margin: 0 0 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--color-text-muted);
+}
+
+.search-found--empty {
+  padding: 1rem;
+  text-align: left;
+  background: var(--color-bg-elevated);
+  border-style: dashed;
+}
+
+.search-found--empty .search-found__title {
+  margin-bottom: 0.35rem;
+  color: var(--color-text-muted);
+}
+
+.search-found__message {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.search-found-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.search-found-tag {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.search-found-tag--accent {
+  border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-elevated));
+}
+
+.search-found-tag--warn {
+  border-color: color-mix(in srgb, #d97706 30%, var(--color-border));
+  color: #b45309;
+  background: color-mix(in srgb, #f59e0b 10%, var(--color-bg-elevated));
+}
+
+:root[data-mode='dark'] .search-found-tag--warn {
+  color: #fbbf24;
+}
+
+/* Legacy aliases used inside tables / older markup */
+.teacher-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.teacher-tag {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.teacher-tag--compulsory {
+  border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-elevated));
+}
+
+.teacher-tag--optional {
+  border-color: color-mix(in srgb, #d97706 30%, var(--color-border));
+  color: #b45309;
+  background: color-mix(in srgb, #f59e0b 10%, var(--color-bg-elevated));
+}
+
+:root[data-mode='dark'] .teacher-tag--optional {
+  color: #fbbf24;
+}
+
+@media (max-width: 640px) {
+  .search-found__row,
+  .search-found__row--full {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}

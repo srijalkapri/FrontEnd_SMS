@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { subjectApi } from '../api/subjectApi';
 import { ConfirmDeleteModal } from '../components/ConfirmDeleteModal';
 import { PageHeader } from '../components/layout/PageHeader';
-import { SearchSubject } from '../components/SearchSubject';
 import { SubjectForm } from '../components/SubjectForm';
 import { SubjectTable } from '../components/SubjectTable';
 import { FormModal } from '../components/ui/FormModal';
@@ -13,13 +12,10 @@ import type { Subject } from '../types/subject';
 export function SubjectsPage() {
   const { showToast } = useToast();
   const [formLoading, setFormLoading] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [deletingSubject, setDeletingSubject] = useState<Subject | null>(null);
-  const [lookupSubjects, setLookupSubjects] = useState<Subject[]>([]);
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const fetchPage = useCallback(
     async (query: Parameters<typeof subjectApi.getPaged>[0]) => {
@@ -51,21 +47,6 @@ export function SubjectsPage() {
       showToast('error', error);
     }
   }, [error, showToast]);
-
-  const fetchLookupSubjects = useCallback(async () => {
-    try {
-      const response = await subjectApi.getAll();
-      setLookupSubjects(response.data);
-    } catch {
-      setLookupSubjects([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showSearchModal) {
-      void fetchLookupSubjects();
-    }
-  }, [showSearchModal, fetchLookupSubjects]);
 
   const closeFormModal = () => {
     setShowFormModal(false);
@@ -102,20 +83,6 @@ export function SubjectsPage() {
     }
   };
 
-  const handleSearch = async (id: number): Promise<Subject | null> => {
-    setSearchLoading(true);
-    try {
-      const response = await subjectApi.getById(id);
-      showToast('success', response.message);
-      return response.data;
-    } catch (err) {
-      showToast('error', err instanceof Error ? err.message : 'Subject not found');
-      return null;
-    } finally {
-      setSearchLoading(false);
-    }
-  };
-
   const handleDelete = async () => {
     if (!deletingSubject) return;
 
@@ -142,14 +109,9 @@ export function SubjectsPage() {
         title="Subjects"
         description="Manage curriculum subjects offered across grades."
         actions={
-          <>
-            <button type="button" className="btn btn--ghost" onClick={() => setShowSearchModal(true)}>
-              Lookup
-            </button>
-            <button type="button" className="btn btn--primary" onClick={openCreateModal}>
-              + Add Subject
-            </button>
-          </>
+          <button type="button" className="btn btn--primary" onClick={openCreateModal}>
+            + Add Subject
+          </button>
         }
       />
 
@@ -188,15 +150,6 @@ export function SubjectsPage() {
           onCancelEdit={closeFormModal}
           loading={formLoading}
         />
-      </FormModal>
-
-      <FormModal
-        open={showSearchModal}
-        title="Find Subject"
-        subtitle="Select a subject to look up"
-        onClose={() => setShowSearchModal(false)}
-      >
-        <SearchSubject embedded subjects={lookupSubjects} onSearch={handleSearch} loading={searchLoading} />
       </FormModal>
 
       <ConfirmDeleteModal

@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { StudentDetailsCard } from './reports/StudentDetailsCard';
+import { SearchFoundPanel } from './ui/SearchFoundPanel';
 import type { Student } from '../types/student';
 import './SearchGrade.css';
 import './SearchGradeSubject.css';
@@ -166,15 +167,14 @@ export function SearchStudent({
   );
 
   const resultBlock = searched && !loading && (
-    <div className="search-result">
-      {result ? (
-        <StudentDetailsCard student={result} />
-      ) : (
-        <div className="search-result__empty">
-          No student found{selectedStudent ? ` for ${selectedStudent.name}` : ''}.
-        </div>
-      )}
-    </div>
+    result ? (
+      <StudentDetailsCard student={result} />
+    ) : (
+      <SearchFoundPanel
+        status="empty"
+        emptyMessage={`No student found${selectedStudent ? ` for ${selectedStudent.name}` : ''}.`}
+      />
+    )
   );
 
   if (embedded) {
