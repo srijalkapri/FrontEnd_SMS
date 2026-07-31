@@ -122,7 +122,11 @@ export function PortalSidebar({
       <SidebarAmbient />
       <NavLink
         to={homeRoute}
-        onClick={onNavigate}
+        onClick={(event) => {
+          event.preventDefault();
+          onNavigate?.();
+          window.location.assign(homeRoute);
+        }}
         className={({ isActive }) =>
           `sidebar__brand ${isActive ? 'sidebar__brand--active' : ''}`
         }

@@ -161,7 +161,11 @@ export function Sidebar({
       <SidebarAmbient />
       <NavLink
         to="/"
-        onClick={onNavigate}
+        onClick={(event) => {
+          event.preventDefault();
+          onNavigate?.();
+          window.location.assign('/');
+        }}
         className={({ isActive }) =>
           `sidebar__brand ${isActive ? 'sidebar__brand--active' : ''}`
         }

@@ -56,7 +56,15 @@ export function PortalLayout({ portal }: PortalLayoutProps) {
                 <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             </button>
-            <Link to={homeRoute} className="mobile-topbar__title" onClick={() => setMobileNavOpen(false)}>
+            <Link
+              to={homeRoute}
+              className="mobile-topbar__title"
+              onClick={(event) => {
+                event.preventDefault();
+                setMobileNavOpen(false);
+                window.location.assign(homeRoute);
+              }}
+            >
               {title}
             </Link>
           </header>

@@ -34,7 +34,15 @@ export function AppTopBar({
             </svg>
           </button>
         )}
-        <Link to={homeTo} className="app-topbar__title" onClick={onNavigate}>
+        <Link
+          to={homeTo}
+          className="app-topbar__title"
+          onClick={(event) => {
+            event.preventDefault();
+            onNavigate?.();
+            window.location.assign(homeTo);
+          }}
+        >
           {title}
         </Link>
       </div>

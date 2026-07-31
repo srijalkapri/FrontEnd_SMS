@@ -51,7 +51,15 @@ export function AppLayout() {
                   <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
                 </svg>
               </button>
-              <Link to="/" className="mobile-topbar__title" onClick={() => setMobileNavOpen(false)}>
+              <Link
+                to="/"
+                className="mobile-topbar__title"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setMobileNavOpen(false);
+                  window.location.assign('/');
+                }}
+              >
                 School Management
               </Link>
             </header>
