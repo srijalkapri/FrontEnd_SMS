@@ -133,6 +133,36 @@ export interface AdminStudentMarksRecord {
   results: StudentExamResultSchedule[];
 }
 
+/** Division bands: Distinction ≥80, First ≥70, Second ≥50, Third ≥40; Failed otherwise. */
+export type DivisionLabel = 'Distinction' | 'First' | 'Second' | 'Third' | 'Failed';
+
+export interface StudentExamResultSummary {
+  studentId: number;
+  studentName: string;
+  totalObtained: number;
+  totalMarks: number;
+  percentage: number;
+  division: DivisionLabel | string;
+  isPassed: boolean;
+}
+
+export interface ExamResultStats {
+  examScheduleId: number;
+  totalStudents: number;
+  passed: number;
+  failed: number;
+  distinction: number;
+  first: number;
+  second: number;
+  third: number;
+}
+
+export interface ExamResultSummaryFilters {
+  division?: string;
+  minPercentage?: number;
+  maxPercentage?: number;
+}
+
 export interface ExamResultItemDraft {
   studentId: number;
   studentName: string;

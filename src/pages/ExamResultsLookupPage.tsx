@@ -1,7 +1,8 @@
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { examApi } from '../api/examApi';
 import { gradeApi } from '../api/gradeApi';
 import { studentApi } from '../api/studentApi';
+import { ScheduleSummaryPanel } from '../components/exams/ScheduleSummaryPanel';
 import { PageHeader } from '../components/layout/PageHeader';
 import { TableScrollWrapper } from '../components/ui/TableScrollWrapper';
 import { useToast } from '../context/ToastContext';
@@ -9,11 +10,24 @@ import type { ExamSchedule } from '../types/exam';
 import type {
   AdminScheduleMarks,
   AdminStudentMarksRecord,
+  AdminStudentMarksRow,
+  ExamResultStats,
+  ExamResultSummaryFilters,
   StudentExamResultSchedule,
   StudentExamResultSubject,
+  StudentExamResultSummary,
 } from '../types/examResult';
 import type { Grade } from '../types/grade';
 import type { Student } from '../types/student';
+import {
+  buildSubjectsByStudentId,
+  computeStatsFromSummaries,
+  enrichSummariesWithSubjects,
+  filterSummaries,
+  normalizeExamResultStats,
+  normalizeExamResultSummaries,
+  statsLookIncomplete,
+} from '../utils/examResultDivision';
 import { formatMarks } from '../utils/examResultFormat';
 import '../components/GradeTable.css';
 import './ExamResultsPage.css';
@@ -219,7 +233,38 @@ export function ExamResultsLookupPage() {
   const [resultsLoading, setResultsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  const [resultStats, setResultStats] = useState<ExamResultStats | null>(null);
+  const [allSummaries, setAllSummaries] = useState<StudentExamResultSummary[]>([]);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [activeScheduleId, setActiveScheduleId] = useState<number | null>(null);
+  const [summaryDivision, setSummaryDivision] = useState('');
+  const [summaryMinPct, setSummaryMinPct] = useState('');
+  const [summaryMaxPct, setSummaryMaxPct] = useState('');
+
   const parsedGradeId = gradeFilter ? parseInt(gradeFilter, 10) : NaN;
+
+  const summaryFilters = useMemo((): ExamResultSummaryFilters => {
+    const filters: ExamResultSummaryFilters = {};
+    if (summaryDivision) filters.division = summaryDivision;
+    if (summaryMinPct.trim() !== '') {
+      const min = Number(summaryMinPct);
+      if (!Number.isNaN(min)) filters.minPercentage = min;
+    }
+    if (summaryMaxPct.trim() !== '') {
+      const max = Number(summaryMaxPct);
+      if (!Number.isNaN(max)) filters.maxPercentage = max;
+    }
+    return filters;
+  }, [summaryDivision, summaryMinPct, summaryMaxPct]);
+
+  const filteredSummaries = useMemo(
+    () => filterSummaries(allSummaries, summaryFilters),
+    [allSummaries, summaryFilters],
+  );
+
+  const hasSummaryFilters = Boolean(
+    summaryDivision || summaryMinPct.trim() || summaryMaxPct.trim(),
+  );
 
   const fetchOptions = useCallback(async () => {
     setOptionsLoading(true);
@@ -248,6 +293,64 @@ export function ExamResultsLookupPage() {
     return true;
   });
 
+  const loadSummaryData = useCallback(
+    async (
+      examScheduleId: number,
+      scheduleStudents?: AdminStudentMarksRow[] | null,
+    ) => {
+      setSummaryLoading(true);
+      try {
+        const subjectsByStudentId = buildSubjectsByStudentId(scheduleStudents);
+
+        const [statsResponse, summariesResponse] = await Promise.all([
+          examApi.getResultStats(examScheduleId),
+          examApi.getResultSummaries(examScheduleId, {}),
+        ]);
+
+        let normalizedSummaries = normalizeExamResultSummaries(
+          summariesResponse.data,
+          subjectsByStudentId,
+        );
+
+        if (scheduleStudents?.length) {
+          normalizedSummaries = enrichSummariesWithSubjects(normalizedSummaries, scheduleStudents);
+        }
+
+        let stats = normalizeExamResultStats(statsResponse.data, examScheduleId);
+        if (
+          (statsLookIncomplete(stats) || scheduleStudents?.length) &&
+          normalizedSummaries.length > 0
+        ) {
+          stats = computeStatsFromSummaries(examScheduleId, normalizedSummaries);
+        }
+
+        setResultStats(stats);
+        setAllSummaries(normalizedSummaries);
+      } catch (err) {
+        setResultStats(null);
+        setAllSummaries([]);
+        showToast(
+          'error',
+          err instanceof Error
+            ? err.message
+            : 'Failed to load result summaries.',
+        );
+      } finally {
+        setSummaryLoading(false);
+      }
+    },
+    [showToast],
+  );
+
+  const clearSummaryState = () => {
+    setResultStats(null);
+    setAllSummaries([]);
+    setActiveScheduleId(null);
+    setSummaryDivision('');
+    setSummaryMinPct('');
+    setSummaryMaxPct('');
+  };
+
   const resetFilters = () => {
     setGradeFilter('');
     setScheduleId('');
@@ -256,6 +359,7 @@ export function ExamResultsLookupPage() {
     setScheduleResults(null);
     setStudentResults(null);
     setHasSearched(false);
+    clearSummaryState();
   };
 
   const handleModeChange = (nextMode: LookupMode) => {
@@ -268,6 +372,7 @@ export function ExamResultsLookupPage() {
     setHasSearched(true);
     setScheduleResults(null);
     setStudentResults(null);
+    clearSummaryState();
     setResultsLoading(true);
 
     try {
@@ -280,6 +385,8 @@ export function ExamResultsLookupPage() {
         }
         const response = await examApi.getResultsBySchedule(id);
         setScheduleResults(response.data);
+        setActiveScheduleId(id);
+        await loadSummaryData(id, response.data.students);
       } else {
         const name = studentNameQuery.trim();
         if (!name) {
@@ -309,12 +416,18 @@ export function ExamResultsLookupPage() {
     }
   };
 
+  const handleClearSummaryFilters = () => {
+    setSummaryDivision('');
+    setSummaryMinPct('');
+    setSummaryMaxPct('');
+  };
+
   return (
     <div className="page-content exam-page">
       <PageHeader
         badge="Exam Results"
         title="Published Results"
-        description="View approved exam marks by schedule or by student."
+        description="View approved exam marks by schedule or by student, including class summary stats and divisions."
         actions={
           <button
             type="button"
@@ -333,7 +446,7 @@ export function ExamResultsLookupPage() {
             <h2 className="card__title">Find results</h2>
             <p className="card__subtitle">
               {mode === 'schedule'
-                ? 'Choose an exam schedule to view all published marks.'
+                ? 'Choose an exam schedule to view published marks and class summaries.'
                 : 'Search by student name to view published marks.'}
             </p>
           </div>
@@ -390,6 +503,7 @@ export function ExamResultsLookupPage() {
                   setScheduleResults(null);
                   setStudentResults(null);
                   setHasSearched(false);
+                  clearSummaryState();
                 }}
                 disabled={optionsLoading}
               >
@@ -507,6 +621,30 @@ export function ExamResultsLookupPage() {
               Approved marks for your selected {mode === 'schedule' ? 'exam schedule' : 'student'}.
             </p>
           </div>
+
+          {mode === 'schedule' && activeScheduleId != null && (
+            <ScheduleSummaryPanel
+              examScheduleId={activeScheduleId}
+              stats={resultStats}
+              summaries={filteredSummaries}
+              totalCount={allSummaries.length}
+              hasActiveFilters={hasSummaryFilters}
+              loading={summaryLoading}
+              division={summaryDivision}
+              minPercentage={summaryMinPct}
+              maxPercentage={summaryMaxPct}
+              onDivisionChange={setSummaryDivision}
+              onMinPercentageChange={setSummaryMinPct}
+              onMaxPercentageChange={setSummaryMaxPct}
+              onClearFilters={handleClearSummaryFilters}
+              onRefresh={() => {
+                if (activeScheduleId != null) {
+                  void loadSummaryData(activeScheduleId, scheduleResults?.students);
+                }
+              }}
+            />
+          )}
+
           {mode === 'schedule' && scheduleResults && <ScheduleResultsView data={scheduleResults} />}
           {mode === 'student' && studentResults && <StudentResultsView data={studentResults} />}
         </section>

@@ -11,7 +11,10 @@ import type {
   AdminPendingExamResult,
   AdminScheduleMarks,
   AdminStudentMarksRecord,
+  ExamResultStats,
+  ExamResultSummaryFilters,
   ReviewExamResultsRequest,
+  StudentExamResultSummary,
 } from '../types/examResult';
 import type { ReExamRequest, ReviewReExamRequest } from '../types/reExam';
 import type { PaginationQuery, PagedResult } from '../types/pagination';
@@ -117,6 +120,24 @@ export const examApi = {
     const qs = examScheduleId != null ? `?examScheduleId=${examScheduleId}` : '';
     return request<AdminStudentMarksRecord>(`${BASE_URL}/Results/ByStudent/${studentId}${qs}`);
   },
+
+  getResultSummaries: (examScheduleId: number, filters: ExamResultSummaryFilters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.division) params.set('division', filters.division);
+    if (filters.minPercentage != null && !Number.isNaN(filters.minPercentage)) {
+      params.set('minPercentage', String(filters.minPercentage));
+    }
+    if (filters.maxPercentage != null && !Number.isNaN(filters.maxPercentage)) {
+      params.set('maxPercentage', String(filters.maxPercentage));
+    }
+    const qs = params.toString();
+    return request<StudentExamResultSummary[]>(
+      `${BASE_URL}/Results/Summaries/${examScheduleId}${qs ? `?${qs}` : ''}`,
+    );
+  },
+
+  getResultStats: (examScheduleId: number) =>
+    request<ExamResultStats>(`${BASE_URL}/Results/Stats/${examScheduleId}`),
 
   getPendingReExams: () => request<ReExamRequest[]>(`${BASE_URL}/ReExams/Pending`),
 
